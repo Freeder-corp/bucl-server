@@ -1,7 +1,16 @@
 package com.freeder.buclserver.domain.shippingextrafee.entity;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
 import com.freeder.buclserver.domain.shippinginfo.entity.ShippingInfo;
-import javax.persistence.*;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,24 +19,24 @@ import lombok.Setter;
 @Setter
 @Table(name = "shipping_extra_fee")
 public class ShippingExtraFee {
-    @Id
-    @Column(name = "shipping_extra_fee_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@Column(name = "shipping_extra_fee_id")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "shipping_info_id")
-    private ShippingInfo shippingInfo;
+	@ManyToOne
+	@JoinColumn(name = "shipping_info_id")
+	private ShippingInfo shippingInfo;
 
-    @Column(name = "region_name")
-    private String regionName;
+	@Column(name = "region_name")
+	private String regionName;
 
-    @Column(name = "start_zip")
-    private int startZip;
+	@Column(name = "start_zip")
+	private int startZip;
 
-    @Column(name = "end_zip")
-    private int endZip;
+	@Column(name = "end_zip")
+	private int endZip;
 
-    @Column(name = "extra_fee")
-    private int extraFee;
+	@Column(name = "extra_fee")
+	private int extraFee;
 }
