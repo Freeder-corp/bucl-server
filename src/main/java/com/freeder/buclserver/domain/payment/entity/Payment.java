@@ -15,9 +15,9 @@ import javax.persistence.Table;
 
 import com.freeder.buclserver.core.mixin.TimestampMixin;
 import com.freeder.buclserver.domain.consumerorder.entity.ConsumerOrder;
-import com.freeder.buclserver.domain.payment.vo.PGProvider;
 import com.freeder.buclserver.domain.payment.vo.PaymentMethod;
 import com.freeder.buclserver.domain.payment.vo.PaymentStatus;
+import com.freeder.buclserver.domain.payment.vo.PgProvider;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -41,7 +41,7 @@ public class Payment extends TimestampMixin {
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "pg_provider")
-	private PGProvider pgProvider;
+	private PgProvider pgProvider;
 
 	@Column(name = "payment_code")
 	private String paymentCode;
