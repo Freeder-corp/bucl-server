@@ -2,6 +2,8 @@ package com.freeder.buclserver.domain.productoption.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -13,6 +15,7 @@ import org.hibernate.annotations.ColumnDefault;
 
 import com.freeder.buclserver.core.mixin.TimestampMixin;
 import com.freeder.buclserver.domain.product.entity.Product;
+import com.freeder.buclserver.domain.productoption.vo.OptionKey;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -32,7 +35,8 @@ public class ProductOption extends TimestampMixin {
 	private Product product;
 
 	@Column(name = "option_key")
-	private String optionKey;
+	@Enumerated(EnumType.STRING)
+	private OptionKey optionKey;
 
 	@Column(name = "option_value")
 	private String optionValue;

@@ -36,4 +36,7 @@ public class ProductReview extends TimestampMixin {
 
 	@Column(length = 300)
 	private String content;
+
+	@Column(name = "star_name")
+	private int starRate;
 }

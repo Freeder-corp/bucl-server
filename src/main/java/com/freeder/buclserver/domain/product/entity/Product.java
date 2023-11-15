@@ -13,7 +13,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.ColumnDefault;
@@ -22,7 +21,6 @@ import com.freeder.buclserver.core.mixin.TimestampMixin;
 import com.freeder.buclserver.domain.product.vo.ProductStatus;
 import com.freeder.buclserver.domain.product.vo.TaxStatus;
 import com.freeder.buclserver.domain.productcategory.entiry.ProductCategory;
-import com.freeder.buclserver.domain.productdetail.entity.ProductDetail;
 import com.freeder.buclserver.domain.productoption.entity.ProductOption;
 import com.freeder.buclserver.domain.productreview.entity.ProductReview;
 import com.freeder.buclserver.domain.shippinginfo.entity.ShippingInfo;
@@ -47,10 +45,6 @@ public class Product extends TimestampMixin {
 	@ManyToOne
 	@JoinColumn(name = "shipping_info_id")
 	private ShippingInfo shippingInfo;
-
-	@OneToOne
-	@JoinColumn(name = "product_detail_id")
-	private ProductDetail productDetail;
 
 	@OneToMany(mappedBy = "product")
 	private List<ProductOption> productOptions = new ArrayList<>();
@@ -96,8 +90,11 @@ public class Product extends TimestampMixin {
 	@Column(name = "business_reward_rate")
 	private int businessRewardRate;
 
-	@Column(name = "image_path")
+	@Column(name = "image_path", length = 5000)
 	private String imagePath;
+
+	@Column(name = "detail_image_path", length = 5000)
+	private String detailImagePath;
 
 	@Column(name = "product_state")
 	@Enumerated(EnumType.STRING)

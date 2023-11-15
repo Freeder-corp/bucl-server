@@ -37,11 +37,14 @@ public class ConsumerPurchaseOrder extends TimestampMixin {
 	@Column(name = "product_order_code", unique = true)
 	private String productOrderCode;
 
+	@Column(name = "product_option_value")
+	private String productOptionValue;
+
 	@Column(name = "product_amount")
 	private int productAmount;
 
-	@Column(name = "product_order_num")
-	private int productOrderNum;
+	@Column(name = "product_order_qty")
+	private int productOrderQty;
 
 	@Column(name = "product_order_amount")
 	private int productOrderAmount;

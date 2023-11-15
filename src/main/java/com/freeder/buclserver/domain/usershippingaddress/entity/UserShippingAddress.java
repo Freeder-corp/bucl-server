@@ -1,4 +1,4 @@
-package com.freeder.buclserver.domain.shippingaddress.entity;
+package com.freeder.buclserver.domain.usershippingaddress.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -7,11 +7,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import com.freeder.buclserver.core.mixin.TimestampMixin;
-import com.freeder.buclserver.domain.shipping.entity.Shipping;
 import com.freeder.buclserver.domain.user.entity.User;
 
 import lombok.Getter;
@@ -20,10 +17,10 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "shipping_address")
-public class ShippingAddress extends TimestampMixin {
+@Table(name = "user_shipping_address")
+public class UserShippingAddress {
 	@Id
-	@Column(name = "shipping_address_id")
+	@Column(name = "user_shipping_address_id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
@@ -31,9 +28,8 @@ public class ShippingAddress extends TimestampMixin {
 	@JoinColumn(name = "user_id")
 	private User user;
 
-	@OneToOne
-	@JoinColumn(name = "shipping_id")
-	private Shipping shipping;
+	@Column(name = "shipping_address_name")
+	private String shippingAddressName;
 
 	@Column(name = "recipient_name")
 	private String recipientName;
@@ -49,6 +45,6 @@ public class ShippingAddress extends TimestampMixin {
 	@Column(name = "contact_number")
 	private String contactNumber;
 
-	@Column(name = "memo_content")
-	private String memoContent;
+	@Column(name = "is_default_address")
+	private boolean isDefaultAddress;
 }

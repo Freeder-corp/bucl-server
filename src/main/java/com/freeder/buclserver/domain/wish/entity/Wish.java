@@ -1,4 +1,4 @@
-package com.freeder.buclserver.domain.wishlist.entity;
+package com.freeder.buclserver.domain.wish.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,10 +19,10 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "wishlist")
-public class WishList extends TimestampMixin {
+@Table(name = "wish")
+public class Wish extends TimestampMixin {
 	@Id
-	@Column(name = "wishlist_id")
+	@Column(name = "wish_id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 

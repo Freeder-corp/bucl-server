@@ -13,6 +13,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import com.freeder.buclserver.core.mixin.TimestampMixin;
+import com.freeder.buclserver.domain.consumerorder.entity.ConsumerOrder;
 import com.freeder.buclserver.domain.orderrefund.entity.OrderRefund;
 import com.freeder.buclserver.domain.product.entity.Product;
 import com.freeder.buclserver.domain.reward.vo.RewardType;
@@ -41,6 +42,10 @@ public class Reward extends TimestampMixin {
 	private Product product;
 
 	@OneToOne
+	@JoinColumn(name = "consumer_order_id")
+	private ConsumerOrder consumerOrder;
+
+	@OneToOne
 	@JoinColumn(name = "order_refund_id", nullable = true)
 	private OrderRefund orderRefund;
 
@@ -48,12 +53,24 @@ public class Reward extends TimestampMixin {
 	@JoinColumn(name = "reward_withdrawal_account")
 	private RewardWithdrawalAccount rewardWithdrawalAccount;
 
+	@Column(name = "product_name")
+	private String productName;
+
+	@Column(name = "product_brand_name")
+	private String productBrandName;
+
 	@Column(name = "reward_type")
 	@Enumerated(EnumType.STRING)
 	private RewardType rewardType;
 
 	@Column(name = "received_reward_amount")
 	private int receivedRewardAmount;
+
+	@Column(name = "spent_reward_amount")
+	private int spentRewardAmount;
+
+	@Column(name = "previous_reward_sum")
+	private int previousRewardSum;
 
 	@Column(name = "reward_sum")
 	private int rewardSum;

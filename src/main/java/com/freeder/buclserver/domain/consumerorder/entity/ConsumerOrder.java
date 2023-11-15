@@ -24,7 +24,6 @@ import com.freeder.buclserver.domain.consumerpurchaseorder.entity.ConsumerPurcha
 import com.freeder.buclserver.domain.grouporder.entity.GroupOrder;
 import com.freeder.buclserver.domain.payment.entity.Payment;
 import com.freeder.buclserver.domain.product.entity.Product;
-import com.freeder.buclserver.domain.reward.entity.Reward;
 import com.freeder.buclserver.domain.shipping.entity.Shipping;
 import com.freeder.buclserver.domain.user.entity.User;
 
@@ -54,10 +53,6 @@ public class ConsumerOrder extends TimestampMixin {
 	private Product product;
 
 	@ManyToOne
-	@JoinColumn(name = "reward_id")
-	private Reward reward;
-
-	@ManyToOne
 	@JoinColumn(name = "group_order_id")
 	private GroupOrder groupOrder;
 
@@ -76,8 +71,8 @@ public class ConsumerOrder extends TimestampMixin {
 	@Column(name = "product_amount")
 	private int productAmount;
 
-	@Column(name = "product_order_num")
-	private int productOrderNum;
+	@Column(name = "order_num")
+	private int orderNum;
 
 	@Column(name = "shipping_fee")
 	private int shippingFee;

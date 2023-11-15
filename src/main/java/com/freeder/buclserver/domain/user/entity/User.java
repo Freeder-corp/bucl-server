@@ -11,8 +11,6 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -25,9 +23,9 @@ import com.freeder.buclserver.domain.shippingaddress.entity.ShippingAddress;
 import com.freeder.buclserver.domain.user.vo.Gender;
 import com.freeder.buclserver.domain.user.vo.JoinType;
 import com.freeder.buclserver.domain.user.vo.Role;
+import com.freeder.buclserver.domain.user.vo.UserGrade;
 import com.freeder.buclserver.domain.user.vo.UserState;
-import com.freeder.buclserver.domain.usergrade.entity.UserGrade;
-import com.freeder.buclserver.domain.wishlist.entity.WishList;
+import com.freeder.buclserver.domain.wish.entity.Wish;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -42,12 +40,8 @@ public class User extends TimestampMixin {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne
-	@JoinColumn(name = "user_grade_id")
-	private UserGrade userGrade;
-
 	@OneToMany(mappedBy = "user")
-	private List<WishList> wishlists = new ArrayList<>();
+	private List<Wish> wishes = new ArrayList<>();
 
 	@OneToMany(mappedBy = "user")
 	private List<Reward> rewards = new ArrayList<>();
@@ -93,6 +87,10 @@ public class User extends TimestampMixin {
 	@Column(name = "user_state")
 	@Enumerated(EnumType.STRING)
 	private UserState userState; // 유저 상태
+
+	@Column(name = "user_grade")
+	@Enumerated(EnumType.STRING)
+	private UserGrade userGrade;
 
 	@Enumerated(EnumType.STRING)
 	private Gender gender; // 성
