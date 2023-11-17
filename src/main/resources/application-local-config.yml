@@ -16,3 +16,15 @@ spring:
         show_sql: true
         format_sql: true
         ddl-auto: create
+
+cloud:
+  aws:
+    s3:
+      bucket: buclbucket
+
+logging:
+  level:
+    com:
+      amazonaws:
+        util:
+          EC2MetadataUtils: error

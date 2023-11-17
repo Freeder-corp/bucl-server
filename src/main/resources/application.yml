@@ -6,3 +6,4 @@ spring:
     group:
       local:
         - local-config
+        - cloud
