@@ -7,7 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.freeder.buclserver.core.mixin.TimestampMixin;
+import com.freeder.buclserver.global.mixin.TimestampMixin;
 
 import lombok.Getter;
 import lombok.Setter;

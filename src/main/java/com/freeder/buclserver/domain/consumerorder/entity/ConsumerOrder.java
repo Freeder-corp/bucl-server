@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -17,7 +19,6 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.ColumnDefault;
 
-import com.freeder.buclserver.core.mixin.TimestampMixin;
 import com.freeder.buclserver.domain.consumerorder.vo.CsStatus;
 import com.freeder.buclserver.domain.consumerorder.vo.OrderStatus;
 import com.freeder.buclserver.domain.consumerpurchaseorder.entity.ConsumerPurchaseOrder;
@@ -26,6 +27,7 @@ import com.freeder.buclserver.domain.payment.entity.Payment;
 import com.freeder.buclserver.domain.product.entity.Product;
 import com.freeder.buclserver.domain.shipping.entity.Shipping;
 import com.freeder.buclserver.domain.user.entity.User;
+import com.freeder.buclserver.global.mixin.TimestampMixin;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -41,19 +43,19 @@ public class ConsumerOrder extends TimestampMixin {
 	private Long id;
 
 	@ManyToOne
-	@JoinColumn(name = "consumer_id", nullable = false)
+	@JoinColumn(name = "consumer_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private User consumer;
 
 	@ManyToOne
-	@JoinColumn(name = "business_id")
+	@JoinColumn(name = "business_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private User business;
 
 	@ManyToOne
-	@JoinColumn(name = "product_id")
+	@JoinColumn(name = "product_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private Product product;
 
 	@ManyToOne
-	@JoinColumn(name = "group_order_id")
+	@JoinColumn(name = "group_order_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private GroupOrder groupOrder;
 
 	@OneToMany(mappedBy = "consumerOrder")

@@ -1,7 +1,9 @@
 package com.freeder.buclserver.domain.shippingextrafee.entity;
 
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -25,7 +27,7 @@ public class ShippingExtraFee {
 	private Long id;
 
 	@ManyToOne
-	@JoinColumn(name = "shipping_info_id")
+	@JoinColumn(name = "shipping_info_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private ShippingInfo shippingInfo;
 
 	@Column(name = "region_name")

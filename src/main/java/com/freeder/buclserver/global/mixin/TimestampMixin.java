@@ -1,4 +1,4 @@
-package com.freeder.buclserver.core.mixin;
+package com.freeder.buclserver.global.mixin;
 
 import java.time.LocalDateTime;
 
@@ -14,7 +14,7 @@ import lombok.Setter;
 @MappedSuperclass
 @Getter
 @Setter
-public abstract class TimestampMixin {
+public class TimestampMixin {
 	@CreatedDate
 	@Column(name = "created_at")
 	private LocalDateTime createdAt;

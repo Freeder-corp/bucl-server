@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -17,13 +19,13 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.ColumnDefault;
 
-import com.freeder.buclserver.core.mixin.TimestampMixin;
 import com.freeder.buclserver.domain.product.vo.ProductStatus;
 import com.freeder.buclserver.domain.product.vo.TaxStatus;
 import com.freeder.buclserver.domain.productcategory.entiry.ProductCategory;
 import com.freeder.buclserver.domain.productoption.entity.ProductOption;
 import com.freeder.buclserver.domain.productreview.entity.ProductReview;
 import com.freeder.buclserver.domain.shippinginfo.entity.ShippingInfo;
+import com.freeder.buclserver.global.mixin.TimestampMixin;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -39,11 +41,11 @@ public class Product extends TimestampMixin {
 	private Long id;
 
 	@ManyToOne
-	@JoinColumn(name = "product_category_id")
+	@JoinColumn(name = "product_category_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private ProductCategory productCategory;
 
 	@ManyToOne
-	@JoinColumn(name = "shipping_info_id")
+	@JoinColumn(name = "shipping_info_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private ShippingInfo shippingInfo;
 
 	@OneToMany(mappedBy = "product")

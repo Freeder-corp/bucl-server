@@ -3,19 +3,21 @@ package com.freeder.buclserver.domain.orderexchange.entity;
 import java.time.LocalDateTime;
 
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.ForeignKey;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import com.freeder.buclserver.core.mixin.TimestampMixin;
 import com.freeder.buclserver.domain.consumerorder.entity.ConsumerOrder;
 import com.freeder.buclserver.domain.orderexchange.vo.OrderExchangeExr;
 import com.freeder.buclserver.domain.orderexchange.vo.OrderExchangeStatus;
 import com.freeder.buclserver.domain.shipping.entity.Shipping;
+import com.freeder.buclserver.global.mixin.TimestampMixin;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -30,11 +32,11 @@ public class OrderExchange extends TimestampMixin {
 	private String orderExchangeCode;
 
 	@OneToOne
-	@JoinColumn(name = "consumer_order_id")
+	@JoinColumn(name = "consumer_order_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private ConsumerOrder consumerOrder;
 
 	@OneToOne
-	@JoinColumn(name = "order_exchange_shipping_id")
+	@JoinColumn(name = "order_exchange_shipping_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private Shipping orderExchangeShipping;
 
 	@Column(name = "orderExchange_fee")

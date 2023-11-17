@@ -1,7 +1,9 @@
 package com.freeder.buclserver.domain.consumerpurchaseorder.entity;
 
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -9,9 +11,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.freeder.buclserver.core.mixin.TimestampMixin;
 import com.freeder.buclserver.domain.consumerorder.entity.ConsumerOrder;
 import com.freeder.buclserver.domain.productoption.entity.ProductOption;
+import com.freeder.buclserver.global.mixin.TimestampMixin;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -27,11 +29,11 @@ public class ConsumerPurchaseOrder extends TimestampMixin {
 	private Long id;
 
 	@ManyToOne
-	@JoinColumn(name = "consumer_order_id")
+	@JoinColumn(name = "consumer_order_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private ConsumerOrder consumerOrder;
 
 	@ManyToOne
-	@JoinColumn(name = "group_order_id")
+	@JoinColumn(name = "group_order_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private ProductOption productOption;
 
 	@Column(name = "product_order_code", unique = true)
