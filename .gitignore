@@ -38,3 +38,6 @@ out/
 
 ### APPLE ###
 .DS_Store
+
+### SECRET ###
+src/main/resources/application-cloud.yml
