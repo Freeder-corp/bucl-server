@@ -20,13 +20,17 @@ import com.freeder.buclserver.domain.shipping.vo.ShippingStatus;
 import com.freeder.buclserver.domain.shippinginfo.entity.ShippingInfo;
 import com.freeder.buclserver.global.mixin.TimestampMixin;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 
 @Entity
-@Getter
-@Setter
 @Table(name = "shipping")
+@Getter
+@AllArgsConstructor
+@RequiredArgsConstructor
+@Builder
 public class Shipping extends TimestampMixin {
 	@Id
 	@Column(name = "shipping_id")
@@ -44,7 +48,7 @@ public class Shipping extends TimestampMixin {
 	@Column(name = "shipping_num", unique = true)
 	private String shippingNum;
 
-	@Column(name = "tracking_num", nullable = false)
+	@Column(name = "tracking_num")
 	private String trackingNum;
 
 	@Column(name = "shipping_status")

@@ -102,9 +102,6 @@ public class Product extends TimestampMixin {
 	@Enumerated(EnumType.STRING)
 	private ProductStatus productStatus;
 
-	@Column(name = "sku_code", unique = true)
-	private String skuCode;
-
 	@Column(name = "product_priority")
 	private int productPriority;
 

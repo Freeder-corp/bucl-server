@@ -1,6 +1,6 @@
-package com.freeder.buclserver.domain.user.vo;
+package com.freeder.buclserver.domain.member.vo;
 
-public enum UserState {
+public enum MemberState {
 	ACTIVE, //활성
 	DORMANT, // 휴면
 	SUSPENDED, // 정저

@@ -1,4 +1,4 @@
-package com.freeder.buclserver.domain.user.entity;
+package com.freeder.buclserver.domain.member.entity;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,15 +16,15 @@ import javax.persistence.Table;
 
 import com.freeder.buclserver.domain.affiliate.entity.Affiliate;
 import com.freeder.buclserver.domain.consumerorder.entity.ConsumerOrder;
+import com.freeder.buclserver.domain.member.vo.Gender;
+import com.freeder.buclserver.domain.member.vo.JoinType;
+import com.freeder.buclserver.domain.member.vo.MemberGrade;
+import com.freeder.buclserver.domain.member.vo.MemberState;
+import com.freeder.buclserver.domain.member.vo.Role;
 import com.freeder.buclserver.domain.productreview.entity.ProductReview;
 import com.freeder.buclserver.domain.reward.entity.Reward;
 import com.freeder.buclserver.domain.rewardwithdrawal.entity.RewardWithdrawal;
 import com.freeder.buclserver.domain.shippingaddress.entity.ShippingAddress;
-import com.freeder.buclserver.domain.user.vo.Gender;
-import com.freeder.buclserver.domain.user.vo.JoinType;
-import com.freeder.buclserver.domain.user.vo.Role;
-import com.freeder.buclserver.domain.user.vo.UserGrade;
-import com.freeder.buclserver.domain.user.vo.UserState;
 import com.freeder.buclserver.domain.wish.entity.Wish;
 import com.freeder.buclserver.global.mixin.TimestampMixin;
 
@@ -34,32 +34,32 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "user")
-public class User extends TimestampMixin {
+@Table(name = "member")
+public class Member extends TimestampMixin {
 	@Id
-	@Column(name = "user_id")
+	@Column(name = "member_id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@OneToMany(mappedBy = "user")
+	@OneToMany(mappedBy = "member")
 	private List<Wish> wishes = new ArrayList<>();
 
-	@OneToMany(mappedBy = "user")
+	@OneToMany(mappedBy = "member")
 	private List<Reward> rewards = new ArrayList<>();
 
-	@OneToMany(mappedBy = "user")
+	@OneToMany(mappedBy = "member")
 	private List<ProductReview> reviews = new ArrayList<>();
 
-	@OneToMany(mappedBy = "user")
+	@OneToMany(mappedBy = "member")
 	private List<Affiliate> affiliates = new ArrayList<>();
 
-	@OneToMany(mappedBy = "user")
+	@OneToMany(mappedBy = "member")
 	private List<ShippingAddress> shippingAddresses = new ArrayList<>();
 
 	@OneToMany(mappedBy = "consumer")
 	private List<ConsumerOrder> consumerOrders = new ArrayList<>();
 
-	@OneToMany(mappedBy = "user")
+	@OneToMany(mappedBy = "member")
 	private List<RewardWithdrawal> rewardWithdrawals = new ArrayList<>();
 
 	@Column(length = 320)
@@ -85,13 +85,13 @@ public class User extends TimestampMixin {
 	@Enumerated(EnumType.STRING)
 	private JoinType joinType; // 가입 종류
 
-	@Column(name = "user_state")
+	@Column(name = "member_state")
 	@Enumerated(EnumType.STRING)
-	private UserState userState; // 유저 상태
+	private MemberState memberState; // 유저 상태
 
-	@Column(name = "user_grade")
+	@Column(name = "member_grade")
 	@Enumerated(EnumType.STRING)
-	private UserGrade userGrade;
+	private MemberGrade memberGrade;
 
 	@Enumerated(EnumType.STRING)
 	private Gender gender; // 성

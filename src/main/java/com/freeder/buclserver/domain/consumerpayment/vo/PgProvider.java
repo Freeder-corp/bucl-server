@@ -1,4 +1,4 @@
-package com.freeder.buclserver.domain.payment.vo;
+package com.freeder.buclserver.domain.consumerpayment.vo;
 
 public enum PgProvider {
 	KAKAOPAY,

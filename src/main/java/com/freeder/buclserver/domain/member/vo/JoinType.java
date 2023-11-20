@@ -1,4 +1,4 @@
-package com.freeder.buclserver.domain.user.vo;
+package com.freeder.buclserver.domain.member.vo;
 
 public enum JoinType {
 	GOOGLE,

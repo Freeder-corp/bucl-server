@@ -1,4 +1,4 @@
-package com.freeder.buclserver.domain.payment.entity;
+package com.freeder.buclserver.domain.consumerpayment.entity;
 
 import java.time.LocalDateTime;
 
@@ -16,21 +16,25 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.freeder.buclserver.domain.consumerorder.entity.ConsumerOrder;
-import com.freeder.buclserver.domain.payment.vo.PaymentMethod;
-import com.freeder.buclserver.domain.payment.vo.PaymentStatus;
-import com.freeder.buclserver.domain.payment.vo.PgProvider;
+import com.freeder.buclserver.domain.consumerpayment.vo.PaymentMethod;
+import com.freeder.buclserver.domain.consumerpayment.vo.PaymentStatus;
+import com.freeder.buclserver.domain.consumerpayment.vo.PgProvider;
 import com.freeder.buclserver.global.mixin.TimestampMixin;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 
 @Entity
+@Table(name = "consumer_payment")
 @Getter
-@Setter
-@Table(name = "PAYMENT")
-public class Payment extends TimestampMixin {
+@AllArgsConstructor
+@RequiredArgsConstructor
+@Builder
+public class ConsumerPayment extends TimestampMixin {
 	@Id
-	@Column(name = "payment_id")
+	@Column(name = "consumer_payment_id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 

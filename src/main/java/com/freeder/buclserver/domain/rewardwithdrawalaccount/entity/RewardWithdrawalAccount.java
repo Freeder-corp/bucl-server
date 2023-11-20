@@ -18,8 +18,8 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.ColumnDefault;
 
+import com.freeder.buclserver.domain.member.entity.Member;
 import com.freeder.buclserver.domain.reward.entity.Reward;
-import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.global.mixin.TimestampMixin;
 
 import lombok.Getter;
@@ -36,8 +36,8 @@ public class RewardWithdrawalAccount extends TimestampMixin {
 	private Long id;
 
 	@OneToOne
-	@JoinColumn(name = "user_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-	private User user;
+	@JoinColumn(name = "member_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+	private Member member;
 
 	@OneToMany(mappedBy = "rewardWithdrawalAccount")
 	private List<Reward> rewards = new ArrayList<>();

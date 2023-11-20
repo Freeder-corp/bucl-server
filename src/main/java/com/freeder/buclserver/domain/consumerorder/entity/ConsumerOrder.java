@@ -21,21 +21,25 @@ import org.hibernate.annotations.ColumnDefault;
 
 import com.freeder.buclserver.domain.consumerorder.vo.CsStatus;
 import com.freeder.buclserver.domain.consumerorder.vo.OrderStatus;
+import com.freeder.buclserver.domain.consumerpayment.entity.ConsumerPayment;
 import com.freeder.buclserver.domain.consumerpurchaseorder.entity.ConsumerPurchaseOrder;
 import com.freeder.buclserver.domain.grouporder.entity.GroupOrder;
-import com.freeder.buclserver.domain.payment.entity.Payment;
+import com.freeder.buclserver.domain.member.entity.Member;
 import com.freeder.buclserver.domain.product.entity.Product;
 import com.freeder.buclserver.domain.shipping.entity.Shipping;
-import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.global.mixin.TimestampMixin;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 
 @Entity
-@Getter
-@Setter
 @Table(name = "consumer_order")
+@Getter
+@AllArgsConstructor
+@RequiredArgsConstructor
+@Builder
 public class ConsumerOrder extends TimestampMixin {
 	@Id
 	@Column(name = "consumer_order_id")
@@ -44,11 +48,11 @@ public class ConsumerOrder extends TimestampMixin {
 
 	@ManyToOne
 	@JoinColumn(name = "consumer_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-	private User consumer;
+	private Member consumer;
 
 	@ManyToOne
 	@JoinColumn(name = "business_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-	private User business;
+	private Member business;
 
 	@ManyToOne
 	@JoinColumn(name = "product_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
@@ -62,7 +66,7 @@ public class ConsumerOrder extends TimestampMixin {
 	private List<Shipping> shippings = new ArrayList<>();
 
 	@OneToMany(mappedBy = "consumerOrder")
-	private List<Payment> payments = new ArrayList<>();
+	private List<ConsumerPayment> consumerPayments = new ArrayList<>();
 
 	@OneToMany(mappedBy = "consumerOrder")
 	private List<ConsumerPurchaseOrder> consumerPurchaseOrders = new ArrayList<>();

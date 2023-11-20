@@ -15,13 +15,17 @@ import com.freeder.buclserver.domain.consumerorder.entity.ConsumerOrder;
 import com.freeder.buclserver.domain.productoption.entity.ProductOption;
 import com.freeder.buclserver.global.mixin.TimestampMixin;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 
 @Entity
-@Getter
-@Setter
 @Table(name = "consumer_purchase_order")
+@Getter
+@AllArgsConstructor
+@RequiredArgsConstructor
+@Builder
 public class ConsumerPurchaseOrder extends TimestampMixin {
 	@Id
 	@Column(name = "consumer_purchase_order_id")
