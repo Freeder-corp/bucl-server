@@ -28,13 +28,15 @@ import com.freeder.buclserver.domain.user.vo.UserState;
 import com.freeder.buclserver.domain.wish.entity.Wish;
 import com.freeder.buclserver.global.mixin.TimestampMixin;
 
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Setter
 @Table(name = "user")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends TimestampMixin {
 	@Id
 	@Column(name = "user_id")
@@ -65,9 +67,6 @@ public class User extends TimestampMixin {
 	@Column(length = 320)
 	private String email; // 이메일
 	private String nickname; // 닉네임
-
-	@Column(name = "hashed_pw")
-	private String hashedPw; // 비밀번호
 
 	@Column(name = "profile_path")
 	private String profilePath; // 프로필 경로
@@ -104,4 +103,29 @@ public class User extends TimestampMixin {
 
 	@Column(name = "refresh_token")
 	private String refreshToken; // refresh_token
+
+	@Builder
+	private User(
+		String email, String nickname, String profilePath, Boolean isAlarmed, String cellPhone,
+		Role role, JoinType joinType, UserState userState, UserGrade userGrade, Gender gender, LocalDateTime birthDate,
+		String socialId, String refreshToken
+	) {
+		this.email = email;
+		this.nickname = nickname;
+		this.profilePath = profilePath;
+		this.isAlarmed = isAlarmed;
+		this.cellPhone = cellPhone;
+		this.role = role;
+		this.joinType = joinType;
+		this.userState = userState;
+		this.userGrade = userGrade;
+		this.gender = gender;
+		this.birthDate = birthDate;
+		this.socialId = socialId;
+		this.refreshToken = refreshToken;
+	}
+
+	public void rejoin() {
+		this.deletedAt = null;
+	}
 }
