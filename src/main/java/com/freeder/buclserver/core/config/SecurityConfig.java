@@ -3,6 +3,7 @@ package com.freeder.buclserver.core.config;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -34,6 +35,7 @@ public class SecurityConfig {
 			.and()
 			.authorizeHttpRequests(authorize -> authorize
 				.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+				.mvcMatchers(HttpMethod.POST, "/api/v1/auth/login/kakao").permitAll()
 				.anyRequest().authenticated()
 			)
 			.exceptionHandling(exception -> exception

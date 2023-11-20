@@ -13,7 +13,6 @@ public record UserDto(
 	Long id,
 	String email,
 	String nickname,
-	String hashedPw,
 	String profilePath,
 	Boolean isAlarmed,
 	String cellPhone,
@@ -24,15 +23,25 @@ public record UserDto(
 	Gender gender,
 	LocalDateTime birthDate,
 	String socialId,
-	String refreshToken
+	String refreshToken,
+	LocalDateTime deletedAt
 ) {
+
+	public static UserDto of(
+		String socialId, String email, String nickname, String profilePath, String gender, Role role,
+		JoinType joinType, UserState userState, UserGrade userGrade
+	) {
+		return new UserDto(
+			null, email, nickname, profilePath, null, null, role, joinType, userState, userGrade,
+			Gender.parseGenderEnum(gender), null, socialId, null, null
+		);
+	}
 
 	public static UserDto from(User user) {
 		return new UserDto(
 			user.getId(),
 			user.getEmail(),
 			user.getNickname(),
-			user.getHashedPw(),
 			user.getProfilePath(),
 			user.getIsAlarmed(),
 			user.getCellPhone(),
@@ -43,6 +52,26 @@ public record UserDto(
 			user.getGender(),
 			user.getBirthDate(),
 			user.getSocialId(),
-			user.getRefreshToken());
+			user.getRefreshToken(),
+			user.getDeletedAt()
+		);
+	}
+
+	public User toEntity() {
+		return User.builder()
+			.email(this.email)
+			.nickname(this.nickname)
+			.profilePath(this.profilePath)
+			.isAlarmed(this.isAlarmed)
+			.cellPhone(this.cellPhone)
+			.role(this.role)
+			.joinType(this.joinType)
+			.userState(this.userState)
+			.userGrade(this.userGrade)
+			.gender(this.gender)
+			.birthDate(this.birthDate)
+			.socialId(this.socialId)
+			.refreshToken(this.refreshToken)
+			.build();
 	}
 }
