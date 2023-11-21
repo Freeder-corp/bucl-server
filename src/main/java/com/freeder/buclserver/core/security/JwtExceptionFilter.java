@@ -15,8 +15,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.freeder.buclserver.global.response.ErrorResponse;
 
-import io.jsonwebtoken.ExpiredJwtException;
-
 @Component
 public class JwtExceptionFilter extends OncePerRequestFilter {
 
@@ -28,18 +26,16 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
 	) throws ServletException, IOException {
 		try {
 			filterChain.doFilter(request, response);
-		} catch (ExpiredJwtException ex) {
-			setErrorResponse(response, ex);
 		} catch (Exception ex) {
-			setErrorResponse(response, ex);
+			setErrorResponse(response);
 		}
 	}
 
-	private void setErrorResponse(HttpServletResponse response, Exception ex) throws IOException {
+	private void setErrorResponse(HttpServletResponse response) throws IOException {
 		response.setStatus(HttpStatus.UNAUTHORIZED.value());
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 		response.setCharacterEncoding("utf-8");
-		ErrorResponse errorResponse = new ErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
+		ErrorResponse errorResponse = new ErrorResponse(HttpStatus.UNAUTHORIZED, "유효하지 않는 JWT 토큰입니다.");
 		new ObjectMapper().writeValue(response.getWriter(), errorResponse);
 	}
 }
