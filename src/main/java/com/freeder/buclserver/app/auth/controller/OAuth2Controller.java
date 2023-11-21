@@ -1,4 +1,4 @@
-package com.freeder.buclserver.app.oauth2.controller;
+package com.freeder.buclserver.app.auth.controller;
 
 import javax.validation.Valid;
 
@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.freeder.buclserver.app.oauth2.dto.request.KakaoLoginRequest;
-import com.freeder.buclserver.app.oauth2.dto.request.RefreshTokenRequest;
-import com.freeder.buclserver.app.oauth2.dto.response.KakaoUserInfoResponse;
-import com.freeder.buclserver.app.oauth2.dto.response.TokenResponse;
-import com.freeder.buclserver.app.oauth2.service.JwtTokenService;
+import com.freeder.buclserver.app.auth.dto.request.KakaoLoginRequest;
+import com.freeder.buclserver.app.auth.dto.request.RefreshTokenRequest;
+import com.freeder.buclserver.app.auth.dto.response.KakaoUserInfoResponse;
+import com.freeder.buclserver.app.auth.dto.response.TokenResponse;
+import com.freeder.buclserver.app.auth.service.JwtTokenService;
 import com.freeder.buclserver.app.user.UserService;
 import com.freeder.buclserver.domain.user.dto.UserDto;
 import com.freeder.buclserver.domain.user.vo.JoinType;

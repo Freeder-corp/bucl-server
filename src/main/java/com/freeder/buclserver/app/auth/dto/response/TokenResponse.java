@@ -1,4 +1,4 @@
-package com.freeder.buclserver.app.oauth2.dto.response;
+package com.freeder.buclserver.app.auth.dto.response;
 
 public record TokenResponse(String accessToken, String refreshToken) {
 

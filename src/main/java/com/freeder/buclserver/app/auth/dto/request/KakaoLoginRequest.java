@@ -1,4 +1,4 @@
-package com.freeder.buclserver.app.oauth2.dto.request;
+package com.freeder.buclserver.app.auth.dto.request;
 
 import javax.validation.constraints.NotBlank;
 
