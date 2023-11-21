@@ -21,7 +21,7 @@ import org.hibernate.annotations.ColumnDefault;
 
 import com.freeder.buclserver.domain.product.vo.ProductStatus;
 import com.freeder.buclserver.domain.product.vo.TaxStatus;
-import com.freeder.buclserver.domain.productcategory.entiry.ProductCategory;
+import com.freeder.buclserver.domain.productcategory.entity.ProductCategory;
 import com.freeder.buclserver.domain.productoption.entity.ProductOption;
 import com.freeder.buclserver.domain.productreview.entity.ProductReview;
 import com.freeder.buclserver.domain.shippinginfo.entity.ShippingInfo;

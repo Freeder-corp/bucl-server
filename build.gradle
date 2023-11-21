@@ -15,8 +15,8 @@ java {
 checkstyle {
     maxWarnings = 0
     //rule 및 suppressions xml파일 위치 명시
-    configFile = file("config/checkstyle/naver-checkstyle-rules.xml")
-    configProperties = ["suppressionFile": "config/checkstyle/naver-checkstyle-suppressions.xml"]
+    configFile = file("src/main/java/com/freeder/buclserver/core/config/checkstyle/naver-checkstyle-rules.xml")
+    configProperties = ["suppressionFile": "src/main/java/com/freeder/buclserver/core/config/checkstyle/naver-checkstyle-suppressions.xml"]
     // checkstyle 버전 8.24 이상 선언
     toolVersion = "8.24"
 }
@@ -45,6 +45,8 @@ dependencies {
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
     implementation 'org.springdoc:springdoc-openapi-ui:1.7.0'
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+    implementation platform('software.amazon.awssdk:bom:2.20.56')
+    implementation 'software.amazon.awssdk:s3'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.mysql:mysql-connector-j'

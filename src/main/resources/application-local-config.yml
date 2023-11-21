@@ -6,11 +6,12 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/bucl_db
     username: root
-    password: 2160
+    password: Qhal36900!!
 
   jpa:
     hibernate:
       ddl-auto: update
+      dialect: org.hibernate.dialect.MySQLDialect
     properties:
       hibernate:
         show_sql: true
@@ -20,7 +21,7 @@ spring:
 cloud:
   aws:
     s3:
-      bucket: buclbucket
+      bucket: bucl-bucket
 
 logging:
   level:
