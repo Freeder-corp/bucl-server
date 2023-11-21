@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import com.freeder.buclserver.domain.user.vo.JoinType;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -29,6 +30,8 @@ public class JwtTokenProvider {
 
 	private static final Long ACCESS_TOKEN_EXPIRED_TIME = 1000L * 60 * 60 * 1; // 1시간
 	private static final Long REFRESH_TOKEN_EXPIRED_TIME = 1000L * 60 * 60 * 24 * 30; // 30일
+
+	private static final String LOGIN_TYPE_CLAIM_KEY = "joinType";
 
 	@Value("${jwt.secret-key}")
 	private String secretKey;
@@ -59,12 +62,16 @@ public class JwtTokenProvider {
 			.parseClaimsJws(token);
 	}
 
+	public JoinType getJoinType(String token) {
+		return JoinType.valueOf(getClaims(token).get(LOGIN_TYPE_CLAIM_KEY).toString());
+	}
+
 	private String createToken(Long memberId, JoinType joinType, Long tokenExpiredTime) {
 		Date now = new Date();
 		return Jwts.builder()
 			.setHeaderParam(Header.TYPE, Header.JWT_TYPE)
 			.setSubject(String.valueOf(memberId))
-			.claim("joinType", joinType.name())
+			.claim(LOGIN_TYPE_CLAIM_KEY, joinType.name())
 			.setIssuedAt(now)
 			.setExpiration(new Date(now.getTime() + tokenExpiredTime))
 			.signWith(encodeKey, SignatureAlgorithm.HS256)
@@ -72,11 +79,14 @@ public class JwtTokenProvider {
 	}
 
 	private String getUsername(String token) {
+		return getClaims(token).getSubject();
+	}
+
+	private Claims getClaims(String token) {
 		return Jwts.parserBuilder()
 			.setSigningKey(encodeKey)
 			.build()
 			.parseClaimsJws(token)
-			.getBody()
-			.getSubject();
+			.getBody();
 	}
 }
