@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RestController
 @Tag(name = "oauth2 API", description = "소셜 관련 API")
-public class OAuth2Controller {
+public class AuthController {
 
 	private final JwtTokenService jwtTokenService;
 	private final UserService userService;
