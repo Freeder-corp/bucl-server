@@ -5,9 +5,11 @@ import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.freeder.buclserver.app.orders.dto.OrderDetailDto;
 import com.freeder.buclserver.app.orders.dto.OrderDto;
 import com.freeder.buclserver.global.response.BaseResponse;
 
@@ -22,6 +24,13 @@ public class OrdersController {
 	private String testSocialId = "sjfdlkwjlkj149202";
 
 	private final OrdersService ordersService;
+
+	@GetMapping("/{orderCode}")
+	public BaseResponse<OrderDetailDto> findOrderDetail(
+		@PathVariable("orderCode") String orderCode) {
+		OrderDetailDto orderDetailDto = ordersService.readOrderDetail(testSocialId, orderCode);
+		return new BaseResponse<>(orderDetailDto, HttpStatus.OK, "주문 " + orderCode + " 상세보기");
+	}
 
 	@GetMapping("")
 	public BaseResponse<List<OrderDto>> findOrderList(Pageable pageable) {

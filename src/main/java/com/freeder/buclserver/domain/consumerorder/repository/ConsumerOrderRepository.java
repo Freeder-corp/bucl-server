@@ -1,5 +1,7 @@
 package com.freeder.buclserver.domain.consumerorder.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,4 +13,6 @@ import com.freeder.buclserver.domain.member.entity.Member;
 @Repository
 public interface ConsumerOrderRepository extends JpaRepository<ConsumerOrder, Long> {
 	Page<ConsumerOrder> findAllByConsumerOrderByCreatedAtDesc(Member consumer, Pageable pageable);
+
+	Optional<ConsumerOrder> findByOrderCode(String orderCode);
 }
