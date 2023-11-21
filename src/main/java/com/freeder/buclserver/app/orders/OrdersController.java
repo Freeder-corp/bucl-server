@@ -6,11 +6,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.freeder.buclserver.app.orders.dto.OrderDetailDto;
 import com.freeder.buclserver.app.orders.dto.OrderDto;
+import com.freeder.buclserver.app.orders.dto.ShpAddrDto;
 import com.freeder.buclserver.global.response.BaseResponse;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,5 +39,13 @@ public class OrdersController {
 	public BaseResponse<List<OrderDto>> findOrderList(Pageable pageable) {
 		List<OrderDto> consumerOrders = ordersService.readOrderList(testSocialId, pageable);
 		return new BaseResponse<>(consumerOrders, HttpStatus.OK, "주문 리스트 가져왔습니다.");
+	}
+
+	@PutMapping("/{orderCode}")
+	public BaseResponse<ShpAddrDto> modifyOrderShpAddr(
+		@PathVariable("orderCode") String orderCode,
+		@RequestBody ShpAddrDto shpAddrDto) {
+		ShpAddrDto shpAddr = ordersService.updateOrderShpAddr(orderCode, shpAddrDto);
+		return new BaseResponse<>(shpAddr, HttpStatus.OK, "배송지 정보가 수정 되었습니다.");
 	}
 }

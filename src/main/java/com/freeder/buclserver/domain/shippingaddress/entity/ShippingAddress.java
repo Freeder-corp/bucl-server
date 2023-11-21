@@ -57,4 +57,15 @@ public class ShippingAddress extends TimestampMixin {
 
 	@Column(name = "memo_content")
 	private String memoContent;
+
+	public ShippingAddress updateEntity(
+		String recipientName, String zipCode, String address,
+		String addressDetail, String contactNumber) {
+		this.recipientName = recipientName;
+		this.zipCode = zipCode;
+		this.address = address;
+		this.addressDetail = addressDetail;
+		this.contactNumber = contactNumber;
+		return this;
+	}
 }
