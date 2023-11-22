@@ -6,13 +6,17 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.freeder.buclserver.domain.product.dto.ProductDTO;
+import com.freeder.buclserver.domain.product.dto.ProductDetailDTO;
 import com.freeder.buclserver.domain.product.entity.Product;
 import com.freeder.buclserver.domain.product.repository.ProductRepository;
 import com.freeder.buclserver.domain.productcategory.dto.ProductCategoryDTO;
 import com.freeder.buclserver.domain.productcategory.repository.ProductCategoryRepository;
+import com.freeder.buclserver.domain.productreview.dto.ReviewPreviewDTO;
 import com.freeder.buclserver.domain.productreview.entity.ProductReview;
 
 @Service
@@ -42,6 +46,44 @@ public class ProductsService {
 			.map(this::convertToCategoryDTO)
 			.collect(Collectors.toList());
 		return categoryProducts;
+	}
+
+	public ProductDetailDTO getProductDetail(Long productId) {
+		Product product = productRepository.findById(productId)
+			.orElseThrow(
+				() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found with id: " + productId));
+
+		List<ProductReview> reviews = product.getReviews().stream()
+			.limit(3)
+			.collect(Collectors.toList());
+
+		double averageRating = calculateAverageRating(reviews);
+
+		List<ReviewPreviewDTO> reviewPreviews = reviews.stream()
+			.map(this::convertToReviewPreviewDTO)
+			.collect(Collectors.toList());
+
+		return new ProductDetailDTO(
+			product.getId(),
+			product.getName(),
+			product.getBrandName(),
+			product.getSalePrice(),
+			product.getConsumerPrice(),
+			product.getDiscountRate(),
+			averageRating,
+			product.getImagePath(),
+			reviewPreviews
+		);
+	}
+
+	private ReviewPreviewDTO convertToReviewPreviewDTO(ProductReview review) {
+		return new ReviewPreviewDTO(
+			review.getUser().getProfilePath(),
+			review.getUser().getNickname(),
+			review.getCreatedAt(),
+			review.getProduct().getName(),
+			review.getContent()
+		);
 	}
 
 	private ProductDTO convertToDTO(Product product) {

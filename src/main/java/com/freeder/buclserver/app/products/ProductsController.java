@@ -6,11 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.freeder.buclserver.domain.product.dto.ProductDTO;
+import com.freeder.buclserver.domain.product.dto.ProductDetailDTO;
 import com.freeder.buclserver.domain.productcategory.dto.ProductCategoryDTO;
 import com.freeder.buclserver.global.response.BaseResponse;
 
@@ -43,6 +45,20 @@ public class ProductsController {
 	) {
 		List<ProductCategoryDTO> categoryProducts = productsService.getCategoryProducts(categoryId, page, pageSize);
 		BaseResponse<List<ProductCategoryDTO>> response = new BaseResponse<>(categoryProducts, HttpStatus.OK, "요청 성공");
+		return ResponseEntity.ok(response);
+	}
+
+	@GetMapping("/category/{productId}")
+	public ResponseEntity<BaseResponse<ProductDetailDTO>> getProductCategoryDetail(@PathVariable Long productId) {
+		ProductDetailDTO productDetail = productsService.getProductDetail(productId);
+		BaseResponse<ProductDetailDTO> response = new BaseResponse<>(productDetail, HttpStatus.OK, "요청 성공");
+		return ResponseEntity.ok(response);
+	}
+
+	@GetMapping("/{productId}")
+	public ResponseEntity<BaseResponse<ProductDetailDTO>> getProductDetail(@PathVariable Long productId) {
+		ProductDetailDTO productDetail = productsService.getProductDetail(productId);
+		BaseResponse<ProductDetailDTO> response = new BaseResponse<>(productDetail, HttpStatus.OK, "요청 성공");
 		return ResponseEntity.ok(response);
 	}
 }

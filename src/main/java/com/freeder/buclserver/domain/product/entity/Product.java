@@ -122,4 +122,5 @@ public class Product extends TimestampMixin {
 	public List<ProductReview> getReviews() {
 		return productReviews;
 	}
+
 }
