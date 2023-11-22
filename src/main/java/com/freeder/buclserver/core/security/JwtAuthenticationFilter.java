@@ -29,16 +29,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		HttpServletResponse response,
 		FilterChain filterChain
 	) throws ServletException, IOException {
-
 		String token = getToken(request);
 		if (token != null) {
 			try {
 				jwtTokenProvider.validateToken(token);
-				Authentication authentication = jwtTokenProvider.getAuthentication(token);
-				SecurityContextHolder.getContext().setAuthentication(authentication);
 			} catch (Exception ex) {
 				throw ex;
 			}
+			Authentication authentication = jwtTokenProvider.getAuthentication(token);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
 		}
 		filterChain.doFilter(request, response);
 	}
