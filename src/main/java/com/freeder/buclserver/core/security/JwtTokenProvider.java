@@ -36,6 +36,7 @@ public class JwtTokenProvider {
 		encodeKey = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
 	}
 
+	// TODO: 토큰을 cookie에 넣어서 보내줘야 하는지에 대해 프론트와 의논 필요
 	public String createAccessToken(Long memberId, Role role) {
 		return createToken(memberId, role, ACCESS_TOKEN_EXPIRED_TIME);
 	}

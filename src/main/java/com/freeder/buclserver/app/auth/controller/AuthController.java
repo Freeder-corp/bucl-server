@@ -31,6 +31,7 @@ public class AuthController {
 	private final UserService userService;
 	private final KakaoApiClient kakaoApiClient;
 
+	// TODO: 카카오 토큰을 헤더로 받을지 DTO로 받을지 프론트와 의논 필요
 	@PostMapping("/v1/auth/login/kakao")
 	public ResponseEntity<TokenResponse> kakaoLogin(@Valid @RequestBody KakaoLoginRequest request) {
 		KakaoUserInfoResponse userInfo = kakaoApiClient.getUserInfo("Bearer " + request.kakaoAccessToken());
