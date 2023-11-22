@@ -117,4 +117,9 @@ public class Product extends TimestampMixin {
 
 	@Column(name = "sale_alternatives")
 	private String saleAlternatives;
+
+	//추가 review 리스트 가져오기
+	public List<ProductReview> getReviews() {
+		return productReviews;
+	}
 }

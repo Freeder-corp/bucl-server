@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.freeder.buclserver.domain.product.dto.ProductDTO;
+import com.freeder.buclserver.domain.productcategory.dto.ProductCategoryDTO;
 import com.freeder.buclserver.global.response.BaseResponse;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,22 +25,24 @@ public class ProductsController {
 	private ProductsService productsService;
 
 	@GetMapping
-	public ResponseEntity<BaseResponse<List<ProductDTO>>> getHotDealProducts(
+	public ResponseEntity<BaseResponse<List<ProductDTO>>> getProducts(
+		@RequestParam(defaultValue = "1") Long categoryId,
 		@RequestParam(defaultValue = "1") int page,
 		@RequestParam(defaultValue = "10") int pageSize
 	) {
-		List<ProductDTO> hotDealProducts = productsService.getHotDealProducts(page, pageSize);
-		BaseResponse<List<ProductDTO>> response = new BaseResponse<>(hotDealProducts, HttpStatus.OK, "요청 성공");
+		List<ProductDTO> products = productsService.getProducts(categoryId, page, pageSize);
+		BaseResponse<List<ProductDTO>> response = new BaseResponse<>(products, HttpStatus.OK, "요청 성공");
 		return ResponseEntity.ok(response);
 	}
 
-	@GetMapping("/rewards")
-	public ResponseEntity<BaseResponse<List<ProductDTO>>> getRewardProducts(
+	@GetMapping("/category")
+	public ResponseEntity<BaseResponse<List<ProductCategoryDTO>>> getProductsByCategory(
+		@RequestParam(defaultValue = "1") Long categoryId,
 		@RequestParam(defaultValue = "1") int page,
 		@RequestParam(defaultValue = "10") int pageSize
 	) {
-		List<ProductDTO> rewardProducts = productsService.getRewardProducts(page, pageSize);
-		BaseResponse<List<ProductDTO>> response = new BaseResponse<>(rewardProducts, HttpStatus.OK, "요청 성공");
+		List<ProductCategoryDTO> categoryProducts = productsService.getCategoryProducts(categoryId, page, pageSize);
+		BaseResponse<List<ProductCategoryDTO>> response = new BaseResponse<>(categoryProducts, HttpStatus.OK, "요청 성공");
 		return ResponseEntity.ok(response);
 	}
 }
