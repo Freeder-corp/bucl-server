@@ -7,7 +7,7 @@ import com.freeder.buclserver.app.auth.dto.response.TokenResponse;
 import com.freeder.buclserver.core.security.JwtTokenProvider;
 import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.domain.user.repository.UserRepository;
-import com.freeder.buclserver.domain.user.vo.JoinType;
+import com.freeder.buclserver.domain.user.vo.Role;
 import com.freeder.buclserver.global.exception.auth.RefreshTokenNotFoundException;
 import com.freeder.buclserver.global.exception.user.UserIdNotFoundException;
 
@@ -22,13 +22,12 @@ public class JwtTokenService {
 	private final UserRepository userRepository;
 
 	@Transactional
-	public TokenResponse createJwtTokens(Long memberId, JoinType joinType) {
-
+	public TokenResponse createJwtTokens(Long memberId, Role role) {
 		User user = userRepository.findById(memberId)
 			.orElseThrow(() -> new UserIdNotFoundException(memberId));
 
-		String accessToken = jwtTokenProvider.createAccessToken(memberId, joinType);
-		String refreshToken = jwtTokenProvider.createRefreshToken(memberId, joinType);
+		String accessToken = jwtTokenProvider.createAccessToken(memberId, role);
+		String refreshToken = jwtTokenProvider.createRefreshToken(memberId, role);
 
 		user.updateRefreshToken(refreshToken);
 
@@ -37,7 +36,6 @@ public class JwtTokenService {
 
 	@Transactional
 	public TokenResponse renewTokens(String refreshToken) {
-
 		jwtTokenProvider.validateToken(refreshToken);
 
 		User user = userRepository.findByRefreshToken(refreshToken)
@@ -47,7 +45,7 @@ public class JwtTokenService {
 
 		return createJwtTokens(
 			user.getId(),
-			jwtTokenProvider.getJoinType(refreshToken)
+			Role.valueOf(jwtTokenProvider.getUserRole(refreshToken))
 		);
 	}
 }

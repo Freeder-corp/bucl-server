@@ -7,23 +7,22 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.freeder.buclserver.domain.user.dto.UserDto;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CustomUserDetails implements UserDetails {
 
-	private UserDto userDto;
+	private String userId;
+	private String role;
 
-	public static CustomUserDetails of(UserDto userDto) {
-		return new CustomUserDetails(userDto);
+	public static CustomUserDetails of(String userId, String role) {
+		return new CustomUserDetails(userId, role);
 	}
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return Collections.singleton(new SimpleGrantedAuthority(userDto.role().name()));
+		return Collections.singleton(new SimpleGrantedAuthority(this.role));
 	}
 
 	@Override
