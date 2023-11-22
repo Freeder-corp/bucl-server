@@ -9,11 +9,9 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
-import com.freeder.buclserver.domain.user.vo.JoinType;
+import com.freeder.buclserver.domain.user.vo.Role;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Header;
@@ -26,12 +24,8 @@ import lombok.RequiredArgsConstructor;
 @Component
 public class JwtTokenProvider {
 
-	private final UserDetailsService userDetailsService;
-
 	private static final Long ACCESS_TOKEN_EXPIRED_TIME = 1000L * 60 * 60 * 1; // 1시간
 	private static final Long REFRESH_TOKEN_EXPIRED_TIME = 1000L * 60 * 60 * 24 * 30; // 30일
-
-	private static final String LOGIN_TYPE_CLAIM_KEY = "joinType";
 
 	@Value("${jwt.secret-key}")
 	private String secretKey;
@@ -42,16 +36,16 @@ public class JwtTokenProvider {
 		encodeKey = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
 	}
 
-	public String createAccessToken(Long memberId, JoinType joinType) {
-		return createToken(memberId, joinType, ACCESS_TOKEN_EXPIRED_TIME);
+	public String createAccessToken(Long memberId, Role role) {
+		return createToken(memberId, role, ACCESS_TOKEN_EXPIRED_TIME);
 	}
 
-	public String createRefreshToken(Long memberId, JoinType joinType) {
-		return createToken(memberId, joinType, REFRESH_TOKEN_EXPIRED_TIME);
+	public String createRefreshToken(Long memberId, Role role) {
+		return createToken(memberId, role, REFRESH_TOKEN_EXPIRED_TIME);
 	}
 
 	public Authentication getAuthentication(String token) {
-		UserDetails userDetails = userDetailsService.loadUserByUsername(getUsername(token));
+		CustomUserDetails userDetails = CustomUserDetails.of(getUsername(token), getUserRole(token));
 		return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
 	}
 
@@ -62,16 +56,16 @@ public class JwtTokenProvider {
 			.parseClaimsJws(token);
 	}
 
-	public JoinType getJoinType(String token) {
-		return JoinType.valueOf(getClaims(token).get(LOGIN_TYPE_CLAIM_KEY).toString());
+	public String getUserRole(String token) {
+		return getClaims(token).get("role").toString();
 	}
 
-	private String createToken(Long memberId, JoinType joinType, Long tokenExpiredTime) {
+	private String createToken(Long memberId, Role role, Long tokenExpiredTime) {
 		Date now = new Date();
 		return Jwts.builder()
 			.setHeaderParam(Header.TYPE, Header.JWT_TYPE)
 			.setSubject(String.valueOf(memberId))
-			.claim(LOGIN_TYPE_CLAIM_KEY, joinType.name())
+			.claim("role", role.name())
 			.setIssuedAt(now)
 			.setExpiration(new Date(now.getTime() + tokenExpiredTime))
 			.signWith(encodeKey, SignatureAlgorithm.HS256)
