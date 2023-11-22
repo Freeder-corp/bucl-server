@@ -16,7 +16,6 @@ import com.freeder.buclserver.app.auth.dto.response.TokenResponse;
 import com.freeder.buclserver.app.auth.service.JwtTokenService;
 import com.freeder.buclserver.app.user.UserService;
 import com.freeder.buclserver.domain.user.dto.UserDto;
-import com.freeder.buclserver.domain.user.vo.JoinType;
 import com.freeder.buclserver.global.openfeign.kakao.KakaoApiClient;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,7 +33,6 @@ public class AuthController {
 
 	@PostMapping("/v1/auth/login/kakao")
 	public ResponseEntity<TokenResponse> kakaoLogin(@Valid @RequestBody KakaoLoginRequest request) {
-
 		KakaoUserInfoResponse userInfo = kakaoApiClient.getUserInfo("Bearer " + request.kakaoAccessToken());
 		UserDto userDto = userService.findBySocialUid(userInfo.getId())
 			.orElseGet(() -> userService.join(userInfo.toUserDto()));
@@ -45,7 +43,7 @@ public class AuthController {
 
 		return ResponseEntity
 			.status(HttpStatus.OK)
-			.body(jwtTokenService.createJwtTokens(userDto.id(), JoinType.KAKAO));
+			.body(jwtTokenService.createJwtTokens(userDto.id(), userDto.role()));
 	}
 
 	@PostMapping("/v1/auth/renewal/tokens")
