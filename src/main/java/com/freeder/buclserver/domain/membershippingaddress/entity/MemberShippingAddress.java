@@ -30,6 +30,9 @@ public class MemberShippingAddress {
 	@JoinColumn(name = "member_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private Member member;
 
+	@Column(name = "addr_no")
+	private String addrNo;
+
 	@Column(name = "shipping_address_name")
 	private String shippingAddressName;
 
