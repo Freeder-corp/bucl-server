@@ -17,6 +17,6 @@ public class ProductDetailDTO {
 	private int consumerPrice;
 	private int discountRate;
 	private double averageRating;
-	private String imagePath;
+	private List<String> imagePaths;
 	private List<ReviewPreviewDTO> reviewPreviews;
 }

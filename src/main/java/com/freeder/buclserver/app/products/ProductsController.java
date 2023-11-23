@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.freeder.buclserver.domain.product.dto.ProductDTO;
 import com.freeder.buclserver.domain.product.dto.ProductDetailDTO;
 import com.freeder.buclserver.domain.productcategory.dto.ProductCategoryDTO;
+import com.freeder.buclserver.domain.productoption.dto.ProductOptionDTO;
 import com.freeder.buclserver.global.response.BaseResponse;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,6 +26,9 @@ public class ProductsController {
 
 	@Autowired
 	private ProductsService productsService;
+
+	@Autowired
+	private ProductsCategoryService productsCategoryService;
 
 	@GetMapping
 	public ResponseEntity<BaseResponse<List<ProductDTO>>> getProducts(
@@ -43,15 +47,9 @@ public class ProductsController {
 		@RequestParam(defaultValue = "1") int page,
 		@RequestParam(defaultValue = "10") int pageSize
 	) {
-		List<ProductCategoryDTO> categoryProducts = productsService.getCategoryProducts(categoryId, page, pageSize);
+		List<ProductCategoryDTO> categoryProducts = productsCategoryService.getCategoryProducts(categoryId, page,
+			pageSize);
 		BaseResponse<List<ProductCategoryDTO>> response = new BaseResponse<>(categoryProducts, HttpStatus.OK, "요청 성공");
-		return ResponseEntity.ok(response);
-	}
-
-	@GetMapping("/category/{productId}")
-	public ResponseEntity<BaseResponse<ProductDetailDTO>> getProductCategoryDetail(@PathVariable Long productId) {
-		ProductDetailDTO productDetail = productsService.getProductDetail(productId);
-		BaseResponse<ProductDetailDTO> response = new BaseResponse<>(productDetail, HttpStatus.OK, "요청 성공");
 		return ResponseEntity.ok(response);
 	}
 
@@ -61,4 +59,12 @@ public class ProductsController {
 		BaseResponse<ProductDetailDTO> response = new BaseResponse<>(productDetail, HttpStatus.OK, "요청 성공");
 		return ResponseEntity.ok(response);
 	}
+
+	@GetMapping("/{productId}/options")
+	public ResponseEntity<BaseResponse<List<ProductOptionDTO>>> getProductOptions(@PathVariable Long productId) {
+		List<ProductOptionDTO> productOptions = productsService.getProductOptions(productId);
+		BaseResponse<List<ProductOptionDTO>> response = new BaseResponse<>(productOptions, HttpStatus.OK, "옵션 요청 성공");
+		return ResponseEntity.ok(response);
+	}
+
 }

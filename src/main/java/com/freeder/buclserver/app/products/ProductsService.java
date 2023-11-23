@@ -3,6 +3,7 @@ package com.freeder.buclserver.app.products;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,20 +15,28 @@ import com.freeder.buclserver.domain.product.dto.ProductDTO;
 import com.freeder.buclserver.domain.product.dto.ProductDetailDTO;
 import com.freeder.buclserver.domain.product.entity.Product;
 import com.freeder.buclserver.domain.product.repository.ProductRepository;
-import com.freeder.buclserver.domain.productcategory.dto.ProductCategoryDTO;
-import com.freeder.buclserver.domain.productcategory.repository.ProductCategoryRepository;
+import com.freeder.buclserver.domain.productoption.dto.ProductOptionDTO;
+import com.freeder.buclserver.domain.productoption.entity.ProductOption;
+import com.freeder.buclserver.domain.productoption.repository.ProductOptionRepository;
 import com.freeder.buclserver.domain.productreview.dto.ReviewPreviewDTO;
 import com.freeder.buclserver.domain.productreview.entity.ProductReview;
+import com.freeder.buclserver.global.logic.ImageParsing;
 
 @Service
 public class ProductsService {
 
+	@Autowired
+	private final ProductsCategoryService productsCategoryService;
 	private final ProductRepository productRepository;
-	private final ProductCategoryRepository productCategoryRepository;
+	private final ProductOptionRepository productOptionRepository;
+	private final ImageParsing imageParsing;
 
-	public ProductsService(ProductRepository productRepository, ProductCategoryRepository productCategoryRepository) {
+	public ProductsService(ProductRepository productRepository, ProductsCategoryService productsCategoryService,
+		ProductOptionRepository productOptionRepository, ImageParsing imageParsing) {
 		this.productRepository = productRepository;
-		this.productCategoryRepository = productCategoryRepository;
+		this.productsCategoryService = productsCategoryService;
+		this.productOptionRepository = productOptionRepository;
+		this.imageParsing = imageParsing;
 	}
 
 	public List<ProductDTO> getProducts(Long categoryId, int page, int pageSize) {
@@ -39,15 +48,6 @@ public class ProductsService {
 		return products;
 	}
 
-	public List<ProductCategoryDTO> getCategoryProducts(Long categoryId, int page, int pageSize) {
-		Pageable pageable = PageRequest.of(page - 1, pageSize);
-		Page<Product> categoryProductsPage = productCategoryRepository.findProductsByCategory(categoryId, pageable);
-		List<ProductCategoryDTO> categoryProducts = categoryProductsPage.getContent().stream()
-			.map(this::convertToCategoryDTO)
-			.collect(Collectors.toList());
-		return categoryProducts;
-	}
-
 	public ProductDetailDTO getProductDetail(Long productId) {
 		Product product = productRepository.findById(productId)
 			.orElseThrow(
@@ -57,12 +57,13 @@ public class ProductsService {
 			.limit(3)
 			.collect(Collectors.toList());
 
-		double averageRating = calculateAverageRating(reviews);
+		double averageRating = productsCategoryService.calculateAverageRating(reviews);
 
 		List<ReviewPreviewDTO> reviewPreviews = reviews.stream()
 			.map(this::convertToReviewPreviewDTO)
 			.collect(Collectors.toList());
-
+		List<String> imageUrls = imageParsing.getImageList(product.getImagePath());
+		List<String> firstFiveImages = imageUrls.stream().limit(5).collect(Collectors.toList());
 		return new ProductDetailDTO(
 			product.getId(),
 			product.getName(),
@@ -71,9 +72,20 @@ public class ProductsService {
 			product.getConsumerPrice(),
 			product.getDiscountRate(),
 			averageRating,
-			product.getImagePath(),
+			firstFiveImages,
 			reviewPreviews
 		);
+	}
+
+	public List<ProductOptionDTO> getProductOptions(Long productId) {
+		List<ProductOption> productOptions = productOptionRepository.findByProductId(productId);
+		return productOptions.stream()
+			.map(this::convertToDTO)
+			.collect(Collectors.toList());
+	}
+
+	private ProductOptionDTO convertToDTO(ProductOption productOption) {
+		return new ProductOptionDTO(productOption.getOptionKey().name(), productOption.getOptionValue());
 	}
 
 	private ReviewPreviewDTO convertToReviewPreviewDTO(ProductReview review) {
@@ -87,47 +99,16 @@ public class ProductsService {
 	}
 
 	private ProductDTO convertToDTO(Product product) {
+		String thumbnailUrl = imageParsing.getThumbnailUrl(product.getImagePath());
 		return new ProductDTO(
 			product.getId(),
 			product.getName(),
 			product.getBrandName(),
-			product.getImagePath(),
+			thumbnailUrl,
 			product.getSalePrice(),
 			product.getConsumerPrice(),
 			product.getConsumerPrice() * product.getConsumerRewardRate()
 		);
 	}
 
-	public ProductCategoryDTO convertToCategoryDTO(Product product) {
-		List<ProductReview> reviews = product.getReviews();
-		int reviewCount = reviews.size();
-		double averageRating = calculateAverageRating(reviews);
-
-		return new ProductCategoryDTO(
-			product.getId(),
-			product.getName(),
-			product.getImagePath(),
-			product.getSalePrice(),
-			product.getConsumerPrice(),
-			product.getConsumerPrice() * product.getConsumerRewardRate(),
-			product.getDiscountRate(),
-			reviewCount,
-			averageRating
-		);
-	}
-
-	private double calculateAverageRating(List<ProductReview> reviews) {
-		if (reviews.isEmpty()) {
-			return 0.0;
-		}
-
-		double totalRating = 0.0;
-		for (ProductReview review : reviews) {
-			totalRating += review.getStarRate().getValue();
-		}
-
-		double averageRating = totalRating / reviews.size();
-
-		return Math.round(averageRating * 10.0) / 10.0;
-	}
 }
