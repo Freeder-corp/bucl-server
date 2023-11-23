@@ -1,5 +1,7 @@
 package com.freeder.buclserver.app.payment;
 
+import java.io.IOException;
+
 import javax.validation.Valid;
 
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.freeder.buclserver.app.payment.dto.PaymentPrepareDto;
 import com.freeder.buclserver.app.payment.dto.PaymentVerifyDto;
+import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
 
@@ -23,17 +26,19 @@ public class PaymentController {
 
 	private final PaymentService paymentService;
 
+	private String testSocialId = "sjfdlkwjlkj149202";
+
 	@PostMapping("/preparation")
 	public PaymentPrepareDto preparePayment(@RequestBody PaymentPrepareDto paymentPrepareDto) {
-		boolean isVerified = paymentService.preparePayment(paymentPrepareDto);
+		paymentService.preparePayment(paymentPrepareDto);
 
 		return paymentPrepareDto;
 	}
 
 	@PostMapping("/verification")
 	public IamportResponse<Payment> verifyPayment(@Valid @RequestBody PaymentVerifyDto paymentVerifyDto) throws
-		Exception {
-
-		return paymentService.verifyPayment(paymentVerifyDto);
+		IamportResponseException,
+		IOException {
+		return paymentService.verifyPayment(testSocialId, paymentVerifyDto);
 	}
 }

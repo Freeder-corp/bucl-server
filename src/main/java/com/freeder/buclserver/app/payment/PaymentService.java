@@ -9,7 +9,6 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,7 +44,8 @@ import com.freeder.buclserver.domain.shippingaddress.entity.ShippingAddress;
 import com.freeder.buclserver.domain.shippingaddress.repository.ShippingAddressRepository;
 import com.freeder.buclserver.domain.shippinginfo.entity.ShippingInfo;
 import com.freeder.buclserver.domain.shippinginfo.repository.ShippingInfoRepository;
-import com.freeder.buclserver.global.exception.BaseException;
+import com.freeder.buclserver.global.exception.servererror.BadRequestErrorException;
+import com.freeder.buclserver.global.exception.servererror.InternalServerErrorException;
 import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.request.CancelData;
@@ -62,8 +62,6 @@ import lombok.extern.slf4j.Slf4j;
 public class PaymentService {
 
 	private int minimumAmount = 500;
-
-	private String testSocialId = "sjfdlkwjlkj149202";
 
 	@Value("${iamport.key}")
 	private String restApiKey;
@@ -90,59 +88,77 @@ public class PaymentService {
 		this.iamportClient = new IamportClient(restApiKey, restApiSecret);
 	}
 
-	public boolean preparePayment(PaymentPrepareDto paymentPrepareDto) {
+	public void preparePayment(PaymentPrepareDto paymentPrepareDto) {
+		Product product = productRepository.findByProductCode(paymentPrepareDto.getProductCode())
+			.orElseThrow(() -> new BadRequestErrorException("상품이 등록되어있지 않아 구매할 수 없습니다."));
+		groupOrderRepository.findByProductAndIsEnded(product, false)
+			.orElseThrow(() -> new BadRequestErrorException("현재 상품의 공동구매가 끝나서 구매를 할 수 없습니다."));
+
 		PrepareData prepareData = new PrepareData(paymentPrepareDto.getMerchantUid(),
 			BigDecimal.valueOf(paymentPrepareDto.getAmount()));
 		try {
 			iamportClient.postPrepare(prepareData);
-			return true;
 		} catch (Exception error) {
-			throw new BaseException(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value(), "사전 검증 요청 실패");
+			throw new InternalServerErrorException("사전 검증 요청 실패");
 		}
 	}
 
 	@Transactional()
-	public IamportResponse<Payment> verifyPayment(
-		PaymentVerifyDto paymentVerifyDto) throws
-		IamportResponseException,
-		IOException, Exception {
+	public IamportResponse<Payment> verifyPayment(String socialId,
+		PaymentVerifyDto paymentVerifyDto) throws IamportResponseException, IOException {
 
 		String impUid = paymentVerifyDto.getImpUid();
-
-		Member member = memberRepository.findBySocialId(testSocialId).orElseThrow();
-		Product product = productRepository.findByProductCode(paymentVerifyDto.getProductCode()).orElseThrow();
-		ShippingInfo shippingInfo = shippingInfoRepository.findById(product.getShippingInfo().getId())
-			.orElseThrow();
-		List<ProductOptionDto> productOptionDtos = paymentVerifyDto.getProductOptionList();
 		IamportResponse<Payment> irsp = iamportClient.paymentByImpUid(impUid);
+
+		Member member = memberRepository.findBySocialId(socialId).orElseThrow(
+			() -> {
+				cancelPayment(iamportClient, irsp);
+				return new BadRequestErrorException("해당 유저가 없습니다.");
+			});
+
+		Product product = productRepository.findByProductCode(paymentVerifyDto.getProductCode()).orElseThrow(
+			() -> {
+				cancelPayment(iamportClient, irsp);
+				return new BadRequestErrorException("해당 상품은 존재하지 않습니다.");
+			});
+
+		GroupOrder groupOrder = groupOrderRepository.findByProductAndIsEnded(product, false)
+			.orElseThrow(() -> {
+				cancelPayment(iamportClient, irsp);
+				return new BadRequestErrorException("현재 상품의 공동구매가 끝나서 구매를 할 수 없습니다.");
+			});
+
+		ShippingInfo shippingInfo = shippingInfoRepository.findById(product.getShippingInfo().getId())
+			.orElseThrow(() -> {
+				cancelPayment(iamportClient, irsp);
+				return new BadRequestErrorException("해당 상품에 대한 배송 정보가 없습니다.");
+			});
+
+		List<ProductOptionDto> productOptionDtos = paymentVerifyDto.getProductOptionList();
 
 		int requestPaymentAmount = paymentVerifyDto.getAmount();
 		int rewardAmt = paymentVerifyDto.getRewardAmt();
 		int actualPaymentAmount = irsp.getResponse().getAmount().intValue();
 
 		verifyReward(member, rewardAmt, iamportClient, irsp);
-
 		if (actualPaymentAmount != requestPaymentAmount) {
 			cancelPayment(iamportClient, irsp);
-			throw new BaseException(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value(),
-				"요청 결제 금액과 결제 금액이 다릅니다.");
+			throw new BadRequestErrorException("요청 결제 금액과 결제 금액이 다릅니다.");
 		}
 
 		int spendAmount = calcSpendAmount(productOptionDtos, product, shippingInfo, rewardAmt);
 
 		if (spendAmount != requestPaymentAmount) {
 			cancelPayment(iamportClient, irsp);
-			throw new BaseException(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value(),
-				"결제 금액과 실제 결제 해야될 금액과 일치 하지 않습니다.");
+			throw new BadRequestErrorException("결제 금액과 실제 결제 해야될 금액과 일치 하지 않습니다.");
 		}
 
 		if (spendAmount < minimumAmount) {
 			cancelPayment(iamportClient, irsp);
-			throw new BaseException(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value(),
-				"최소 금액은 " + minimumAmount + "원 이상 입니다.");
+			throw new BadRequestErrorException("최소 금액은 " + minimumAmount + "원 이상 입니다.");
 		}
+
 		try {
-			GroupOrder groupOrder = groupOrderRepository.findByProductAndIsEnded(product, false).orElseThrow();
 			ConsumerOrder orderReturn = createConsumerOrder(groupOrder, member, product, paymentVerifyDto);
 
 			for (ProductOptionDto productOptionDto : productOptionDtos) {
@@ -152,29 +168,31 @@ public class PaymentService {
 
 			if (rewardAmt != 0) {
 				Reward memberReward = rewardRepository.findFirstByMemberOrderByCreatedAtDesc(member).orElseThrow();
-				createSpendedReward(member, product, orderReturn, rewardAmt, memberReward);
+				createSpentReward(member, product, orderReturn, rewardAmt, memberReward);
 			}
 
 			createConsumerPayment(member, orderReturn, paymentVerifyDto);
 			Shipping shippingReturn = createShipping(orderReturn, shippingInfo);
-			createShippingAddres(member, shippingReturn, paymentVerifyDto);
+			createShippingAddress(member, shippingReturn, paymentVerifyDto);
 
 		} catch (Exception e) {
 			log.info("{'status':'error', 'msg':'" + e.getMessage() + "' 'cause':'" + e.getMessage() + "'}");
-			CancelData cancelData = cancelPayment(iamportClient, irsp);
-			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR.value(),
-				"결체 처리 중 오류가 발생해서 결체 취소 됐습니다.");
+			cancelPayment(iamportClient, irsp);
+			throw new InternalServerErrorException("결체 처리 중 오류가 발생해서 결체 취소 됐습니다.");
 		}
 
 		return irsp;
 	}
 
-	public CancelData cancelPayment(IamportClient iamportClient, IamportResponse<Payment> irsp) throws
-		IamportResponseException,
-		IOException {
-		CancelData cancelData = new CancelData(irsp.getResponse().getImpUid(), true);
-		iamportClient.cancelPaymentByImpUid(cancelData);
-		return cancelData;
+	public void cancelPayment(IamportClient iamportClient, IamportResponse<Payment> irsp) {
+		try {
+			CancelData cancelData = new CancelData(irsp.getResponse().getImpUid(), true);
+			iamportClient.cancelPaymentByImpUid(cancelData);
+
+		} catch (Exception e) {
+			log.info("{'status':'error', 'msg':'" + e.getMessage() + "' 'cause':'" + e.getMessage() + "'}");
+			throw new InternalServerErrorException("결제 취소 api 오류가 발생했습니다.");
+		}
 	}
 
 	public void verifyReward(Member member, int rewardAmt, IamportClient iamportClient,
@@ -187,8 +205,7 @@ public class PaymentService {
 			if (memberCurrentRewardSum < rewardAmt) {
 				CancelData cancelData = new CancelData(irsp.getResponse().getImpUid(), true);
 				iamportClient.cancelPaymentByImpUid(cancelData);
-				throw new BaseException(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value(),
-					"현재 가지고 계신 리워드 금액이 부족 합니다.");
+				throw new BadRequestErrorException("현재 가지고 계신 리워드 금액이 부족 합니다.");
 			}
 		}
 	}
@@ -197,7 +214,7 @@ public class PaymentService {
 		List<ProductOptionDto> productOptionDtos,
 		Product product, ShippingInfo shippingInfo, int rewardAmt) {
 		int totalAmount = 0;
-		int spendAmount = 0;
+		int spendAmount;
 
 		for (ProductOptionDto productOptionDto : productOptionDtos) {
 			ProductOption productOption = productOptionRepository.findBySkuCode(productOptionDto.getSkuCode())
@@ -253,7 +270,7 @@ public class PaymentService {
 		consumerPurchaseOrderRepository.save(purchaseOrder);
 	}
 
-	public Reward createSpendedReward(Member member, Product product,
+	public void createSpentReward(Member member, Product product,
 		ConsumerOrder consumerOrder, int rewardAmt, Reward memberReward) {
 		Reward spendReward = Reward
 			.builder()
@@ -268,10 +285,10 @@ public class PaymentService {
 			.rewardSum(memberReward.getRewardSum() - rewardAmt)
 			.build();
 
-		return rewardRepository.save(spendReward);
+		rewardRepository.save(spendReward);
 	}
 
-	public ConsumerPayment createConsumerPayment(
+	public void createConsumerPayment(
 		Member member, ConsumerOrder consumerOrder, PaymentVerifyDto paymentVerifyDto) {
 		ConsumerPayment consumerPayment = ConsumerPayment
 			.builder()
@@ -288,7 +305,7 @@ public class PaymentService {
 			.paidAt(LocalDateTime.now())
 			.build();
 
-		return consumerPaymentRepository.save(consumerPayment);
+		consumerPaymentRepository.save(consumerPayment);
 	}
 
 	public Shipping createShipping(
@@ -304,7 +321,7 @@ public class PaymentService {
 		return shippingRepository.save(shipping);
 	}
 
-	public ShippingAddress createShippingAddres(
+	public void createShippingAddress(
 		Member member, Shipping shipping, PaymentVerifyDto paymentVerifyDto) {
 		ShippingAddress shippingAddress = ShippingAddress
 			.builder()
@@ -318,7 +335,7 @@ public class PaymentService {
 			.memoContent(paymentVerifyDto.getMemoCnt())
 			.build();
 
-		return shippingAddressRepository.save(shippingAddress);
+		shippingAddressRepository.save(shippingAddress);
 	}
 }
 
