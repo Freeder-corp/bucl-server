@@ -20,21 +20,25 @@ import com.freeder.buclserver.domain.productoption.entity.ProductOption;
 import com.freeder.buclserver.domain.productoption.repository.ProductOptionRepository;
 import com.freeder.buclserver.domain.productreview.dto.ReviewPreviewDTO;
 import com.freeder.buclserver.domain.productreview.entity.ProductReview;
-import com.freeder.buclserver.global.logic.ImageParsing;
+import com.freeder.buclserver.global.util.ImageParsing;
 
 @Service
 public class ProductsService {
 
-	@Autowired
 	private final ProductsCategoryService productsCategoryService;
 	private final ProductRepository productRepository;
 	private final ProductOptionRepository productOptionRepository;
 	private final ImageParsing imageParsing;
 
-	public ProductsService(ProductRepository productRepository, ProductsCategoryService productsCategoryService,
-		ProductOptionRepository productOptionRepository, ImageParsing imageParsing) {
-		this.productRepository = productRepository;
+	@Autowired
+	public ProductsService(
+		ProductsCategoryService productsCategoryService,
+		ProductRepository productRepository,
+		ProductOptionRepository productOptionRepository,
+		ImageParsing imageParsing
+	) {
 		this.productsCategoryService = productsCategoryService;
+		this.productRepository = productRepository;
 		this.productOptionRepository = productOptionRepository;
 		this.imageParsing = imageParsing;
 	}
@@ -62,8 +66,10 @@ public class ProductsService {
 		List<ReviewPreviewDTO> reviewPreviews = reviews.stream()
 			.map(this::convertToReviewPreviewDTO)
 			.collect(Collectors.toList());
+
 		List<String> imageUrls = imageParsing.getImageList(product.getImagePath());
 		List<String> firstFiveImages = imageUrls.stream().limit(5).collect(Collectors.toList());
+
 		return new ProductDetailDTO(
 			product.getId(),
 			product.getName(),
@@ -77,6 +83,18 @@ public class ProductsService {
 		);
 	}
 
+	public ReviewPreviewDTO convertToReviewPreviewDTO(ProductReview review) {
+		String thumbnailUrl = imageParsing.getThumbnailUrl(review.getImagePath());
+		return new ReviewPreviewDTO(
+			review.getUser().getProfilePath(),
+			review.getUser().getNickname(),
+			review.getCreatedAt(),
+			review.getProduct().getName(),
+			review.getContent(),
+			thumbnailUrl
+		);
+	}
+
 	public List<ProductOptionDTO> getProductOptions(Long productId) {
 		List<ProductOption> productOptions = productOptionRepository.findByProductId(productId);
 		return productOptions.stream()
@@ -86,16 +104,6 @@ public class ProductsService {
 
 	private ProductOptionDTO convertToDTO(ProductOption productOption) {
 		return new ProductOptionDTO(productOption.getOptionKey().name(), productOption.getOptionValue());
-	}
-
-	private ReviewPreviewDTO convertToReviewPreviewDTO(ProductReview review) {
-		return new ReviewPreviewDTO(
-			review.getUser().getProfilePath(),
-			review.getUser().getNickname(),
-			review.getCreatedAt(),
-			review.getProduct().getName(),
-			review.getContent()
-		);
 	}
 
 	private ProductDTO convertToDTO(Product product) {

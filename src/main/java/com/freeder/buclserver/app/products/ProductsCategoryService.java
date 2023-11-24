@@ -13,7 +13,7 @@ import com.freeder.buclserver.domain.product.repository.ProductRepository;
 import com.freeder.buclserver.domain.productcategory.dto.ProductCategoryDTO;
 import com.freeder.buclserver.domain.productcategory.repository.ProductCategoryRepository;
 import com.freeder.buclserver.domain.productreview.entity.ProductReview;
-import com.freeder.buclserver.global.logic.ImageParsing;
+import com.freeder.buclserver.global.util.ImageParsing;
 
 @Service
 public class ProductsCategoryService {

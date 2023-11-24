@@ -30,6 +30,9 @@ public class ProductsController {
 	@Autowired
 	private ProductsCategoryService productsCategoryService;
 
+	@Autowired
+	private ProductsReviewService productsReviewService;
+
 	@GetMapping
 	public ResponseEntity<BaseResponse<List<ProductDTO>>> getProducts(
 		@RequestParam(defaultValue = "1") Long categoryId,
@@ -64,6 +67,19 @@ public class ProductsController {
 	public ResponseEntity<BaseResponse<List<ProductOptionDTO>>> getProductOptions(@PathVariable Long productId) {
 		List<ProductOptionDTO> productOptions = productsService.getProductOptions(productId);
 		BaseResponse<List<ProductOptionDTO>> response = new BaseResponse<>(productOptions, HttpStatus.OK, "옵션 요청 성공");
+		return ResponseEntity.ok(response);
+	}
+
+	@GetMapping("/{productId}/reviews")
+	public ResponseEntity<BaseResponse<ProductsReviewService.ProductReviewResult>> getProductReviews(
+		@PathVariable Long productId,
+		@RequestParam(defaultValue = "1") int page,
+		@RequestParam(defaultValue = "5") int pageSize
+	) {
+		ProductsReviewService.ProductReviewResult result = productsReviewService.getProductReviews(productId, page,
+			pageSize);
+		BaseResponse<ProductsReviewService.ProductReviewResult> response = new BaseResponse<>(result, HttpStatus.OK,
+			"리뷰 조회 성공");
 		return ResponseEntity.ok(response);
 	}
 
