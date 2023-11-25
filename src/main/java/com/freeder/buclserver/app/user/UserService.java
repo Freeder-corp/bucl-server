@@ -19,8 +19,8 @@ public class UserService {
 
 	private final UserRepository userRepository;
 
-	public Optional<UserDto> findBySocialUid(String socialUid) {
-		return userRepository.findBySocialId(socialUid)
+	public Optional<UserDto> findBySocialIdAndDeletedAtIsNull(String socialUid) {
+		return userRepository.findBySocialIdAndDeletedAtIsNull(socialUid)
 			.map(UserDto::from);
 	}
 
@@ -31,17 +31,18 @@ public class UserService {
 	}
 
 	@Transactional
-	public void rejoin(Long memberId) {
-		User user = userRepository.findById(memberId)
-			.orElseThrow(() -> new UserIdNotFoundException(memberId));
-		user.rejoin();
-	}
-
-	@Transactional
 	public void deleteRefreshToken(Long userId) {
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new UserIdNotFoundException(userId));
 
 		user.deleteRefreshToken();
+	}
+
+	@Transactional
+	public void withdrawal(Long userId) {
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new UserIdNotFoundException(userId));
+
+		user.withdrawal();
 	}
 }
