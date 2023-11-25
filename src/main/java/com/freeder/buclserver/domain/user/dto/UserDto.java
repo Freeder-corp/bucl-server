@@ -28,12 +28,13 @@ public record UserDto(
 ) {
 
 	public static UserDto of(
-		String socialId, String email, String nickname, String profilePath, String gender, Role role,
-		JoinType joinType, UserState userState, UserGrade userGrade
+		Long id, String email, String nickname, String profilePath, Boolean isAlarmed, String cellPhone,
+		Role role, JoinType joinType, UserState userState, UserGrade userGrade, Gender gender, LocalDateTime birthDate,
+		String socialId, String refreshToken, LocalDateTime deletedAt
 	) {
 		return new UserDto(
-			null, email, nickname, profilePath, null, null, role, joinType, userState, userGrade,
-			Gender.parseGenderEnum(gender), null, socialId, null, null
+			id, email, nickname, profilePath, isAlarmed, cellPhone, role, joinType,
+			userState, userGrade, gender, birthDate, socialId, refreshToken, deletedAt
 		);
 	}
 
