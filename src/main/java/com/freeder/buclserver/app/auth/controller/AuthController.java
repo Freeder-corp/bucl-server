@@ -3,6 +3,8 @@ package com.freeder.buclserver.app.auth.controller;
 import javax.validation.Valid;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +16,7 @@ import com.freeder.buclserver.app.auth.dto.response.KakaoUserInfoResponse;
 import com.freeder.buclserver.app.auth.dto.response.TokenResponse;
 import com.freeder.buclserver.app.auth.service.JwtTokenService;
 import com.freeder.buclserver.app.user.UserService;
+import com.freeder.buclserver.core.security.CustomUserDetails;
 import com.freeder.buclserver.domain.user.dto.UserDto;
 import com.freeder.buclserver.global.openfeign.kakao.KakaoApiClient;
 import com.freeder.buclserver.global.response.BaseResponse;
@@ -50,5 +53,12 @@ public class AuthController {
 	public BaseResponse renewTokens(@Valid @RequestBody RefreshTokenRequest request) {
 		TokenResponse tokens = jwtTokenService.renewTokens(request.refreshToken());
 		return new BaseResponse(tokens, HttpStatus.OK, "요청 성공");
+	}
+
+	@GetMapping("/v1/auth/logout")
+	public BaseResponse logout(@AuthenticationPrincipal CustomUserDetails userDetails) {
+		String userId = userDetails.getUserId();
+		userService.deleteRefreshToken(Long.valueOf(userId));
+		return new BaseResponse(userId, HttpStatus.OK, "요청 성공");
 	}
 }

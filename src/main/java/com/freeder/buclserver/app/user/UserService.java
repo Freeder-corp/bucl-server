@@ -36,4 +36,12 @@ public class UserService {
 			.orElseThrow(() -> new UserIdNotFoundException(memberId));
 		user.rejoin();
 	}
+
+	@Transactional
+	public void deleteRefreshToken(Long userId) {
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new UserIdNotFoundException(userId));
+
+		user.deleteRefreshToken();
+	}
 }
