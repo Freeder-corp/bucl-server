@@ -38,12 +38,9 @@ public class AuthController {
 	@PostMapping("/v1/auth/login/kakao")
 	public BaseResponse kakaoLogin(@Valid @RequestBody KakaoLoginRequest request) {
 		KakaoUserInfoResponse userInfo = kakaoApiClient.getUserInfo("Bearer " + request.kakaoAccessToken());
-		UserDto userDto = userService.findBySocialUid(userInfo.getId())
-			.orElseGet(() -> userService.join(userInfo.toUserDto()));
 
-		if (userDto.deletedAt() != null) {
-			userService.rejoin(userDto.id());
-		}
+		UserDto userDto = userService.findBySocialIdAndDeletedAtIsNull(userInfo.getId())
+			.orElseGet(() -> userService.join(userInfo.toUserDto()));
 
 		TokenResponse tokens = jwtTokenService.createJwtTokens(userDto.id(), userDto.role());
 		return new BaseResponse(tokens, HttpStatus.OK, "요청 성공");
@@ -59,6 +56,13 @@ public class AuthController {
 	public BaseResponse logout(@AuthenticationPrincipal CustomUserDetails userDetails) {
 		String userId = userDetails.getUserId();
 		userService.deleteRefreshToken(Long.valueOf(userId));
+		return new BaseResponse(userId, HttpStatus.OK, "요청 성공");
+	}
+
+	@GetMapping("/v1/auth/withdrawal")
+	public BaseResponse withdrawal(@AuthenticationPrincipal CustomUserDetails userDetails) {
+		String userId = userDetails.getUserId();
+		userService.withdrawal(Long.valueOf(userId));
 		return new BaseResponse(userId, HttpStatus.OK, "요청 성공");
 	}
 }
