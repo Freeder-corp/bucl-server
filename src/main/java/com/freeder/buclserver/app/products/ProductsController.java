@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +14,7 @@ import com.freeder.buclserver.domain.product.dto.ProductDTO;
 import com.freeder.buclserver.domain.product.dto.ProductDetailDTO;
 import com.freeder.buclserver.domain.productcategory.dto.ProductCategoryDTO;
 import com.freeder.buclserver.domain.productoption.dto.ProductOptionDTO;
+import com.freeder.buclserver.domain.productreview.dto.ReviewPhotoDTO;
 import com.freeder.buclserver.global.response.BaseResponse;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,55 +32,67 @@ public class ProductsController {
 
 	@Autowired
 	private ProductsReviewService productsReviewService;
+	@Autowired
+	private ProductsReviewPhotoService productsReviewPhotoService;
 
 	@GetMapping
-	public ResponseEntity<BaseResponse<List<ProductDTO>>> getProducts(
+	public BaseResponse<List<ProductDTO>> getProducts(
 		@RequestParam(defaultValue = "1") Long categoryId,
 		@RequestParam(defaultValue = "1") int page,
 		@RequestParam(defaultValue = "10") int pageSize
 	) {
 		List<ProductDTO> products = productsService.getProducts(categoryId, page, pageSize);
-		BaseResponse<List<ProductDTO>> response = new BaseResponse<>(products, HttpStatus.OK, "요청 성공");
-		return ResponseEntity.ok(response);
+		return new BaseResponse<>(products, HttpStatus.OK, "요청 성공");
 	}
 
 	@GetMapping("/category")
-	public ResponseEntity<BaseResponse<List<ProductCategoryDTO>>> getProductsByCategory(
+	public BaseResponse<List<ProductCategoryDTO>> getProductsByCategory(
 		@RequestParam(defaultValue = "1") Long categoryId,
 		@RequestParam(defaultValue = "1") int page,
 		@RequestParam(defaultValue = "10") int pageSize
 	) {
 		List<ProductCategoryDTO> categoryProducts = productsCategoryService.getCategoryProducts(categoryId, page,
 			pageSize);
-		BaseResponse<List<ProductCategoryDTO>> response = new BaseResponse<>(categoryProducts, HttpStatus.OK, "요청 성공");
-		return ResponseEntity.ok(response);
+		return new BaseResponse<>(categoryProducts, HttpStatus.OK, "요청 성공");
 	}
 
 	@GetMapping("/{productId}")
-	public ResponseEntity<BaseResponse<ProductDetailDTO>> getProductDetail(@PathVariable Long productId) {
+	public BaseResponse<ProductDetailDTO> getProductDetail(@PathVariable Long productId) {
 		ProductDetailDTO productDetail = productsService.getProductDetail(productId);
-		BaseResponse<ProductDetailDTO> response = new BaseResponse<>(productDetail, HttpStatus.OK, "요청 성공");
-		return ResponseEntity.ok(response);
+		return new BaseResponse<>(productDetail, HttpStatus.OK, "요청 성공");
 	}
 
 	@GetMapping("/{productId}/options")
-	public ResponseEntity<BaseResponse<List<ProductOptionDTO>>> getProductOptions(@PathVariable Long productId) {
+	public BaseResponse<List<ProductOptionDTO>> getProductOptions(@PathVariable Long productId) {
 		List<ProductOptionDTO> productOptions = productsService.getProductOptions(productId);
-		BaseResponse<List<ProductOptionDTO>> response = new BaseResponse<>(productOptions, HttpStatus.OK, "옵션 요청 성공");
-		return ResponseEntity.ok(response);
+		return new BaseResponse<>(productOptions, HttpStatus.OK, "옵션 요청 성공");
 	}
 
 	@GetMapping("/{productId}/reviews")
-	public ResponseEntity<BaseResponse<ProductsReviewService.ProductReviewResult>> getProductReviews(
+	public BaseResponse<ProductsReviewService.ProductReviewResult> getProductReviews(
 		@PathVariable Long productId,
 		@RequestParam(defaultValue = "1") int page,
 		@RequestParam(defaultValue = "5") int pageSize
 	) {
 		ProductsReviewService.ProductReviewResult result = productsReviewService.getProductReviews(productId, page,
 			pageSize);
-		BaseResponse<ProductsReviewService.ProductReviewResult> response = new BaseResponse<>(result, HttpStatus.OK,
-			"리뷰 조회 성공");
-		return ResponseEntity.ok(response);
+		return new BaseResponse<>(result, HttpStatus.OK, "리뷰 조회 성공");
+	}
+
+	@GetMapping("/{productId}/photos")
+	public BaseResponse<List<ReviewPhotoDTO>> getReviewPhotos(
+		@PathVariable Long productId,
+		@RequestParam(defaultValue = "1") int page,
+		@RequestParam(defaultValue = "5") int pageSize,
+		@RequestParam(defaultValue = "false") boolean more
+	) {
+		int adjustedPageSize = more ? 20 : pageSize;
+		int startItemIndex = (page - 1) * adjustedPageSize + 1;
+
+		List<ReviewPhotoDTO> reviewPhotos = productsReviewPhotoService.getProductReviewPhotos(productId, startItemIndex,
+			adjustedPageSize);
+
+		return new BaseResponse<>(reviewPhotos, HttpStatus.OK, "리뷰 사진 조회 성공");
 	}
 
 }

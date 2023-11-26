@@ -13,7 +13,7 @@ import com.freeder.buclserver.domain.productreview.entity.ProductReview;
 public interface ProductReviewRepository extends JpaRepository<ProductReview, Long> {
 
 	@Query("SELECT COUNT(r) FROM ProductReview r WHERE r.product.id = :productId")
-	int countByProductIdFk(@Param("productId") Long productId);
+	long countByProductIdFk(@Param("productId") Long productId);
 
 	Page<ProductReview> findByProductId(Long productId, Pageable pageable);
 }

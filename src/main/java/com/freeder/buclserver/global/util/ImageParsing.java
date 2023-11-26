@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 public class ImageParsing {
 	public String getThumbnailUrl(String imagePath) {
 		List<String> imageList = getImageList(imagePath);
-		return imageList.isEmpty() ? null : imageList.get(0);
+		return imageList.isEmpty() ? "" : imageList.get(0);
 	}
 
 	public List<String> getReviewUrl(String imagePath) {

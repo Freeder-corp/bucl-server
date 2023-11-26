@@ -28,7 +28,7 @@ public class ProductsReviewService {
 		Pageable pageable = PageRequest.of(offset, pageSize);
 		Page<ProductReview> reviewPage = productReviewRepository.findByProductId(productId, pageable);
 
-		int reviewCount = productReviewRepository.countByProductIdFk(productId);
+		long reviewCount = productReviewRepository.countByProductIdFk(productId);
 		double averageRating = productsCategoryService.calculateAverageRating(reviewPage.getContent());
 
 		List<ReviewDTO> reviewDTOs = reviewPage.getContent().stream()
@@ -52,21 +52,21 @@ public class ProductsReviewService {
 	}
 
 	public static class ProductReviewResult {
-		private final int reviewCount;
+		private final long reviewCount;
 		private final double averageRating;
 		private final List<ReviewDTO> reviews;
 
-		public ProductReviewResult(int reviewCount, double averageRating, List<ReviewDTO> reviews) {
-			this.reviews = reviews;
+		public ProductReviewResult(long reviewCount, double averageRating, List<ReviewDTO> reviews) {
 			this.reviewCount = reviewCount;
 			this.averageRating = averageRating;
+			this.reviews = reviews;
 		}
 
 		public List<ReviewDTO> getReviews() {
 			return reviews;
 		}
 
-		public int getReviewCount() {
+		public long getReviewCount() {
 			return reviewCount;
 		}
 
