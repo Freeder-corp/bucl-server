@@ -26,10 +26,10 @@ public class ProductsReviewPhotoService {
 		this.imageParsing = imageParsing;
 	}
 
-	public List<ReviewPhotoDTO> getProductReviewPhotos(Long productId, int page, int pageSize) {
+	public List<ReviewPhotoDTO> getProductReviewPhotos(Long productCode, int page, int pageSize) {
 		try {
 			Pageable pageable = PageRequest.of(page - 1, pageSize);
-			Page<ProductReview> reviewPage = productReviewRepository.findByProductId(productId, pageable);
+			Page<ProductReview> reviewPage = productReviewRepository.findByProduct_productCode(productCode, pageable);
 
 			List<ReviewPhotoDTO> reviewPhotos = reviewPage.getContent().stream()
 				.map(this::convertToPhotoDTO)

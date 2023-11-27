@@ -10,5 +10,5 @@ import com.freeder.buclserver.domain.productoption.entity.ProductOption;
 @Repository
 public interface ProductOptionRepository extends JpaRepository<ProductOption, Long> {
 
-	List<ProductOption> findByProductId(Long productId);
+	List<ProductOption> findByProduct_productCode(Long productCode);
 }

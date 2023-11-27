@@ -14,5 +14,5 @@ public class ProductCategoryDTO {
 	private int reward;
 	private int discountRate;
 	private int totalReviewCount;
-	private double averageRating;
+	private float averageRating;
 }

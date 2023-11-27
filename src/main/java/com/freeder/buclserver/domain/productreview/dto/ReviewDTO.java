@@ -11,8 +11,8 @@ import lombok.Getter;
 public class ReviewDTO {
 	private String profilePath;
 	private String nickname;
-	private LocalDateTime reviewDate;
-	private float starRate;
+	private LocalDateTime createdAt;
+	private double starRate;
 	private String selectedOption;
 	private List<String> reviewImages;
 	private String reviewText;

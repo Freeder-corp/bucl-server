@@ -63,40 +63,41 @@ public class ProductsController {
 		return new BaseResponse<>(categoryProducts, HttpStatus.OK, "요청 성공");
 	}
 
-	@GetMapping("/{productId}")
-	public BaseResponse<ProductDetailDTO> getProductDetail(@PathVariable Long productId) {
-		ProductDetailDTO productDetail = productsService.getProductDetail(productId);
+	@GetMapping("/{product_code}")
+	public BaseResponse<ProductDetailDTO> getProductDetail(@PathVariable("product_code") Long productCode) {
+		ProductDetailDTO productDetail = productsService.getProductDetail(productCode);
 		return new BaseResponse<>(productDetail, HttpStatus.OK, "요청 성공");
 	}
 
-	@GetMapping("/{productId}/options")
-	public BaseResponse<List<ProductOptionDTO>> getProductOptions(@PathVariable Long productId) {
-		List<ProductOptionDTO> productOptions = productsService.getProductOptions(productId);
+	@GetMapping("/{product_code}/options")
+	public BaseResponse<List<ProductOptionDTO>> getProductOptions(@PathVariable("product_code") Long productCode) {
+		List<ProductOptionDTO> productOptions = productsService.getProductOptions(productCode);
 		return new BaseResponse<>(productOptions, HttpStatus.OK, "옵션 요청 성공");
 	}
 
-	@GetMapping("/{productId}/reviews")
+	@GetMapping("/{product_code}/reviews")
 	public BaseResponse<ProductsReviewService.ProductReviewResult> getProductReviews(
-		@PathVariable Long productId,
+		@PathVariable("product_code") Long productCode,
 		@RequestParam(defaultValue = "1") int page,
 		@RequestParam(defaultValue = "5") int pageSize
 	) {
-		ProductsReviewService.ProductReviewResult result = productsReviewService.getProductReviews(productId, page,
+		ProductsReviewService.ProductReviewResult result = productsReviewService.getProductReviews(productCode, page,
 			pageSize);
 		return new BaseResponse<>(result, HttpStatus.OK, "리뷰 조회 성공");
 	}
 
-	@GetMapping("/{productId}/photos")
+	@GetMapping("/{product_code}/photo-reviews")
 	public BaseResponse<List<ReviewPhotoDTO>> getReviewPhotos(
-		@PathVariable Long productId,
+		@PathVariable("product_code") Long productCode,
 		@RequestParam(defaultValue = "1") int page,
 		@RequestParam(defaultValue = "5") int pageSize,
-		@RequestParam(defaultValue = "false") boolean more
+		@RequestParam(defaultValue = "preview") String display
 	) {
-		int adjustedPageSize = more ? 20 : pageSize;
+		int adjustedPageSize = "fullview".equals(display) ? 20 : pageSize;
 		int startItemIndex = (page - 1) * adjustedPageSize + 1;
 
-		List<ReviewPhotoDTO> reviewPhotos = productsReviewPhotoService.getProductReviewPhotos(productId, startItemIndex,
+		List<ReviewPhotoDTO> reviewPhotos = productsReviewPhotoService.getProductReviewPhotos(productCode,
+			startItemIndex,
 			adjustedPageSize);
 
 		return new BaseResponse<>(reviewPhotos, HttpStatus.OK, "리뷰 사진 조회 성공");

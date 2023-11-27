@@ -21,8 +21,7 @@ public class ProductsCategoryService {
 	private final ProductCategoryRepository productCategoryRepository;
 	private final ImageParsing imageParsing;
 
-	public ProductsCategoryService(ProductCategoryRepository productCategoryRepository,
-		ImageParsing imageParsing) {
+	public ProductsCategoryService(ProductCategoryRepository productCategoryRepository, ImageParsing imageParsing) {
 		this.productCategoryRepository = productCategoryRepository;
 		this.imageParsing = imageParsing;
 	}
@@ -43,8 +42,10 @@ public class ProductsCategoryService {
 	public ProductCategoryDTO convertToCategoryDTO(Product product) {
 		List<ProductReview> reviews = product.getReviews();
 		int reviewCount = reviews.size();
-		double averageRating = calculateAverageRating(reviews);
+		float averageRating = calculateAverageRating(reviews);
 		String thumbnailUrl = imageParsing.getThumbnailUrl(product.getImagePath());
+		averageRating = Math.round(averageRating * 10.0f) / 10.0f;
+
 		return new ProductCategoryDTO(
 			product.getId(),
 			product.getName(),
@@ -58,20 +59,20 @@ public class ProductsCategoryService {
 		);
 	}
 
-	public double calculateAverageRating(List<ProductReview> reviews) {
+	public float calculateAverageRating(List<ProductReview> reviews) {
 		try {
 			if (reviews.isEmpty()) {
-				return 0.0;
+				return 0.0f;
 			}
 
-			double totalRating = 0.0;
+			float totalRating = 0.0f;
 			for (ProductReview review : reviews) {
 				totalRating += review.getStarRate().getValue();
 			}
 
-			double averageRating = totalRating / reviews.size();
+			float averageRating = totalRating / reviews.size();
 
-			return Math.round(averageRating * 10.0) / 10.0;
+			return Math.round(averageRating * 10.0f) / 10.0f;
 		} catch (Exception e) {
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "별점 평균 계산 - 서버 에러");
 		}

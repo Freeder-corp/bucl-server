@@ -58,17 +58,18 @@ public class ProductsService {
 		}
 	}
 
-	public ProductDetailDTO getProductDetail(Long productId) {
+	public ProductDetailDTO getProductDetail(Long productCode) {
 		try {
-			Product product = productRepository.findById(productId)
-				.orElseThrow(
-					() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found with id: " + productId));
+			Product product = productRepository.findByProductCode(productCode)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+					"Product not found with code: " + productCode));
 
 			List<ProductReview> reviews = product.getReviews().stream()
 				.limit(3)
 				.collect(Collectors.toList());
 
-			double averageRating = productsCategoryService.calculateAverageRating(reviews);
+			float averageRating = productsCategoryService.calculateAverageRating(reviews);
+			int reviewCount = reviews.size();
 
 			List<ReviewPreviewDTO> reviewPreviews = reviews.stream()
 				.map(this::convertToReviewPreviewDTO)
@@ -78,13 +79,15 @@ public class ProductsService {
 			List<String> firstFiveImages = imageUrls.stream().limit(5).collect(Collectors.toList());
 
 			return new ProductDetailDTO(
-				product.getId(),
+				product.getProductCode(),
 				product.getName(),
 				product.getBrandName(),
 				product.getSalePrice(),
 				product.getConsumerPrice(),
 				product.getDiscountRate(),
 				averageRating,
+				product.getCreatedAt(),
+				reviewCount,
 				firstFiveImages,
 				reviewPreviews
 			);
@@ -109,9 +112,9 @@ public class ProductsService {
 		}
 	}
 
-	public List<ProductOptionDTO> getProductOptions(Long productId) {
+	public List<ProductOptionDTO> getProductOptions(Long productCode) {
 		try {
-			List<ProductOption> productOptions = productOptionRepository.findByProductId(productId);
+			List<ProductOption> productOptions = productOptionRepository.findByProduct_productCode(productCode);
 			return productOptions.stream()
 				.map(this::convertToDTO)
 				.collect(Collectors.toList());
@@ -122,24 +125,26 @@ public class ProductsService {
 
 	private ProductOptionDTO convertToDTO(ProductOption productOption) {
 		String[] values = productOption.getOptionValue().split(",");
-		return new ProductOptionDTO(Arrays.asList(values));
+		return new ProductOptionDTO(Arrays.asList(values), productOption.getOptionExtraAmount());
 	}
 
 	private ProductDTO convertToDTO(Product product) {
 		try {
 			String thumbnailUrl = imageParsing.getThumbnailUrl(product.getImagePath());
+			float calculatedReward = (product.getSalePrice() * product.getConsumerRewardRate()) / 100;
+			float roundedReward = Math.round(calculatedReward * 100.0f) / 100.0f;
+
 			return new ProductDTO(
-				product.getId(),
+				product.getProductCode(),
 				product.getName(),
 				product.getBrandName(),
 				thumbnailUrl,
 				product.getSalePrice(),
 				product.getConsumerPrice(),
-				product.getConsumerPrice() * product.getConsumerRewardRate()
+				roundedReward
 			);
 		} catch (Exception e) {
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 정보 변환 - 서버 에러");
 		}
 	}
-
 }

@@ -7,12 +7,12 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ProductDTO {
 
-	private Long id;
+	private Long productCode;
 	private String name;
 	private String brandName;
 	private String imagePath;
 	private int salePrice;
 	private int consumerPrice;
-	private int reward;
+	private float reward;
 }
 

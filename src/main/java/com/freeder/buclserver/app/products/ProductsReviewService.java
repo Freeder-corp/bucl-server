@@ -1,5 +1,6 @@
 package com.freeder.buclserver.app.products;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,17 +32,21 @@ public class ProductsReviewService {
 		this.productsCategoryService = productsCategoryService;
 	}
 
-	public ProductReviewResult getProductReviews(Long productId, int page, int pageSize) {
+	public ProductReviewResult getProductReviews(Long productCode, int page, int pageSize) {
 		try {
 			int offset = (page - 1) * pageSize;
 			Pageable pageable = PageRequest.of(offset, pageSize);
-			Page<ProductReview> reviewPage = productReviewRepository.findByProductId(productId, pageable);
+			Page<ProductReview> reviewPage = productReviewRepository.findByProduct_productCode(
+				productCode, pageable);
 
-			long reviewCount = productReviewRepository.countByProductIdFk(productId);
-			double averageRating = productsCategoryService.calculateAverageRating(reviewPage.getContent());
+			long reviewCount = productReviewRepository.countByProductCodeFk(productCode);
+			float averageRating = productsCategoryService.calculateAverageRating(reviewPage.getContent());
 
 			List<ReviewDTO> reviewDTOs = reviewPage.getContent().stream()
 				.map(this::convertToReviewDTO)
+				.sorted(Comparator
+					.comparingDouble(ReviewDTO::getStarRate)
+					.thenComparing(ReviewDTO::getCreatedAt).reversed())
 				.collect(Collectors.toList());
 
 			return new ProductReviewResult(reviewCount, averageRating, reviewDTOs);
@@ -69,10 +74,10 @@ public class ProductsReviewService {
 
 	public static class ProductReviewResult {
 		private final long reviewCount;
-		private final double averageRating;
+		private final float averageRating;
 		private final List<ReviewDTO> reviews;
 
-		public ProductReviewResult(long reviewCount, double averageRating, List<ReviewDTO> reviews) {
+		public ProductReviewResult(long reviewCount, float averageRating, List<ReviewDTO> reviews) {
 			this.reviewCount = reviewCount;
 			this.averageRating = averageRating;
 			this.reviews = reviews;
@@ -86,7 +91,7 @@ public class ProductsReviewService {
 			return reviewCount;
 		}
 
-		public double getAverageRating() {
+		public float getAverageRating() {
 			return averageRating;
 		}
 	}

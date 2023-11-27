@@ -9,4 +9,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ProductOptionDTO {
 	private List<String> values;
+	private int extraAmount;
 }
