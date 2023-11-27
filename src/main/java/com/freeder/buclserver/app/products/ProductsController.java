@@ -24,16 +24,23 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "products 관련 API", description = "상품 관련 API")
 public class ProductsController {
 
-	@Autowired
-	private ProductsService productsService;
+	private final ProductsService productsService;
+	private final ProductsCategoryService productsCategoryService;
+	private final ProductsReviewService productsReviewService;
+	private final ProductsReviewPhotoService productsReviewPhotoService;
 
 	@Autowired
-	private ProductsCategoryService productsCategoryService;
-
-	@Autowired
-	private ProductsReviewService productsReviewService;
-	@Autowired
-	private ProductsReviewPhotoService productsReviewPhotoService;
+	public ProductsController(
+		ProductsService productsService,
+		ProductsCategoryService productsCategoryService,
+		ProductsReviewService productsReviewService,
+		ProductsReviewPhotoService productsReviewPhotoService
+	) {
+		this.productsService = productsService;
+		this.productsCategoryService = productsCategoryService;
+		this.productsReviewService = productsReviewService;
+		this.productsReviewPhotoService = productsReviewPhotoService;
+	}
 
 	@GetMapping
 	public BaseResponse<List<ProductDTO>> getProducts(

@@ -20,6 +20,7 @@ import com.freeder.buclserver.domain.productoption.entity.ProductOption;
 import com.freeder.buclserver.domain.productoption.repository.ProductOptionRepository;
 import com.freeder.buclserver.domain.productreview.dto.ReviewPreviewDTO;
 import com.freeder.buclserver.domain.productreview.entity.ProductReview;
+import com.freeder.buclserver.global.exception.BaseException;
 import com.freeder.buclserver.global.util.ImageParsing;
 
 @Service
@@ -44,62 +45,78 @@ public class ProductsService {
 	}
 
 	public List<ProductDTO> getProducts(Long categoryId, int page, int pageSize) {
-		Pageable pageable = PageRequest.of(page - 1, pageSize);
-		Page<Product> productsPage = productRepository.findProductsOrderByReward(categoryId, pageable);
-		List<ProductDTO> products = productsPage.getContent().stream()
-			.map(this::convertToDTO)
-			.collect(Collectors.toList());
-		return products;
+		try {
+			Pageable pageable = PageRequest.of(page - 1, pageSize);
+			Page<Product> productsPage = productRepository.findProductsOrderByReward(categoryId, pageable);
+			List<ProductDTO> products = productsPage.getContent().stream()
+				.map(this::convertToDTO)
+				.collect(Collectors.toList());
+			return products;
+		} catch (Exception e) {
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 목록 조회 - 서버 에러");
+		}
 	}
 
 	public ProductDetailDTO getProductDetail(Long productId) {
-		Product product = productRepository.findById(productId)
-			.orElseThrow(
-				() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found with id: " + productId));
+		try {
+			Product product = productRepository.findById(productId)
+				.orElseThrow(
+					() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found with id: " + productId));
 
-		List<ProductReview> reviews = product.getReviews().stream()
-			.limit(3)
-			.collect(Collectors.toList());
+			List<ProductReview> reviews = product.getReviews().stream()
+				.limit(3)
+				.collect(Collectors.toList());
 
-		double averageRating = productsCategoryService.calculateAverageRating(reviews);
+			double averageRating = productsCategoryService.calculateAverageRating(reviews);
 
-		List<ReviewPreviewDTO> reviewPreviews = reviews.stream()
-			.map(this::convertToReviewPreviewDTO)
-			.collect(Collectors.toList());
+			List<ReviewPreviewDTO> reviewPreviews = reviews.stream()
+				.map(this::convertToReviewPreviewDTO)
+				.collect(Collectors.toList());
 
-		List<String> imageUrls = imageParsing.getImageList(product.getImagePath());
-		List<String> firstFiveImages = imageUrls.stream().limit(5).collect(Collectors.toList());
+			List<String> imageUrls = imageParsing.getImageList(product.getImagePath());
+			List<String> firstFiveImages = imageUrls.stream().limit(5).collect(Collectors.toList());
 
-		return new ProductDetailDTO(
-			product.getId(),
-			product.getName(),
-			product.getBrandName(),
-			product.getSalePrice(),
-			product.getConsumerPrice(),
-			product.getDiscountRate(),
-			averageRating,
-			firstFiveImages,
-			reviewPreviews
-		);
+			return new ProductDetailDTO(
+				product.getId(),
+				product.getName(),
+				product.getBrandName(),
+				product.getSalePrice(),
+				product.getConsumerPrice(),
+				product.getDiscountRate(),
+				averageRating,
+				firstFiveImages,
+				reviewPreviews
+			);
+		} catch (Exception e) {
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 상세 정보 조회 - 서버 에러");
+		}
 	}
 
 	public ReviewPreviewDTO convertToReviewPreviewDTO(ProductReview review) {
-		String thumbnailUrl = imageParsing.getThumbnailUrl(review.getImagePath());
-		return new ReviewPreviewDTO(
-			review.getUser().getProfilePath(),
-			review.getUser().getNickname(),
-			review.getCreatedAt(),
-			review.getProduct().getName(),
-			review.getContent(),
-			thumbnailUrl
-		);
+		try {
+			String thumbnailUrl = imageParsing.getThumbnailUrl(review.getImagePath());
+			return new ReviewPreviewDTO(
+				review.getUser().getProfilePath(),
+				review.getUser().getNickname(),
+				review.getCreatedAt(),
+				review.getProduct().getName(),
+				review.getContent(),
+				thumbnailUrl
+			);
+		} catch (Exception e) {
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 리뷰 미리보기 변환 - 서버 에러");
+		}
 	}
 
 	public List<ProductOptionDTO> getProductOptions(Long productId) {
-		List<ProductOption> productOptions = productOptionRepository.findByProductId(productId);
-		return productOptions.stream()
-			.map(this::convertToDTO)
-			.collect(Collectors.toList());
+		try {
+			List<ProductOption> productOptions = productOptionRepository.findByProductId(productId);
+			return productOptions.stream()
+				.map(this::convertToDTO)
+				.collect(Collectors.toList());
+		} catch (Exception e) {
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 옵션 조회 - 서버 에러");
+		}
 	}
 
 	private ProductOptionDTO convertToDTO(ProductOption productOption) {
@@ -107,16 +124,20 @@ public class ProductsService {
 	}
 
 	private ProductDTO convertToDTO(Product product) {
-		String thumbnailUrl = imageParsing.getThumbnailUrl(product.getImagePath());
-		return new ProductDTO(
-			product.getId(),
-			product.getName(),
-			product.getBrandName(),
-			thumbnailUrl,
-			product.getSalePrice(),
-			product.getConsumerPrice(),
-			product.getConsumerPrice() * product.getConsumerRewardRate()
-		);
+		try {
+			String thumbnailUrl = imageParsing.getThumbnailUrl(product.getImagePath());
+			return new ProductDTO(
+				product.getId(),
+				product.getName(),
+				product.getBrandName(),
+				thumbnailUrl,
+				product.getSalePrice(),
+				product.getConsumerPrice(),
+				product.getConsumerPrice() * product.getConsumerRewardRate()
+			);
+		} catch (Exception e) {
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 정보 변환 - 서버 에러");
+		}
 	}
 
 }
