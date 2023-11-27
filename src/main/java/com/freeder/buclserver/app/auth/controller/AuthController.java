@@ -52,14 +52,14 @@ public class AuthController {
 		return new BaseResponse(tokens, HttpStatus.OK, "요청 성공");
 	}
 
-	@GetMapping("/v1/auth/logout")
+	@PostMapping("/v1/auth/logout")
 	public BaseResponse logout(@AuthenticationPrincipal CustomUserDetails userDetails) {
 		String userId = userDetails.getUserId();
 		userService.deleteRefreshToken(Long.valueOf(userId));
 		return new BaseResponse(userId, HttpStatus.OK, "요청 성공");
 	}
 
-	@GetMapping("/v1/auth/withdrawal")
+	@PostMapping("/v1/auth/member-withdrawal")
 	public BaseResponse withdrawal(@AuthenticationPrincipal CustomUserDetails userDetails) {
 		String userId = userDetails.getUserId();
 		userService.withdrawal(Long.valueOf(userId));
