@@ -13,7 +13,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.freeder.buclserver.domain.member.entity.Member;
+import com.freeder.buclserver.domain.user.entity.User;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -29,8 +29,8 @@ public class RewardWithdrawal {
 	private Long id;
 
 	@ManyToOne
-	@JoinColumn(name = "member_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-	private Member member;
+	@JoinColumn(name = "user_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+	private User user;
 
 	@Column(name = "bank_code_std")
 	private String bankCodeStd;

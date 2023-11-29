@@ -24,9 +24,9 @@ import com.freeder.buclserver.domain.consumerorder.vo.OrderStatus;
 import com.freeder.buclserver.domain.consumerpayment.entity.ConsumerPayment;
 import com.freeder.buclserver.domain.consumerpurchaseorder.entity.ConsumerPurchaseOrder;
 import com.freeder.buclserver.domain.grouporder.entity.GroupOrder;
-import com.freeder.buclserver.domain.member.entity.Member;
 import com.freeder.buclserver.domain.product.entity.Product;
 import com.freeder.buclserver.domain.shipping.entity.Shipping;
+import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.global.mixin.TimestampMixin;
 
 import lombok.AllArgsConstructor;
@@ -48,11 +48,11 @@ public class ConsumerOrder extends TimestampMixin {
 
 	@ManyToOne
 	@JoinColumn(name = "consumer_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-	private Member consumer;
+	private User consumer;
 
 	@ManyToOne
 	@JoinColumn(name = "business_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-	private Member business;
+	private User business;
 
 	@ManyToOne
 	@JoinColumn(name = "product_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))

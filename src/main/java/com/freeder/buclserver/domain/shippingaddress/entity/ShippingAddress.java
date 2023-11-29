@@ -12,8 +12,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import com.freeder.buclserver.domain.member.entity.Member;
 import com.freeder.buclserver.domain.shipping.entity.Shipping;
+import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.global.mixin.TimestampMixin;
 
 import lombok.AllArgsConstructor;
@@ -34,8 +34,8 @@ public class ShippingAddress extends TimestampMixin {
 	private Long id;
 
 	@ManyToOne
-	@JoinColumn(name = "member_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-	private Member member;
+	@JoinColumn(name = "user_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+	private User user;
 
 	@OneToOne
 	@JoinColumn(name = "shipping_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))

@@ -15,11 +15,11 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import com.freeder.buclserver.domain.consumerorder.entity.ConsumerOrder;
-import com.freeder.buclserver.domain.member.entity.Member;
 import com.freeder.buclserver.domain.orderrefund.entity.OrderRefund;
 import com.freeder.buclserver.domain.product.entity.Product;
 import com.freeder.buclserver.domain.reward.vo.RewardType;
 import com.freeder.buclserver.domain.rewardwithdrawalaccount.entity.RewardWithdrawalAccount;
+import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.global.mixin.TimestampMixin;
 
 import lombok.AllArgsConstructor;
@@ -41,8 +41,8 @@ public class Reward extends TimestampMixin {
 	private Long id;
 
 	@ManyToOne
-	@JoinColumn(name = "member_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-	private Member member;
+	@JoinColumn(name = "user_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+	private User user;
 
 	@ManyToOne
 	@JoinColumn(name = "product_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
@@ -83,9 +83,9 @@ public class Reward extends TimestampMixin {
 	private int rewardSum;
 
 	// @Builder
-	// public Reward(Member member, Product product, ConsumerOrder consumerOrder, String productName,
+	// public Reward(User user, Product product, ConsumerOrder consumerOrder, String productName,
 	// 	String productBrandName, RewardType rewardType, int spentRewardAmount, int previousRewardSum, int rewardSum) {
-	// 	this.member = member;
+	// 	this.user = user;
 	// 	this.product = product;
 	// 	this.consumerOrder = consumerOrder;
 	// 	this.productName = productName;

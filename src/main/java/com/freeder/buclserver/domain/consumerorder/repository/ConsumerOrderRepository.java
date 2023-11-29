@@ -8,11 +8,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.freeder.buclserver.domain.consumerorder.entity.ConsumerOrder;
-import com.freeder.buclserver.domain.member.entity.Member;
+import com.freeder.buclserver.domain.user.entity.User;
 
 @Repository
 public interface ConsumerOrderRepository extends JpaRepository<ConsumerOrder, Long> {
-	Page<ConsumerOrder> findAllByConsumerOrderByCreatedAtDesc(Member consumer, Pageable pageable);
+	Page<ConsumerOrder> findAllByConsumerOrderByCreatedAtDesc(User consumer, Pageable pageable);
 
 	Optional<ConsumerOrder> findByOrderCode(String orderCode);
 }
