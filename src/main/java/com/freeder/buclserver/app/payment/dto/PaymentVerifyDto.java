@@ -1,10 +1,10 @@
 package com.freeder.buclserver.app.payment.dto;
 
-import java.util.List;
-
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class PaymentVerifyDto {
 	private String impUid;
 	private int amount;
@@ -21,7 +21,8 @@ public class PaymentVerifyDto {
 	private String productCode;
 	private String productName;
 	private String brandName;
-	private List<ProductOptionDto> productOptionList;
+
+	private ProductOptionDto productOption;
 
 	// 적립금 사용시
 	private int rewardAmt;

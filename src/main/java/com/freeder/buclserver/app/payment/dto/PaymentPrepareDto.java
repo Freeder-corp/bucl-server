@@ -9,4 +9,6 @@ public class PaymentPrepareDto {
 	private String merchantUid;
 	private int amount;
 	private String productCode;
+
+	private ProductOptionDto productOption;
 }
