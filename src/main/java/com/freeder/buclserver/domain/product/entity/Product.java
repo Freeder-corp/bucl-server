@@ -80,17 +80,17 @@ public class Product extends TimestampMixin {
 	private TaxStatus taxStatus;
 
 	@Column(name = "margin_rate")
-	private int marginRate;
+	private float marginRate;
 	@Column(name = "tax_rate")
-	private int taxRate;
+	private float taxRate;
 	@Column(name = "discount_rate")
-	private int discountRate;
+	private float discountRate;
 
 	@Column(name = "consumer_reward_rate")
-	private int consumerRewardRate;
+	private float consumerRewardRate;
 
 	@Column(name = "business_reward_rate")
-	private int businessRewardRate;
+	private float businessRewardRate;
 
 	@Column(name = "image_path", length = 5000)
 	private String imagePath;
