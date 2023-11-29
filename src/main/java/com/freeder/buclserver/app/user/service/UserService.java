@@ -1,11 +1,13 @@
-package com.freeder.buclserver.app.user;
+package com.freeder.buclserver.app.user.service;
 
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.freeder.buclserver.domain.reward.repository.RewardRepository;
 import com.freeder.buclserver.domain.user.dto.UserDto;
+import com.freeder.buclserver.domain.user.dto.response.UserProfileResponse;
 import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.domain.user.repository.UserRepository;
 import com.freeder.buclserver.global.exception.auth.WithdrawalBadRequestException;
@@ -14,12 +16,13 @@ import com.freeder.buclserver.global.exception.user.UserIdNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 @Service
 public class UserService {
 
 	private final UserRepository userRepository;
+	private final RewardRepository rewardRepository;
 
+	@Transactional(readOnly = true)
 	public Optional<UserDto> findBySocialIdAndDeletedAtIsNull(String socialUid) {
 		return userRepository.findBySocialIdAndDeletedAtIsNull(socialUid)
 			.map(UserDto::from);
@@ -49,5 +52,17 @@ public class UserService {
 		}
 
 		user.withdrawal();
+	}
+
+	@Transactional(readOnly = true)
+	public UserProfileResponse getMyProfile(Long userId) {
+		return rewardRepository.findFirstByUser_IdOrderByCreatedAtDesc(userId)
+			.map(UserProfileResponse::from)
+			.orElseGet(() -> getUserProfileWithoutReward(userId));
+	}
+
+	private UserProfileResponse getUserProfileWithoutReward(Long userId) {
+		User user = userRepository.findById(userId).orElseThrow(() -> new UserIdNotFoundException(userId));
+		return UserProfileResponse.of(user.getProfilePath(), user.getNickname(), 0);
 	}
 }
