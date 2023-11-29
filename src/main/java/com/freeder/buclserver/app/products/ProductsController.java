@@ -52,9 +52,9 @@ public class ProductsController {
 		return new BaseResponse<>(products, HttpStatus.OK, "요청 성공");
 	}
 
-	@GetMapping("/category")
+	@GetMapping("/categories/{category_id}")
 	public BaseResponse<List<ProductCategoryDTO>> getProductsByCategory(
-		@RequestParam(defaultValue = "1") Long categoryId,
+		@PathVariable(name = "category_id") Long categoryId,
 		@RequestParam(defaultValue = "1") int page,
 		@RequestParam(defaultValue = "10") int pageSize
 	) {
