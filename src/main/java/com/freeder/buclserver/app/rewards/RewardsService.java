@@ -20,7 +20,7 @@ public class RewardsService {
 	}
 
 	public List<Reward> getUserRewardsByType(Long userId, RewardType type) {
-		return rewardRepository.findByUserIdAndType(userId, type);
+		return rewardRepository.findByUserIdAndRewardType(userId, type);
 	}
 
 }

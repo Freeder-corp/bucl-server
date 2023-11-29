@@ -12,5 +12,5 @@ import com.freeder.buclserver.domain.reward.vo.RewardType;
 public interface RewardRepository extends JpaRepository<Reward, Long> {
 	List<Reward> findByUserId(Long userId);
 
-	List<Reward> findByUserIdAndType(Long userId, RewardType type);
+	List<Reward> findByUserIdAndRewardType(Long userId, RewardType type);
 }
