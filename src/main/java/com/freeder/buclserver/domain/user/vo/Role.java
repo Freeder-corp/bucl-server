@@ -1,4 +1,4 @@
-package com.freeder.buclserver.domain.member.vo;
+package com.freeder.buclserver.domain.user.vo;
 
 public enum Role {
 	ROLE_GUEST,

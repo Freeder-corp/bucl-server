@@ -1,4 +1,4 @@
-package com.freeder.buclserver.domain.membershippingaddress.entity;
+package com.freeder.buclserver.domain.usershippingaddress.entity;
 
 import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
@@ -11,7 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.freeder.buclserver.domain.member.entity.Member;
+import com.freeder.buclserver.domain.user.entity.User;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -19,16 +19,16 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "member_shipping_address")
-public class MemberShippingAddress {
+@Table(name = "user_shipping_address")
+public class UserShippingAddress {
 	@Id
-	@Column(name = "member_shipping_address_id")
+	@Column(name = "user_shipping_address_id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	@ManyToOne
-	@JoinColumn(name = "member_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-	private Member member;
+	@JoinColumn(name = "user_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+	private User user;
 
 	@Column(name = "addr_no")
 	private String addrNo;
