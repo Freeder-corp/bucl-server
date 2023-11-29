@@ -4,7 +4,6 @@ import javax.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,7 +14,7 @@ import com.freeder.buclserver.app.auth.dto.request.RefreshTokenRequest;
 import com.freeder.buclserver.app.auth.dto.response.KakaoUserInfoResponse;
 import com.freeder.buclserver.app.auth.dto.response.TokenResponse;
 import com.freeder.buclserver.app.auth.service.JwtTokenService;
-import com.freeder.buclserver.app.user.UserService;
+import com.freeder.buclserver.app.user.service.UserService;
 import com.freeder.buclserver.core.security.CustomUserDetails;
 import com.freeder.buclserver.domain.user.dto.UserDto;
 import com.freeder.buclserver.global.openfeign.kakao.KakaoApiClient;
