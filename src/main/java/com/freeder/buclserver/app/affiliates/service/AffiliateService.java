@@ -27,12 +27,11 @@ public class AffiliateService {
 		List<Affiliate> affiliateList = affiliateRepository.findAllByUser_IdOrderByCreatedAtDesc(userId);
 
 		for (Affiliate affiliate : affiliateList) {
-			UserAffiliateResponse affiliateResponse = UserAffiliateResponse.from(affiliate);
-			int receivedReward = rewardRepository.findReceivedRewardAmount(
+			int totalReceivedReward = rewardRepository.findReceivedRewardAmount(
 				affiliate.getUser().getId(),
 				affiliate.getProduct().getId()
 			);
-			affiliateResponse.updateReceivedReward(receivedReward);
+			UserAffiliateResponse affiliateResponse = UserAffiliateResponse.from(affiliate, totalReceivedReward);
 			affiliateResponseList.add(affiliateResponse);
 		}
 
