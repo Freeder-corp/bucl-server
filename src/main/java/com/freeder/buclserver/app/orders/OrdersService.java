@@ -10,7 +10,7 @@ import com.freeder.buclserver.domain.consumerorder.repository.ConsumerOrderRepos
 import com.freeder.buclserver.domain.consumerpurchaseorder.repository.ConsumerPurchaseOrderRepository;
 import com.freeder.buclserver.domain.shipping.entity.Shipping;
 import com.freeder.buclserver.domain.shipping.repository.ShippingRepository;
-import com.freeder.buclserver.domain.user.dto.response.UserOrderResponse;
+import com.freeder.buclserver.domain.user.dto.response.MyOrderResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,8 +22,8 @@ public class OrdersService {
 	private final ConsumerPurchaseOrderRepository consumerPurchaseOrderRepository;
 	private final ShippingRepository shippingRepository;
 
-	public List<UserOrderResponse> getMyOrders(Long userId) {
-		List<UserOrderResponse> orderResponseList = new ArrayList<>();
+	public List<MyOrderResponse> getMyOrders(Long userId) {
+		List<MyOrderResponse> orderResponseList = new ArrayList<>();
 
 		List<ConsumerOrder> consumerOrderList =
 			consumerOrderRepository.findAllByConsumer_IdOrderByCreatedAtDesc(userId);
@@ -32,8 +32,8 @@ public class OrdersService {
 			// TODO: 1개의 주문에 대해 한 옵션만 선택 가능함에 따라 로직 변경 필요
 			int totalProductQty = consumerPurchaseOrderRepository.findTotalProductOrderQty(consumerOrder.getId());
 			Shipping shipping = shippingRepository.findByConsumerOrder_Id(consumerOrder.getId());
-			UserOrderResponse productResponse = UserOrderResponse.from(consumerOrder, totalProductQty, shipping);
-			orderResponseList.add(productResponse);
+			MyOrderResponse orderResponse = MyOrderResponse.from(consumerOrder, totalProductQty, shipping);
+			orderResponseList.add(orderResponse);
 		}
 
 		return orderResponseList;

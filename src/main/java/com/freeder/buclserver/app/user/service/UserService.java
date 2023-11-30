@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.freeder.buclserver.domain.reward.repository.RewardRepository;
 import com.freeder.buclserver.domain.user.dto.UserDto;
-import com.freeder.buclserver.domain.user.dto.response.UserProfileResponse;
+import com.freeder.buclserver.domain.user.dto.response.MyProfileResponse;
 import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.domain.user.repository.UserRepository;
 import com.freeder.buclserver.global.exception.auth.WithdrawalBadRequestException;
@@ -55,14 +55,14 @@ public class UserService {
 	}
 
 	@Transactional(readOnly = true)
-	public UserProfileResponse getMyProfile(Long userId) {
+	public MyProfileResponse getMyProfile(Long userId) {
 		return rewardRepository.findFirstByUser_IdOrderByCreatedAtDesc(userId)
-			.map(UserProfileResponse::from)
+			.map(MyProfileResponse::from)
 			.orElseGet(() -> getUserProfileWithoutReward(userId));
 	}
 
-	private UserProfileResponse getUserProfileWithoutReward(Long userId) {
+	private MyProfileResponse getUserProfileWithoutReward(Long userId) {
 		User user = userRepository.findById(userId).orElseThrow(() -> new UserIdNotFoundException(userId));
-		return UserProfileResponse.of(user.getProfilePath(), user.getNickname(), 0);
+		return MyProfileResponse.of(user.getProfilePath(), user.getNickname(), 0);
 	}
 }
