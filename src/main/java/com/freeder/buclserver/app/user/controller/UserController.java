@@ -12,9 +12,9 @@ import com.freeder.buclserver.app.affiliates.service.AffiliateService;
 import com.freeder.buclserver.app.orders.OrdersService;
 import com.freeder.buclserver.app.user.service.UserService;
 import com.freeder.buclserver.core.security.CustomUserDetails;
-import com.freeder.buclserver.domain.user.dto.response.UserAffiliateResponse;
-import com.freeder.buclserver.domain.user.dto.response.UserOrderResponse;
-import com.freeder.buclserver.domain.user.dto.response.UserProfileResponse;
+import com.freeder.buclserver.domain.user.dto.response.MyAffiliateResponse;
+import com.freeder.buclserver.domain.user.dto.response.MyOrderResponse;
+import com.freeder.buclserver.domain.user.dto.response.MyProfileResponse;
 import com.freeder.buclserver.global.response.BaseResponse;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,21 +33,21 @@ public class UserController {
 	@GetMapping("/v1/my/profile")
 	public BaseResponse getMyProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
 		String userId = userDetails.getUserId();
-		UserProfileResponse userProfile = userService.getMyProfile(Long.valueOf(userId));
-		return new BaseResponse(userProfile, HttpStatus.OK, "요청 성공");
+		MyProfileResponse myProfile = userService.getMyProfile(Long.valueOf(userId));
+		return new BaseResponse(myProfile, HttpStatus.OK, "요청 성공");
 	}
 
 	@GetMapping("/v1/my/profile/affiliates")
 	public BaseResponse getMyAffiliates(@AuthenticationPrincipal CustomUserDetails userDetails) {
 		String userId = userDetails.getUserId();
-		List<UserAffiliateResponse> userAffiliateList = affiliateService.getMyAffiliates(Long.valueOf(userId));
-		return new BaseResponse(userAffiliateList, HttpStatus.OK, "요청 성공");
+		List<MyAffiliateResponse> myAffiliateList = affiliateService.getMyAffiliates(Long.valueOf(userId));
+		return new BaseResponse(myAffiliateList, HttpStatus.OK, "요청 성공");
 	}
 
 	@GetMapping("/v1/my/profile/orders")
 	public BaseResponse getMyOrders(@AuthenticationPrincipal CustomUserDetails userDetails) {
 		String userId = userDetails.getUserId();
-		List<UserOrderResponse> orderResponseList = ordersService.getMyOrders(Long.valueOf(userId));
-		return new BaseResponse(orderResponseList, HttpStatus.OK, "요청 성공");
+		List<MyOrderResponse> myOrderList = ordersService.getMyOrders(Long.valueOf(userId));
+		return new BaseResponse(myOrderList, HttpStatus.OK, "요청 성공");
 	}
 }

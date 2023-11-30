@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.freeder.buclserver.domain.affiliate.entity.Affiliate;
 import com.freeder.buclserver.domain.affiliate.repository.AffiliateRepository;
 import com.freeder.buclserver.domain.reward.repository.RewardRepository;
-import com.freeder.buclserver.domain.user.dto.response.UserAffiliateResponse;
+import com.freeder.buclserver.domain.user.dto.response.MyAffiliateResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,8 +21,8 @@ public class AffiliateService {
 	private final RewardRepository rewardRepository;
 
 	@Transactional(readOnly = true)
-	public List<UserAffiliateResponse> getMyAffiliates(Long userId) {
-		List<UserAffiliateResponse> affiliateResponseList = new ArrayList<>();
+	public List<MyAffiliateResponse> getMyAffiliates(Long userId) {
+		List<MyAffiliateResponse> affiliateResponseList = new ArrayList<>();
 
 		List<Affiliate> affiliateList = affiliateRepository.findAllByUser_IdOrderByCreatedAtDesc(userId);
 
@@ -31,7 +31,7 @@ public class AffiliateService {
 				affiliate.getUser().getId(),
 				affiliate.getProduct().getId()
 			);
-			UserAffiliateResponse affiliateResponse = UserAffiliateResponse.from(affiliate, totalReceivedReward);
+			MyAffiliateResponse affiliateResponse = MyAffiliateResponse.from(affiliate, totalReceivedReward);
 			affiliateResponseList.add(affiliateResponse);
 		}
 
