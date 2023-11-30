@@ -9,9 +9,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.freeder.buclserver.app.affiliates.service.AffiliateService;
+import com.freeder.buclserver.app.orders.OrdersService;
 import com.freeder.buclserver.app.user.service.UserService;
 import com.freeder.buclserver.core.security.CustomUserDetails;
 import com.freeder.buclserver.domain.user.dto.response.UserAffiliateResponse;
+import com.freeder.buclserver.domain.user.dto.response.UserOrderResponse;
 import com.freeder.buclserver.domain.user.dto.response.UserProfileResponse;
 import com.freeder.buclserver.global.response.BaseResponse;
 
@@ -26,6 +28,7 @@ public class UserController {
 
 	private final UserService userService;
 	private final AffiliateService affiliateService;
+	private final OrdersService ordersService;
 
 	@GetMapping("/v1/my/profile")
 	public BaseResponse getMyProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -39,5 +42,12 @@ public class UserController {
 		String userId = userDetails.getUserId();
 		List<UserAffiliateResponse> userAffiliateList = affiliateService.getMyAffiliates(Long.valueOf(userId));
 		return new BaseResponse(userAffiliateList, HttpStatus.OK, "요청 성공");
+	}
+
+	@GetMapping("/v1/my/profile/orders")
+	public BaseResponse getMyOrders(@AuthenticationPrincipal CustomUserDetails userDetails) {
+		String userId = userDetails.getUserId();
+		List<UserOrderResponse> orderResponseList = ordersService.getMyOrders(Long.valueOf(userId));
+		return new BaseResponse(orderResponseList, HttpStatus.OK, "요청 성공");
 	}
 }
