@@ -1,5 +1,6 @@
 package com.freeder.buclserver.domain.product.entity;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +22,7 @@ import org.hibernate.annotations.ColumnDefault;
 
 import com.freeder.buclserver.domain.product.vo.ProductStatus;
 import com.freeder.buclserver.domain.product.vo.TaxStatus;
-import com.freeder.buclserver.domain.productcategory.entiry.ProductCategory;
+import com.freeder.buclserver.domain.productcategory.entity.ProductCategory;
 import com.freeder.buclserver.domain.productoption.entity.ProductOption;
 import com.freeder.buclserver.domain.productreview.entity.ProductReview;
 import com.freeder.buclserver.domain.shippinginfo.entity.ShippingInfo;
@@ -34,7 +35,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Table(name = "product")
-public class Product extends TimestampMixin {
+public class Product extends TimestampMixin implements Serializable {
 	@Id
 	@Column(name = "product_id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -57,7 +58,7 @@ public class Product extends TimestampMixin {
 	private String name;
 
 	@Column(name = "product_code", unique = true)
-	private long productCode;
+	private Long productCode;
 
 	@Column(name = "brand_name")
 	private String brandName;
@@ -114,4 +115,9 @@ public class Product extends TimestampMixin {
 
 	@Column(name = "sale_alternatives")
 	private String saleAlternatives;
+
+	public List<ProductReview> getReviews() {
+		return productReviews;
+	}
+
 }
