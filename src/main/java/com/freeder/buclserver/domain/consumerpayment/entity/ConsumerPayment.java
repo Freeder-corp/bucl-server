@@ -27,10 +27,10 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "PAYMENT")
+@Table(name = "CONSUMER_PAYMENT")
 public class ConsumerPayment extends TimestampMixin {
 	@Id
-	@Column(name = "payment_id")
+	@Column(name = "consumer_payment_id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 

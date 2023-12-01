@@ -81,11 +81,11 @@ public class Product extends TimestampMixin implements Serializable {
 	private TaxStatus taxStatus;
 
 	@Column(name = "margin_rate")
-	private int marginRate;
+	private float marginRate;
 	@Column(name = "tax_rate")
-	private int taxRate;
+	private float taxRate;
 	@Column(name = "discount_rate")
-	private int discountRate;
+	private float discountRate;
 
 	@Column(name = "consumer_reward_rate")
 	private float consumerRewardRate;

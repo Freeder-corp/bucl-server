@@ -29,5 +29,3 @@ public enum StarRate {
 		return Comparator.comparingDouble(StarRate::getValue);
 	}
 }
-
-

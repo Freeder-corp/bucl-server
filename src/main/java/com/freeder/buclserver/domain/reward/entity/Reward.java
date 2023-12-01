@@ -22,14 +22,19 @@ import com.freeder.buclserver.domain.rewardwithdrawalaccount.entity.RewardWithdr
 import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.global.mixin.TimestampMixin;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Entity
-@Getter
-@Setter
 @Table(name = "reward")
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Reward extends TimestampMixin {
+
 	@Id
 	@Column(name = "reward_id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,7 +45,7 @@ public class Reward extends TimestampMixin {
 	private User user;
 
 	@ManyToOne
-	@JoinColumn(name = "product_id", nullable = true, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+	@JoinColumn(name = "product_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private Product product;
 
 	@OneToOne
@@ -48,7 +53,7 @@ public class Reward extends TimestampMixin {
 	private ConsumerOrder consumerOrder;
 
 	@OneToOne
-	@JoinColumn(name = "order_refund_id", nullable = true, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+	@JoinColumn(name = "order_refund_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private OrderRefund orderRefund;
 
 	@ManyToOne

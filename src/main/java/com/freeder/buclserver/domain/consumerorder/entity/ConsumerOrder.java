@@ -29,13 +29,17 @@ import com.freeder.buclserver.domain.shipping.entity.Shipping;
 import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.global.mixin.TimestampMixin;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 
 @Entity
-@Getter
-@Setter
 @Table(name = "consumer_order")
+@Getter
+@AllArgsConstructor
+@RequiredArgsConstructor
+@Builder
 public class ConsumerOrder extends TimestampMixin {
 	@Id
 	@Column(name = "consumer_order_id")
@@ -62,7 +66,7 @@ public class ConsumerOrder extends TimestampMixin {
 	private List<Shipping> shippings = new ArrayList<>();
 
 	@OneToMany(mappedBy = "consumerOrder")
-	private List<ConsumerPayment> payments = new ArrayList<>();
+	private List<ConsumerPayment> consumerPayments = new ArrayList<>();
 
 	@OneToMany(mappedBy = "consumerOrder")
 	private List<ConsumerPurchaseOrder> consumerPurchaseOrders = new ArrayList<>();
@@ -100,4 +104,16 @@ public class ConsumerOrder extends TimestampMixin {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "cs_status")
 	private CsStatus csStatus;
+
+	public void setCsStatus(CsStatus csStatus) {
+		this.csStatus = csStatus;
+	}
+
+	public void setOrderStatus(OrderStatus orderStatus) {
+		this.orderStatus = orderStatus;
+	}
+
+	public void setConfirmed() {
+		this.isConfirmed = true;
+	}
 }
