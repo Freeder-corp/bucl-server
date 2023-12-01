@@ -8,9 +8,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.freeder.buclserver.global.response.ErrorResponse;
-import com.siot.IamportRestClient.exception.IamportResponseException;
+
+import lombok.extern.slf4j.Slf4j;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 	@ExceptionHandler(BaseException.class)
 	public ResponseEntity<?> handleRestApiException(BaseException error) {
@@ -23,9 +25,10 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "").getStatusCode());
 	}
 
-	@ExceptionHandler(IamportResponseException.class)
-	public ResponseEntity<?> handleIamportResponseException(IamportResponseException error) {
+	@ExceptionHandler(NullPointerException.class)
+	public ResponseEntity<?> handleNullPointerException(NullPointerException error) {
+		log.info(error.getMessage() + error);
 		return new ResponseEntity<>(
-			new ErrorResponse(HttpStatus.valueOf(error.getHttpStatusCode()), "결제 api에서 오류가 발생했습니다.").getStatusCode());
+			new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "서버상에서 문제가 발생했습니다.").getStatusCode());
 	}
 }
