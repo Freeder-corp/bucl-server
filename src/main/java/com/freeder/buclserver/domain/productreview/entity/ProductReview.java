@@ -3,6 +3,8 @@ package com.freeder.buclserver.domain.productreview.entity;
 import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -12,6 +14,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.freeder.buclserver.domain.product.entity.Product;
+import com.freeder.buclserver.domain.productreview.vo.StarRate;
 import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.global.mixin.TimestampMixin;
 
@@ -39,6 +42,7 @@ public class ProductReview extends TimestampMixin {
 	@Column(length = 300)
 	private String content;
 
-	@Column(name = "star_name")
-	private int starRate;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "star_rate")
+	private StarRate starRate;
 }
