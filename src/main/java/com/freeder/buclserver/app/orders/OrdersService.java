@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import com.freeder.buclserver.app.orders.dto.OrderDetailDto;
@@ -14,6 +15,10 @@ import com.freeder.buclserver.app.orders.dto.OrderDto;
 import com.freeder.buclserver.app.orders.dto.ShpAddrDto;
 import com.freeder.buclserver.domain.consumerorder.entity.ConsumerOrder;
 import com.freeder.buclserver.domain.consumerorder.repository.ConsumerOrderRepository;
+import com.freeder.buclserver.domain.product.entity.Product;
+import com.freeder.buclserver.domain.reward.entity.Reward;
+import com.freeder.buclserver.domain.reward.repository.RewardRepository;
+import com.freeder.buclserver.domain.reward.vo.RewardType;
 import com.freeder.buclserver.domain.shipping.entity.Shipping;
 import com.freeder.buclserver.domain.shipping.repository.ShippingRepository;
 import com.freeder.buclserver.domain.shipping.vo.ShippingStatus;
@@ -38,12 +43,16 @@ public class OrdersService {
 	private final UserRepository userRepository;
 	private final ShippingRepository shippingRepository;
 	private final ShippingAddressRepository shippingAddressRepository;
+	private final RewardRepository rewardRepository;
 
 	@Value("${tracking_info.t_key}")
 	private String trackingTKey;
 
 	public OrderDetailDto readOrderDetail(String socialId, String orderCode) {
-		ConsumerOrder consumerOrder = consumerOrderRepository.findByOrderCode(orderCode)
+		User consumer = userRepository.findBySocialId(socialId).orElseThrow(
+			() -> new UnauthorizedErrorException("인증 실패 했습니다.")
+		);
+		ConsumerOrder consumerOrder = consumerOrderRepository.findByOrderCodeAndConsumer(orderCode, consumer)
 			.orElseThrow(
 				() -> new BaseException(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value(), "주문 정보가 없습니다."));
 		if (!consumerOrder.getConsumer().getSocialId().equals(socialId)) {
@@ -69,8 +78,11 @@ public class OrdersService {
 		return orderDtoList;
 	}
 
-	public ShpAddrDto updateOrderShpAddr(String orderCode, ShpAddrDto shpAddrDto) {
-		ConsumerOrder consumerOrder = consumerOrderRepository.findByOrderCode(orderCode)
+	@Transactional
+	public ShpAddrDto updateOrderShpAddr(String socialId, String orderCode, ShpAddrDto shpAddrDto) {
+		User user = userRepository.findBySocialId(socialId)
+			.orElseThrow(() -> new BadRequestErrorException("해당 유저가 없습니다."));
+		ConsumerOrder consumerOrder = consumerOrderRepository.findByOrderCodeAndConsumer(orderCode, user)
 			.orElseThrow(
 				() -> new BaseException(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value(), "주문 정보가 없습니다."));
 		Shipping shipping = shippingRepository.findFirstByConsumerOrderAndIsActive(consumerOrder, true)
@@ -93,6 +105,67 @@ public class OrdersService {
 		shippingAddressRepository.save(shippingAddress);
 
 		return shpAddrDto;
+	}
+
+	@Transactional
+	public void updateOrderConfirmation(String socialId, String orderCode) {
+		User consumer = userRepository.findBySocialId(socialId)
+			.orElseThrow(() -> new BadRequestErrorException("해당 유저가 없습니다."));
+		ConsumerOrder consumerOrder = consumerOrderRepository.findByOrderCodeAndConsumer(orderCode, consumer)
+			.orElseThrow(
+				() -> new BaseException(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value(), "주문 정보가 없습니다."));
+
+		if (consumerOrder.isConfirmed()) {
+			throw new BaseException(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value(), "이미 주문 확정 되었습니다.");
+		}
+		consumerOrder.setConfirmed();
+
+		// int previousRewardAmount = 0;
+		// Optional<Reward> previousReward = rewardRepository.findFirstByUserOrderByCreatedAtDesc(consumer);
+		// if (previousReward.isPresent()) {
+		// 	previousRewardAmount = previousReward.get().getPreviousRewardSum();
+		// }
+		Product product = consumerOrder.getProduct();
+
+		int consumerPrevRewardAmt = rewardRepository.findFirstByUserId(consumer.getId()).orElse(0);
+
+		int consumerRcdRewardAmt = Math.round(product.getSalePrice() * product.getConsumerRewardRate());
+		Reward consumerReward = Reward
+			.builder()
+			.rewardType(RewardType.CONSUMER)
+			.user(consumer)
+			.consumerOrder(consumerOrder)
+			.product(product)
+			.productName(product.getName())
+			.productBrandName(product.getBrandName())
+			.previousRewardSum(consumerPrevRewardAmt)
+			.receivedRewardAmount(consumerRcdRewardAmt)
+			.rewardSum(consumerPrevRewardAmt + consumerRcdRewardAmt)
+			.build();
+
+		rewardRepository.save(consumerReward);
+		consumerOrderRepository.save(consumerOrder);
+
+		if (consumerOrder.getBusiness() != null) {
+			User business = consumerOrder.getBusiness();
+			System.out.println("이야 " + business.getId());
+			int businessPrevRewardAmt = rewardRepository.findFirstByUserId(business.getId()).orElse(0);
+			int businessRcdRewardAmt = Math.round(product.getSalePrice() * product.getBusinessRewardRate());
+
+			Reward businessReward = Reward
+				.builder()
+				.rewardType(RewardType.BUSINESS)
+				.user(business)
+				.consumerOrder(consumerOrder)
+				.product(product)
+				.productName(product.getName())
+				.productBrandName(product.getBrandName())
+				.previousRewardSum(businessPrevRewardAmt)
+				.receivedRewardAmount(businessRcdRewardAmt)
+				.rewardSum(businessPrevRewardAmt + businessRcdRewardAmt)
+				.build();
+			rewardRepository.save(businessReward);
+		}
 	}
 
 }

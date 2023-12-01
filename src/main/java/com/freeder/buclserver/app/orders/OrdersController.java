@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping(path = "/api/v1/orders")
 @Tag(name = "orders 관련 API", description = "주문 관련 API")
 public class OrdersController {
-	private String testSocialId = "sjfdlkwjlkj149202";
+	private String testSocialId = "3895839289";
 
 	private final OrdersService ordersService;
 
@@ -45,7 +45,23 @@ public class OrdersController {
 	public BaseResponse<ShpAddrDto> modifyOrderShpAddr(
 		@PathVariable("orderCode") String orderCode,
 		@RequestBody ShpAddrDto shpAddrDto) {
-		ShpAddrDto shpAddr = ordersService.updateOrderShpAddr(orderCode, shpAddrDto);
+		ShpAddrDto shpAddr = ordersService.updateOrderShpAddr(testSocialId, orderCode, shpAddrDto);
 		return new BaseResponse<>(shpAddr, HttpStatus.OK, "배송지 정보가 수정 되었습니다.");
 	}
+
+	@PutMapping("/{orderCode}/confirmation")
+	public BaseResponse<String> modifyOrderConfirmation(
+		@PathVariable("orderCode") String orderCode) {
+		ordersService.updateOrderConfirmation(testSocialId, orderCode);
+		return new BaseResponse<>(orderCode, HttpStatus.OK, orderCode + " 주문 확정 되었습니다.");
+	}
+
+	// @GetMapping("/tracking/{tracking_number}")
+	// public BaseResponse<List<TrackingDetailDto>> findTrackingNumber(
+	// 	@PathVariable("tracking_number") String trackingNumber) throws JsonProcessingException {
+	// 	List<TrackingDetailDto> trackingInfoDto = ordersService.readTrackingInfo(trackingNumber);
+	// 	return new BaseResponse<>(
+	// 		trackingInfoDto, HttpStatus.OK, "택배 운송 정보 가져왔습니다."
+	// 	);
+	// }
 }
