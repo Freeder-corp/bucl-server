@@ -29,8 +29,8 @@ import lombok.Setter;
 @Table(name = "order_return")
 public class OrderReturn extends TimestampMixin {
 	@Id
-	@Column(name = "order_return_code", unique = true, nullable = false)
-	private String orderReturnCode;
+	@Column(name = "order_return_id", unique = true, nullable = false)
+	private String orderReturnId;
 
 	@ManyToOne
 	@JoinColumn(name = "consumer_order_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))

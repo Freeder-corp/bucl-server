@@ -28,8 +28,8 @@ import lombok.Setter;
 @Table(name = "order_exchange")
 public class OrderExchange extends TimestampMixin {
 	@Id
-	@Column(name = "order_exchange_code", unique = true, nullable = false)
-	private String orderExchangeCode;
+	@Column(name = "order_exchange_id", unique = true, nullable = false)
+	private String orderExchangeId;
 
 	@OneToOne
 	@JoinColumn(name = "consumer_order_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
