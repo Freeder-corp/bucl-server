@@ -107,4 +107,16 @@ public class ConsumerOrder extends TimestampMixin {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "cs_status")
 	private CsStatus csStatus;
+
+	public void setCsStatus(CsStatus csStatus) {
+		this.csStatus = csStatus;
+	}
+
+	public void setOrderStatus(OrderStatus orderStatus) {
+		this.orderStatus = orderStatus;
+	}
+
+	public void setConfirmed() {
+		this.isConfirmed = true;
+	}
 }

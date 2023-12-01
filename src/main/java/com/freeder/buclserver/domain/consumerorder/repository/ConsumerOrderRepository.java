@@ -14,5 +14,7 @@ import com.freeder.buclserver.domain.user.entity.User;
 public interface ConsumerOrderRepository extends JpaRepository<ConsumerOrder, Long> {
 	Page<ConsumerOrder> findAllByConsumerOrderByCreatedAtDesc(User consumer, Pageable pageable);
 
+	Optional<ConsumerOrder> findByOrderCodeAndConsumer(String orderCode, User consumer);
+
 	Optional<ConsumerOrder> findByOrderCode(String orderCode);
 }

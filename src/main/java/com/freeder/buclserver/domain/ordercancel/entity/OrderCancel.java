@@ -10,6 +10,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.ForeignKey;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -17,26 +18,35 @@ import com.freeder.buclserver.domain.consumerorder.entity.ConsumerOrder;
 import com.freeder.buclserver.domain.ordercancel.vo.OrderCancelExr;
 import com.freeder.buclserver.domain.ordercancel.vo.OrderCancelStatus;
 import com.freeder.buclserver.domain.orderrefund.entity.OrderRefund;
+import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.global.mixin.TimestampMixin;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 
 @Entity
-@Getter
-@Setter
 @Table(name = "order_cancel")
+@Getter
+@AllArgsConstructor
+@RequiredArgsConstructor
+@Builder
 public class OrderCancel extends TimestampMixin {
 	@Id
-	@Column(name = "order_cancel_code", unique = true, nullable = false)
-	private String orderCancelCode;
+	@Column(name = "order_cancel_id", unique = true, nullable = false)
+	private Long orderCancelId;
 
-	@OneToOne
+	@ManyToOne
+	@JoinColumn(name = "user_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+	private User user;
+
+	@ManyToOne
 	@JoinColumn(name = "consumer_order_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private ConsumerOrder consumerOrder;
 
 	@OneToOne
-	@JoinColumn(name = "order_refund_code", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+	@JoinColumn(name = "order_refund_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private OrderRefund orderRefund;
 
 	@Column(name = "order_cancel_status")
@@ -49,4 +59,8 @@ public class OrderCancel extends TimestampMixin {
 
 	@Column(name = "completed_at")
 	private LocalDateTime completedAt;
+
+	public void setOrderCancelStatus(OrderCancelStatus orderCancelStatus) {
+		this.orderCancelStatus = orderCancelStatus;
+	}
 }
