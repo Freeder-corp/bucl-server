@@ -356,7 +356,7 @@ public class PaymentService {
 			.builder()
 			.consumerOrder(consumerOrder)
 			.shippingInfo(shippingInfo)
-			.shippingStatus(ShippingStatus.PROCESSING)
+			.shippingStatus(ShippingStatus.NOT_PROCESSING)
 			.isActive(true)
 			.build();
 
