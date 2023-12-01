@@ -37,7 +37,12 @@ public class ProductOption extends TimestampMixin {
 	private Product product;
 
 	@Column(name = "sku_code", unique = true)
-	private String skuCode;
+	private Long skuCode;
+
+	@ManyToOne
+	@JoinColumn(name = "product_code", referencedColumnName = "product_code", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+	private Product productCode;
+
 
 	@Column(name = "option_key")
 	@Enumerated(EnumType.STRING)

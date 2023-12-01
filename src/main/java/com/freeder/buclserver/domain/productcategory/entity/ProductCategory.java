@@ -1,4 +1,4 @@
-package com.freeder.buclserver.domain.productcategory.entiry;
+package com.freeder.buclserver.domain.productcategory.entity;
 
 import java.util.ArrayList;
 import java.util.List;
