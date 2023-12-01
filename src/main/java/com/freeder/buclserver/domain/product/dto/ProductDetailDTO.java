@@ -16,7 +16,7 @@ public class ProductDetailDTO {
 	private String brandName;
 	private int salePrice;
 	private int consumerPrice;
-	private int discountRate;
+	private float discountRate;
 	private float averageRating;
 	private LocalDateTime createdAt;
 	private int totalReviewCount;

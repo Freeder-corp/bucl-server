@@ -12,7 +12,7 @@ public class ProductCategoryDTO {
 	private int salePrice;
 	private int consumerPrice;
 	private int reward;
-	private int discountRate;
+	private float discountRate;
 	private int totalReviewCount;
 	private float averageRating;
 }
