@@ -30,6 +30,8 @@ public class UserShippingAddress {
 	@JoinColumn(name = "user_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private User user;
 
+	private String addrNo;
+
 	@Column(name = "shipping_address_name")
 	private String shippingAddressName;
 

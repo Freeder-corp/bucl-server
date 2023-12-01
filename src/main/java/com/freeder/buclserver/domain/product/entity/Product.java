@@ -88,10 +88,10 @@ public class Product extends TimestampMixin implements Serializable {
 	private int discountRate;
 
 	@Column(name = "consumer_reward_rate")
-	private int consumerRewardRate;
+	private float consumerRewardRate;
 
 	@Column(name = "business_reward_rate")
-	private int businessRewardRate;
+	private float businessRewardRate;
 
 	@Column(name = "image_path", length = 5000)
 	private String imagePath;
@@ -102,9 +102,6 @@ public class Product extends TimestampMixin implements Serializable {
 	@Column(name = "product_state")
 	@Enumerated(EnumType.STRING)
 	private ProductStatus productStatus;
-
-	@Column(name = "sku_code", unique = true)
-	private String skuCode;
 
 	@Column(name = "product_priority")
 	private int productPriority;

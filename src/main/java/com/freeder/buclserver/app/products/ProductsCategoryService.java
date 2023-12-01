@@ -52,7 +52,7 @@ public class ProductsCategoryService {
 			thumbnailUrl,
 			product.getSalePrice(),
 			product.getConsumerPrice(),
-			product.getConsumerPrice() * product.getConsumerRewardRate(),
+			Math.round(product.getConsumerPrice() * product.getConsumerRewardRate()),
 			product.getDiscountRate(),
 			reviewCount,
 			averageRating

@@ -35,6 +35,10 @@ public class ProductOption extends TimestampMixin {
 	@ManyToOne
 	@JoinColumn(name = "product_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private Product product;
+
+	@Column(name = "sku_code", unique = true)
+	private Long skuCode;
+
 	@ManyToOne
 	@JoinColumn(name = "product_code", referencedColumnName = "product_code", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private Product productCode;
