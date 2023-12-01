@@ -36,6 +36,9 @@ public class ProductOption extends TimestampMixin {
 	@JoinColumn(name = "product_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private Product product;
 
+	@Column(name = "sku_code", unique = true)
+	private String skuCode;
+
 	@Column(name = "option_key")
 	@Enumerated(EnumType.STRING)
 	private OptionKey optionKey;
@@ -47,11 +50,8 @@ public class ProductOption extends TimestampMixin {
 	@Column(name = "option_sequence")
 	private int optionSequence;
 
-	@Column(name = "product_amount")
-	private int productAmount;
-
-	@Column(name = "product_num")
-	private int productNum;
+	@Column(name = "product_qty")
+	private int productQty;
 
 	@Column(name = "max_order_qty")
 	private int maxOrderQty;

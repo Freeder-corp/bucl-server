@@ -57,7 +57,7 @@ public class Product extends TimestampMixin {
 	private String name;
 
 	@Column(name = "product_code", unique = true)
-	private String productCode;
+	private long productCode;
 
 	@Column(name = "brand_name")
 	private String brandName;
@@ -80,17 +80,17 @@ public class Product extends TimestampMixin {
 	private TaxStatus taxStatus;
 
 	@Column(name = "margin_rate")
-	private int marginRate;
+	private float marginRate;
 	@Column(name = "tax_rate")
-	private int taxRate;
+	private float taxRate;
 	@Column(name = "discount_rate")
-	private int discountRate;
+	private float discountRate;
 
 	@Column(name = "consumer_reward_rate")
-	private int consumerRewardRate;
+	private float consumerRewardRate;
 
 	@Column(name = "business_reward_rate")
-	private int businessRewardRate;
+	private float businessRewardRate;
 
 	@Column(name = "image_path", length = 5000)
 	private String imagePath;
@@ -101,9 +101,6 @@ public class Product extends TimestampMixin {
 	@Column(name = "product_state")
 	@Enumerated(EnumType.STRING)
 	private ProductStatus productStatus;
-
-	@Column(name = "sku_code", unique = true)
-	private String skuCode;
 
 	@Column(name = "product_priority")
 	private int productPriority;
