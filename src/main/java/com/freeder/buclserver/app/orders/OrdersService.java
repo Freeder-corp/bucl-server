@@ -17,8 +17,11 @@ import com.freeder.buclserver.domain.shippingaddress.entity.ShippingAddress;
 import com.freeder.buclserver.domain.shippingaddress.repository.ShippingAddressRepository;
 import com.freeder.buclserver.domain.user.dto.response.MyOrderDetailResponse;
 import com.freeder.buclserver.domain.user.dto.response.MyOrderResponse;
+import com.freeder.buclserver.domain.user.entity.User;
+import com.freeder.buclserver.domain.user.repository.UserRepository;
 import com.freeder.buclserver.global.exception.consumerorder.ConsumerOrderIdNotFoundException;
 import com.freeder.buclserver.global.exception.consumerorder.ConsumerUserNotMatchException;
+import com.freeder.buclserver.global.exception.user.UserIdNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class OrdersService {
 
+	private final UserRepository userRepository;
 	private final ConsumerOrderRepository consumerOrderRepository;
 	private final ConsumerPurchaseOrderRepository consumerPurchaseOrderRepository;
 	private final ShippingRepository shippingRepository;
@@ -36,13 +40,16 @@ public class OrdersService {
 	public List<MyOrderResponse> getMyOrders(Long userId) {
 		List<MyOrderResponse> orderResponseList = new ArrayList<>();
 
+		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
+			.orElseThrow(() -> new UserIdNotFoundException(userId));
+
 		List<ConsumerOrder> consumerOrderList =
-			consumerOrderRepository.findAllByConsumer_IdOrderByCreatedAtDesc(userId);
+			consumerOrderRepository.findAllByConsumerOrderByCreatedAtDesc(user);
 
 		for (ConsumerOrder consumerOrder : consumerOrderList) {
 			// TODO: 1개의 주문에 대해 한 옵션만 선택 가능함에 따라 로직 변경 필요
 			int totalProductQty = consumerPurchaseOrderRepository.findTotalProductOrderQty(consumerOrder.getId());
-			Shipping shipping = shippingRepository.findByConsumerOrder_Id(consumerOrder.getId());
+			Shipping shipping = shippingRepository.findByConsumerOrder(consumerOrder);
 			MyOrderResponse orderResponse = MyOrderResponse.from(consumerOrder, totalProductQty, shipping);
 			orderResponseList.add(orderResponse);
 		}
@@ -52,6 +59,10 @@ public class OrdersService {
 
 	@Transactional(readOnly = true)
 	public MyOrderDetailResponse getMyOrderDetail(Long userId, Long consumerOrderId) {
+		if (!userRepository.existsByIdAndDeletedAtIsNull(userId)) {
+			throw new UserIdNotFoundException(userId);
+		}
+
 		ConsumerOrder consumerOrder = consumerOrderRepository.findById(consumerOrderId)
 			.orElseThrow(() -> new ConsumerOrderIdNotFoundException(consumerOrderId));
 
@@ -61,9 +72,9 @@ public class OrdersService {
 
 		// TODO: 1개의 주문에 대해 한 옵션만 선택 가능함에 따라 로직 변경 필요
 		int totalProductQty = consumerPurchaseOrderRepository.findTotalProductOrderQty(consumerOrder.getId());
-		Shipping shipping = shippingRepository.findByConsumerOrder_Id(consumerOrderId);
-		ShippingAddress shippingAddress = shippingAddressRepository.findByShipping_Id(shipping.getId());
-		Payment payment = paymentRepository.findByConsumerOrder_Id(consumerOrderId);
+		Shipping shipping = shippingRepository.findByConsumerOrder(consumerOrder);
+		ShippingAddress shippingAddress = shippingAddressRepository.findByShipping(shipping);
+		Payment payment = paymentRepository.findByConsumerOrder(consumerOrder);
 
 		return MyOrderDetailResponse.from(consumerOrder, shippingAddress, payment, totalProductQty);
 	}
