@@ -63,4 +63,8 @@ public class OrderCancel extends TimestampMixin {
 	public void setOrderCancelStatus(OrderCancelStatus orderCancelStatus) {
 		this.orderCancelStatus = orderCancelStatus;
 	}
+
+	public void setCompletedAt(LocalDateTime completedAt) {
+		this.completedAt = completedAt;
+	}
 }

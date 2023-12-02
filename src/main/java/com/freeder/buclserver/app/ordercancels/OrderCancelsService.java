@@ -1,7 +1,5 @@
 package com.freeder.buclserver.app.ordercancels;
 
-import java.time.LocalDateTime;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,6 +67,7 @@ public class OrderCancelsService {
 		}
 
 		consumerOrder.setCsStatus(CsStatus.ORDER_CANCEL);
+		consumerOrder.setOrderStatus(OrderStatus.ORDER_CANCELING);
 		consumerOrderRepository.save(consumerOrder);
 
 		int refundAmount = consumerOrder.getSpentAmount();
@@ -153,7 +152,7 @@ public class OrderCancelsService {
 		consumerOrder.setOrderStatus(OrderStatus.ORDER_CANCELED);
 		consumerOrder.setCsStatus(CsStatus.NONE);
 		orderCancel.setOrderCancelStatus(OrderCancelStatus.COMPLETED);
-		orderRefund.setCompletedAt(LocalDateTime.now());
+		orderCancel.setCompletedAt(OrderCancelUtil.getCompletedAt());
 
 		String impUid = consumerOrder.getOrderCode();
 

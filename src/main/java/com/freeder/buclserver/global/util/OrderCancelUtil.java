@@ -19,4 +19,8 @@ public class OrderCancelUtil {
 		return Long.valueOf(String.valueOf(currentTimeStamp) + String.valueOf(randomNum));
 	}
 
+	public static LocalDateTime getCompletedAt() {
+		return LocalDateTime.now();
+	}
+
 }

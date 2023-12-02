@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "order-cancels 관련 API", description = "주문취소 관련 API")
 public class OrderCancelsController {
 
-	private String testSocialId = "3195839289"; //"3895839289"
+	private String testSocialId = "3195839289"; //"3895839289";
 	private final OrderCancelsService orderCancelsService;
 
 	@PostMapping(path = "/{order_code}")
@@ -30,7 +30,7 @@ public class OrderCancelsController {
 		return new BaseResponse<>(orderCancelResponseDto, HttpStatus.CREATED, "주문 취소 됐습니다.");
 	}
 
-	@PutMapping(path = "/approval/{order_code}")
+	@PutMapping(path = "/{order_code}/approval")
 	public BaseResponse<String> modifyOrderCancelApproval(@PathVariable(name = "order_code") String orderCode) {
 		orderCancelsService.updateOrderCancelApproval(testSocialId, orderCode);
 		return new BaseResponse<>(orderCode, HttpStatus.OK, orderCode + " 주문 취소 승인 완료했습니다.");
