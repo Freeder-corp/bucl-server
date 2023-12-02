@@ -1,10 +1,14 @@
 package com.freeder.buclserver.app.my.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.domain.user.repository.UserRepository;
+import com.freeder.buclserver.domain.usershippingaddress.dto.UserShippingAddressDto;
 import com.freeder.buclserver.domain.usershippingaddress.dto.request.AddressCreateRequest;
 import com.freeder.buclserver.domain.usershippingaddress.dto.response.AddressCreateResponse;
 import com.freeder.buclserver.domain.usershippingaddress.entity.UserShippingAddress;
@@ -22,7 +26,7 @@ public class AddressService {
 
 	@Transactional
 	public AddressCreateResponse createMyAddress(Long userId, AddressCreateRequest request) {
-		User user = userRepository.findById(userId)
+		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
 			.orElseThrow(() -> new UserIdNotFoundException(userId));
 
 		if (request.isDefaultAddress()) {
@@ -44,5 +48,14 @@ public class AddressService {
 		UserShippingAddress savedUserShippingAddress = userShippingAddressRepository.save(userShippingAddress);
 
 		return AddressCreateResponse.from(savedUserShippingAddress);
+	}
+
+	public List<UserShippingAddressDto> getMyAddressList(Long userId) {
+		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
+			.orElseThrow(() -> new UserIdNotFoundException(userId));
+
+		return userShippingAddressRepository.findAllByUser(user).stream()
+			.map(UserShippingAddressDto::from)
+			.collect(Collectors.toUnmodifiableList());
 	}
 }

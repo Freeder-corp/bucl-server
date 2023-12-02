@@ -20,6 +20,7 @@ import com.freeder.buclserver.domain.user.dto.response.MyAffiliateResponse;
 import com.freeder.buclserver.domain.user.dto.response.MyOrderDetailResponse;
 import com.freeder.buclserver.domain.user.dto.response.MyOrderResponse;
 import com.freeder.buclserver.domain.user.dto.response.MyProfileResponse;
+import com.freeder.buclserver.domain.usershippingaddress.dto.UserShippingAddressDto;
 import com.freeder.buclserver.domain.usershippingaddress.dto.request.AddressCreateRequest;
 import com.freeder.buclserver.domain.usershippingaddress.dto.response.AddressCreateResponse;
 import com.freeder.buclserver.global.response.BaseResponse;
@@ -75,5 +76,12 @@ public class MyController {
 		Long userId = Long.valueOf(userDetails.getUserId());
 		AddressCreateResponse addressCreateResponse = addressService.createMyAddress(userId, addressCreateRequest);
 		return new BaseResponse(addressCreateResponse, HttpStatus.OK, "요청 성공");
+	}
+
+	@GetMapping("/addresses")
+	public BaseResponse getMyAddressList(@AuthenticationPrincipal CustomUserDetails userDetails) {
+		Long userId = Long.valueOf(userDetails.getUserId());
+		List<UserShippingAddressDto> addressList = addressService.getMyAddressList(userId);
+		return new BaseResponse(addressList, HttpStatus.OK, "요청 성공");
 	}
 }
