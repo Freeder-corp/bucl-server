@@ -6,5 +6,6 @@ public enum ShippingStatus {
 	IN_DELIVERY, //배송 중 : 운송장 번호 넣음
 	DELIVERED, //배송 완료
 
-	DELAY //배송 지연
+	DELAY, //배송 지연
+	PICK_UP //수거
 }

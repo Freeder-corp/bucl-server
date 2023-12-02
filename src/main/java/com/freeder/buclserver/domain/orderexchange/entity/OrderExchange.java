@@ -19,17 +19,21 @@ import com.freeder.buclserver.domain.orderexchange.vo.OrderExchangeStatus;
 import com.freeder.buclserver.domain.shipping.entity.Shipping;
 import com.freeder.buclserver.global.mixin.TimestampMixin;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 
 @Entity
-@Getter
-@Setter
 @Table(name = "order_exchange")
+@Getter
+@AllArgsConstructor
+@RequiredArgsConstructor
+@Builder
 public class OrderExchange extends TimestampMixin {
 	@Id
 	@Column(name = "order_exchange_id", unique = true, nullable = false)
-	private String orderExchangeId;
+	private Long orderExchangeId;
 
 	@OneToOne
 	@JoinColumn(name = "consumer_order_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))

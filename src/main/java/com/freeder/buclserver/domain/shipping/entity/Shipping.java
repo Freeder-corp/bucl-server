@@ -66,4 +66,12 @@ public class Shipping extends TimestampMixin {
 
 	@Column(name = "shipped_date")
 	private LocalDateTime shippedDate;
+
+	public void setActiveFalse() {
+		isActive = false;
+	}
+
+	public void setShippingStatus(ShippingStatus shippingStatus) {
+		this.shippingStatus = shippingStatus;
+	}
 }
