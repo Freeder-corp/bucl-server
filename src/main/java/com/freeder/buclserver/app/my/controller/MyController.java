@@ -6,6 +6,7 @@ import javax.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -83,5 +84,15 @@ public class MyController {
 		Long userId = Long.valueOf(userDetails.getUserId());
 		List<UserShippingAddressDto> addressList = addressService.getMyAddressList(userId);
 		return new BaseResponse(addressList, HttpStatus.OK, "요청 성공");
+	}
+
+	@DeleteMapping("/addresses/{addressId}")
+	public BaseResponse deleteMyAddress(
+		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@PathVariable Long addressId
+	) {
+		Long userId = Long.valueOf(userDetails.getUserId());
+		addressService.deleteMyAddress(userId, addressId);
+		return new BaseResponse(addressId, HttpStatus.OK, "요청 성공");
 	}
 }
