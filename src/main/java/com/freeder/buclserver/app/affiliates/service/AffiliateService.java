@@ -10,6 +10,9 @@ import com.freeder.buclserver.domain.affiliate.entity.Affiliate;
 import com.freeder.buclserver.domain.affiliate.repository.AffiliateRepository;
 import com.freeder.buclserver.domain.reward.repository.RewardRepository;
 import com.freeder.buclserver.domain.user.dto.response.MyAffiliateResponse;
+import com.freeder.buclserver.domain.user.entity.User;
+import com.freeder.buclserver.domain.user.repository.UserRepository;
+import com.freeder.buclserver.global.exception.user.UserIdNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -17,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class AffiliateService {
 
+	private final UserRepository userRepository;
 	private final AffiliateRepository affiliateRepository;
 	private final RewardRepository rewardRepository;
 
@@ -24,7 +28,10 @@ public class AffiliateService {
 	public List<MyAffiliateResponse> getMyAffiliates(Long userId) {
 		List<MyAffiliateResponse> affiliateResponseList = new ArrayList<>();
 
-		List<Affiliate> affiliateList = affiliateRepository.findAllByUser_IdOrderByCreatedAtDesc(userId);
+		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
+			.orElseThrow(() -> new UserIdNotFoundException(userId));
+
+		List<Affiliate> affiliateList = affiliateRepository.findAllByUserOrderByCreatedAtDesc(user);
 
 		for (Affiliate affiliate : affiliateList) {
 			int totalReceivedReward = rewardRepository.findReceivedRewardAmount(

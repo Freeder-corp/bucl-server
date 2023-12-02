@@ -56,13 +56,15 @@ public class MyService {
 
 	@Transactional(readOnly = true)
 	public MyProfileResponse getMyProfile(Long userId) {
-		return rewardRepository.findFirstByUser_IdOrderByCreatedAtDesc(userId)
+		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
+			.orElseThrow(() -> new UserIdNotFoundException(userId));
+
+		return rewardRepository.findFirstByUserOrderByCreatedAtDesc(user)
 			.map(MyProfileResponse::from)
-			.orElseGet(() -> getMyProfileWithoutReward(userId));
+			.orElseGet(() -> getMyProfileWithoutReward(user.getProfilePath(), user.getNickname()));
 	}
 
-	private MyProfileResponse getMyProfileWithoutReward(Long userId) {
-		User user = userRepository.findById(userId).orElseThrow(() -> new UserIdNotFoundException(userId));
-		return MyProfileResponse.of(user.getProfilePath(), user.getNickname(), 0);
+	private MyProfileResponse getMyProfileWithoutReward(String profilePath, String nickname) {
+		return MyProfileResponse.of(profilePath, nickname, 0);
 	}
 }
