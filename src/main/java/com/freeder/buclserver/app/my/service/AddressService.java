@@ -14,6 +14,8 @@ import com.freeder.buclserver.domain.usershippingaddress.dto.response.AddressCre
 import com.freeder.buclserver.domain.usershippingaddress.entity.UserShippingAddress;
 import com.freeder.buclserver.domain.usershippingaddress.repository.UserShippingAddressRepository;
 import com.freeder.buclserver.global.exception.user.UserIdNotFoundException;
+import com.freeder.buclserver.global.exception.usershippingaddress.AddressIdNotFoundException;
+import com.freeder.buclserver.global.exception.usershippingaddress.AddressUserNotMatchException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -50,6 +52,7 @@ public class AddressService {
 		return AddressCreateResponse.from(savedUserShippingAddress);
 	}
 
+	@Transactional(readOnly = true)
 	public List<UserShippingAddressDto> getMyAddressList(Long userId) {
 		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
 			.orElseThrow(() -> new UserIdNotFoundException(userId));
@@ -57,5 +60,21 @@ public class AddressService {
 		return userShippingAddressRepository.findAllByUser(user).stream()
 			.map(UserShippingAddressDto::from)
 			.collect(Collectors.toUnmodifiableList());
+	}
+
+	@Transactional
+	public void deleteMyAddress(Long userId, Long addressId) {
+		if (!userRepository.existsByIdAndDeletedAtIsNull(userId)) {
+			throw new UserIdNotFoundException(userId);
+		}
+
+		UserShippingAddress userAddress = userShippingAddressRepository.findById(addressId)
+			.orElseThrow(() -> new AddressIdNotFoundException(addressId));
+
+		if (userAddress.getUser().getId() != userId) {
+			throw new AddressUserNotMatchException();
+		}
+
+		userShippingAddressRepository.deleteById(addressId);
 	}
 }
