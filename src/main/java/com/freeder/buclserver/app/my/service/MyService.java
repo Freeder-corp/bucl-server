@@ -27,8 +27,8 @@ import com.freeder.buclserver.domain.user.dto.response.MyProfileResponse;
 import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.domain.user.repository.UserRepository;
 import com.freeder.buclserver.global.exception.auth.WithdrawalBadRequestException;
-import com.freeder.buclserver.global.exception.consumerorder.ConsumerOrderIdNotFoundException;
 import com.freeder.buclserver.global.exception.consumerorder.ConsumerUserNotMatchException;
+import com.freeder.buclserver.global.exception.consumerorder.OrderIdNotFoundException;
 import com.freeder.buclserver.global.exception.user.UserIdNotFoundException;
 
 import lombok.RequiredArgsConstructor;
@@ -137,7 +137,7 @@ public class MyService {
 		}
 
 		ConsumerOrder consumerOrder = consumerOrderRepository.findById(consumerOrderId)
-			.orElseThrow(() -> new ConsumerOrderIdNotFoundException(consumerOrderId));
+			.orElseThrow(() -> new OrderIdNotFoundException(consumerOrderId));
 
 		if (consumerOrder.getConsumer().getId() != userId) {
 			throw new ConsumerUserNotMatchException();
