@@ -15,10 +15,8 @@ import com.freeder.buclserver.domain.ordercancel.vo.OrderCancelExr;
 import com.freeder.buclserver.domain.ordercancel.vo.OrderCancelStatus;
 import com.freeder.buclserver.domain.orderrefund.entity.OrderRefund;
 import com.freeder.buclserver.domain.orderrefund.repository.OrderRefundRepository;
-import com.freeder.buclserver.domain.product.entity.Product;
-import com.freeder.buclserver.domain.reward.entity.Reward;
 import com.freeder.buclserver.domain.reward.repository.RewardRepository;
-import com.freeder.buclserver.domain.reward.vo.RewardType;
+import com.freeder.buclserver.domain.reward.service.RewardService;
 import com.freeder.buclserver.domain.shipping.entity.Shipping;
 import com.freeder.buclserver.domain.shipping.repository.ShippingRepository;
 import com.freeder.buclserver.domain.shipping.vo.ShippingStatus;
@@ -43,6 +41,7 @@ public class OrderCancelsService {
 	private final RewardRepository rewardRepository;
 
 	private final PaymentService paymentService;
+	private final RewardService rewardService;
 
 	@Transactional
 	public OrderCancelResponseDto createOrderCancel(String socialId, String orderCode) throws NullPointerException {
@@ -127,26 +126,10 @@ public class OrderCancelsService {
 		OrderRefund orderRefund = orderCancel.getOrderRefund();
 
 		int rewardUseAmount = orderRefund.getRewardUseAmount();
-		User consumer = consumerOrder.getConsumer();
 
 		if (rewardUseAmount != 0) {
-			int previousRewardAmt = rewardRepository.findFirstByUserId(consumer.getId()).orElse(0);
-
-			Product product = consumerOrder.getProduct();
-			Reward reward = Reward
-				.builder()
-				.user(consumer)
-				.rewardType(RewardType.REFUND)
-				.previousRewardSum(previousRewardAmt)
-				.consumerOrder(consumerOrder)
-				.receivedRewardAmount(rewardUseAmount)
-				.product(product)
-				.productName(product.getName())
-				.productBrandName(product.getBrandName())
-				.rewardSum(previousRewardAmt + rewardUseAmount)
-				.orderRefund(orderRefund)
-				.build();
-			rewardRepository.save(reward);
+			User consumer = consumerOrder.getConsumer();
+			rewardService.addRefundReward(consumer, consumerOrder, orderRefund, rewardUseAmount);
 		}
 
 		consumerOrder.setOrderStatus(OrderStatus.ORDER_CANCELED);

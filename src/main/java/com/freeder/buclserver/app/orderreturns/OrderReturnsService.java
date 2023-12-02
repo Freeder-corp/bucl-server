@@ -15,10 +15,8 @@ import com.freeder.buclserver.domain.orderreturn.entity.OrderReturn;
 import com.freeder.buclserver.domain.orderreturn.repository.OrderReturnRepository;
 import com.freeder.buclserver.domain.orderreturn.vo.OrderReturnExr;
 import com.freeder.buclserver.domain.orderreturn.vo.OrderReturnStatus;
-import com.freeder.buclserver.domain.product.entity.Product;
-import com.freeder.buclserver.domain.reward.entity.Reward;
 import com.freeder.buclserver.domain.reward.repository.RewardRepository;
-import com.freeder.buclserver.domain.reward.vo.RewardType;
+import com.freeder.buclserver.domain.reward.service.RewardService;
 import com.freeder.buclserver.domain.shipping.entity.Shipping;
 import com.freeder.buclserver.domain.shipping.repository.ShippingRepository;
 import com.freeder.buclserver.domain.shipping.vo.ShippingStatus;
@@ -43,6 +41,7 @@ public class OrderReturnsService {
 	private final RewardRepository rewardRepository;
 
 	private final PaymentService paymentService;
+	private final RewardService rewardService;
 
 	@Transactional
 	public OrdReturnRespDto createOrderReturnApproval(String socialId, String orderCode,
@@ -83,23 +82,7 @@ public class OrderReturnsService {
 
 		if (rewardUseAmount != 0) {
 			User consumer = consumerOrder.getConsumer();
-			int previousRewardAmt = rewardRepository.findFirstByUserId(consumer.getId()).orElse(0);
-
-			Product product = consumerOrder.getProduct();
-			Reward reward = Reward
-				.builder()
-				.user(consumer)
-				.rewardType(RewardType.REFUND)
-				.previousRewardSum(previousRewardAmt)
-				.consumerOrder(consumerOrder)
-				.receivedRewardAmount(rewardUseAmount)
-				.product(product)
-				.productName(product.getName())
-				.productBrandName(product.getBrandName())
-				.rewardSum(previousRewardAmt + rewardUseAmount)
-				.orderRefund(newOrderRefund)
-				.build();
-			rewardRepository.save(reward);
+			rewardService.addRefundReward(consumer, consumerOrder, newOrderRefund, rewardUseAmount);
 		}
 
 		OrderReturn newOrderReturn = OrderReturn
