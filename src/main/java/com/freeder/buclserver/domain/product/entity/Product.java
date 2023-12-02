@@ -18,6 +18,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
 import com.freeder.buclserver.domain.product.vo.ProductStatus;
@@ -28,13 +29,13 @@ import com.freeder.buclserver.domain.productreview.entity.ProductReview;
 import com.freeder.buclserver.domain.shippinginfo.entity.ShippingInfo;
 import com.freeder.buclserver.global.mixin.TimestampMixin;
 
-import lombok.Getter;
-import lombok.Setter;
-
 @Entity
 @Getter
 @Setter
+@Builder
 @Table(name = "product")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Product extends TimestampMixin implements Serializable {
 	@Id
 	@Column(name = "product_id")

@@ -15,13 +15,15 @@ import com.freeder.buclserver.domain.product.entity.Product;
 import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.global.mixin.TimestampMixin;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Getter
 @Setter
+@Builder
 @Table(name = "wish")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Wish extends TimestampMixin {
 	@Id
 	@Column(name = "wish_id")

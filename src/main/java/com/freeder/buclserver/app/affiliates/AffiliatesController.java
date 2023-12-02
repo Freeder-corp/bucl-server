@@ -1,12 +1,23 @@
 package com.freeder.buclserver.app.affiliates;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.freeder.buclserver.domain.affiliate.dto.AffiliateDto;
+import com.freeder.buclserver.global.response.BaseResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping(path = "/api/v1/affiliates")
 @Tag(name = "affiliates 관련 API", description = "판매 링크 관련 API")
+@RequiredArgsConstructor
 public class AffiliatesController {
+    private final AffiliateService service;
+
+    @GetMapping("/{AffiliateEncrypt}")
+    public BaseResponse<?> getAffiliateUrl(
+            @PathVariable(name = "AffiliateEncrypt") String affiliateEncrypt
+    ) throws Exception {
+        return service.getAffiliateUrl(affiliateEncrypt);
+    }
 }
