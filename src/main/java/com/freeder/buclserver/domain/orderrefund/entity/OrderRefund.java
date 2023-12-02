@@ -1,7 +1,5 @@
 package com.freeder.buclserver.domain.orderrefund.entity;
 
-import java.time.LocalDateTime;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -34,10 +32,4 @@ public class OrderRefund extends TimestampMixin {
 	@Column(name = "reward_use_amount")
 	private int rewardUseAmount;
 
-	@Column(name = "completed_at")
-	private LocalDateTime completedAt;
-
-	public void setCompletedAt(LocalDateTime completedAt) {
-		this.completedAt = completedAt;
-	}
 }
