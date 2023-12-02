@@ -15,6 +15,8 @@ import com.freeder.buclserver.app.orders.dto.OrderDto;
 import com.freeder.buclserver.app.orders.dto.ShpAddrDto;
 import com.freeder.buclserver.domain.consumerorder.entity.ConsumerOrder;
 import com.freeder.buclserver.domain.consumerorder.repository.ConsumerOrderRepository;
+import com.freeder.buclserver.domain.consumerorder.vo.CsStatus;
+import com.freeder.buclserver.domain.consumerorder.vo.OrderStatus;
 import com.freeder.buclserver.domain.product.entity.Product;
 import com.freeder.buclserver.domain.reward.entity.Reward;
 import com.freeder.buclserver.domain.reward.repository.RewardRepository;
@@ -114,10 +116,18 @@ public class OrdersService {
 		ConsumerOrder consumerOrder = consumerOrderRepository.findByOrderCodeAndConsumer(orderCode, consumer)
 			.orElseThrow(
 				() -> new BaseException(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value(), "주문 정보가 없습니다."));
-
 		if (consumerOrder.isConfirmed()) {
 			throw new BaseException(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value(), "이미 주문 확정 되었습니다.");
 		}
+		if (!consumerOrder.getCsStatus().equals(CsStatus.NONE)) {
+			throw new BaseException(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value(),
+				"해당 주문은 CS 접수 상태입니다. 구매 확정할 수 없습니다.");
+		}
+		if (!consumerOrder.getCsStatus().equals(OrderStatus.ORDERED)) {
+			throw new BaseException(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value(),
+				"해당 주문은 CS 접수 상태입니다. 구매 확정할 수 없습니다.");
+		}
+
 		consumerOrder.setConfirmed();
 
 		// int previousRewardAmount = 0;
