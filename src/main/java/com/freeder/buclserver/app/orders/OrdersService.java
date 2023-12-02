@@ -123,7 +123,7 @@ public class OrdersService {
 			throw new BaseException(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value(),
 				"해당 주문은 CS 접수 상태입니다. 구매 확정할 수 없습니다.");
 		}
-		if (!consumerOrder.getCsStatus().equals(OrderStatus.ORDERED)) {
+		if (!consumerOrder.getOrderStatus().equals(OrderStatus.ORDERED)) {
 			throw new BaseException(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value(),
 				"해당 주문은 CS 접수 상태입니다. 구매 확정할 수 없습니다.");
 		}
