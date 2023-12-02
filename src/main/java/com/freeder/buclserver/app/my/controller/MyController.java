@@ -13,10 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.freeder.buclserver.app.affiliates.service.AffiliateService;
 import com.freeder.buclserver.app.my.service.AddressService;
 import com.freeder.buclserver.app.my.service.MyService;
-import com.freeder.buclserver.app.orders.OrdersService;
 import com.freeder.buclserver.core.security.CustomUserDetails;
 import com.freeder.buclserver.domain.user.dto.response.MyAffiliateResponse;
 import com.freeder.buclserver.domain.user.dto.response.MyOrderDetailResponse;
@@ -36,8 +34,6 @@ import lombok.RequiredArgsConstructor;
 public class MyController {
 
 	private final MyService myService;
-	private final AffiliateService affiliateService;
-	private final OrdersService ordersService;
 	private final AddressService addressService;
 
 	@GetMapping("/profile")
@@ -50,14 +46,14 @@ public class MyController {
 	@GetMapping("/profile/affiliates")
 	public BaseResponse getMyAffiliates(@AuthenticationPrincipal CustomUserDetails userDetails) {
 		Long userId = Long.valueOf(userDetails.getUserId());
-		List<MyAffiliateResponse> myAffiliateList = affiliateService.getMyAffiliates(userId);
+		List<MyAffiliateResponse> myAffiliateList = myService.getMyAffiliates(userId);
 		return new BaseResponse(myAffiliateList, HttpStatus.OK, "요청 성공");
 	}
 
 	@GetMapping("/profile/orders")
 	public BaseResponse getMyOrders(@AuthenticationPrincipal CustomUserDetails userDetails) {
 		Long userId = Long.valueOf(userDetails.getUserId());
-		List<MyOrderResponse> myOrderList = ordersService.getMyOrders(userId);
+		List<MyOrderResponse> myOrderList = myService.getMyOrders(userId);
 		return new BaseResponse(myOrderList, HttpStatus.OK, "요청 성공");
 	}
 
@@ -67,7 +63,7 @@ public class MyController {
 		@PathVariable Long consumerOrderId
 	) {
 		Long userId = Long.valueOf(userDetails.getUserId());
-		MyOrderDetailResponse myOrderDetail = ordersService.getMyOrderDetail(userId, consumerOrderId);
+		MyOrderDetailResponse myOrderDetail = myService.getMyOrderDetail(userId, consumerOrderId);
 		return new BaseResponse(myOrderDetail, HttpStatus.OK, "요청 성공");
 	}
 
