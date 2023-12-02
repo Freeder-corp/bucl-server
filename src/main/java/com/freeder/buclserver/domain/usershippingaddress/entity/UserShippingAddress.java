@@ -13,12 +13,14 @@ import javax.persistence.Table;
 
 import com.freeder.buclserver.domain.user.entity.User;
 
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "user_shipping_address")
 public class UserShippingAddress {
 	@Id
@@ -52,4 +54,23 @@ public class UserShippingAddress {
 
 	@Column(name = "is_default_address")
 	private boolean isDefaultAddress;
+
+	@Builder
+	private UserShippingAddress(
+		User user, String shippingAddressName, String recipientName, String zipCode,
+		String address, String addressDetail, String contactNumber, boolean isDefaultAddress
+	) {
+		this.user = user;
+		this.shippingAddressName = shippingAddressName;
+		this.recipientName = recipientName;
+		this.zipCode = zipCode;
+		this.address = address;
+		this.addressDetail = addressDetail;
+		this.contactNumber = contactNumber;
+		this.isDefaultAddress = isDefaultAddress;
+	}
+
+	public void cancelDefaultAddress() {
+		this.isDefaultAddress = false;
+	}
 }

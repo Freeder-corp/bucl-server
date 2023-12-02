@@ -1,4 +1,4 @@
-package com.freeder.buclserver.app.user.service;
+package com.freeder.buclserver.app.my.service;
 
 import java.util.Optional;
 
@@ -15,9 +15,9 @@ import com.freeder.buclserver.global.exception.user.UserIdNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 @Service
-public class UserService {
+@RequiredArgsConstructor
+public class MyService {
 
 	private final UserRepository userRepository;
 	private final RewardRepository rewardRepository;
@@ -58,10 +58,10 @@ public class UserService {
 	public MyProfileResponse getMyProfile(Long userId) {
 		return rewardRepository.findFirstByUser_IdOrderByCreatedAtDesc(userId)
 			.map(MyProfileResponse::from)
-			.orElseGet(() -> getUserProfileWithoutReward(userId));
+			.orElseGet(() -> getMyProfileWithoutReward(userId));
 	}
 
-	private MyProfileResponse getUserProfileWithoutReward(Long userId) {
+	private MyProfileResponse getMyProfileWithoutReward(Long userId) {
 		User user = userRepository.findById(userId).orElseThrow(() -> new UserIdNotFoundException(userId));
 		return MyProfileResponse.of(user.getProfilePath(), user.getNickname(), 0);
 	}
