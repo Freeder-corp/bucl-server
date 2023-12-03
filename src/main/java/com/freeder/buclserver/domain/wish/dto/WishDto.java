@@ -18,6 +18,7 @@ public class WishDto {
 
     @Getter
     @Builder
+    @ToString
     public static class WishCreateRes{
         private Long wishId;
     }

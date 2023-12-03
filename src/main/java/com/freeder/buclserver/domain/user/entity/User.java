@@ -37,6 +37,7 @@ import lombok.*;
 @Table(name = "user")
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class User extends TimestampMixin {
 	@Id
 	@Column(name = "user_id")
@@ -44,24 +45,31 @@ public class User extends TimestampMixin {
 	private Long id;
 
 	@OneToMany(mappedBy = "user")
+	@ToString.Exclude
 	private List<Wish> wishes = new ArrayList<>();
 
 	@OneToMany(mappedBy = "user")
+	@ToString.Exclude
 	private List<Reward> rewards = new ArrayList<>();
 
 	@OneToMany(mappedBy = "user")
+	@ToString.Exclude
 	private List<ProductReview> reviews = new ArrayList<>();
 
 	@OneToMany(mappedBy = "user")
+	@ToString.Exclude
 	private List<Affiliate> affiliates = new ArrayList<>();
 
 	@OneToMany(mappedBy = "user")
+	@ToString.Exclude
 	private List<ShippingAddress> shippingAddresses = new ArrayList<>();
 
 	@OneToMany(mappedBy = "consumer")
+	@ToString.Exclude
 	private List<ConsumerOrder> consumerOrders = new ArrayList<>();
 
 	@OneToMany(mappedBy = "user")
+	@ToString.Exclude
 	private List<RewardWithdrawal> rewardWithdrawals = new ArrayList<>();
 
 	@Column(length = 320)

@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +29,8 @@ public class WishesService {
 
     public BaseResponse<?> getWishesList(Long userId) {
 
-        List<Wish> wishes = wishRepository.findByUserId(userId);
+        List<Wish> wishes = wishRepository.findByUserId(userId).orElseThrow(() ->
+                new BaseException(HttpStatus.BAD_REQUEST, 400, "잘못된 userId 또는 찜목록이 없습니다."));
 
         List<WishDto> list = wishes.stream()
                 .map(this::convertWishDto)
@@ -53,7 +56,11 @@ public class WishesService {
     @Transactional
     public BaseResponse<?> deleteWish(Long wishId) {
 
-        wishRepository.deleteById(wishId);
+        try {
+            wishRepository.deleteById(wishId);
+        } catch (Exception e) {
+            throw new BaseException(HttpStatus.BAD_REQUEST, 400, "잘못된 wish_id");
+        }
 
         return new BaseResponse<>(
                 null,
@@ -68,19 +75,19 @@ public class WishesService {
 
     private WishDto convertWishDto(Wish wish) {
         try {
-            GroupOrder groupOrder = groupOrderRepository.findByProduct_Id(wish.getProduct().getId());
+            GroupOrder groupOrder = groupOrderRepository.findByProduct_Id(wish.getProduct().getId()).orElse(null);
 
             return WishDto.builder()
                     .brandName(wish.getProduct().getBrandName())
                     .name(wish.getProduct().getName())
                     .consumerPrice(wish.getProduct().getConsumerPrice())
                     .starRate(productsCategoryService.calculateAverageRating(wish.getProduct().getProductReviews()))
-                    .consumerOrdersNumber(groupOrder.getConsumerOrders().size())
-                    .isEnded(groupOrder.isEnded())
+                    .consumerOrdersNumber(groupOrder == null ? 0 : groupOrder.getConsumerOrders().size())
+                    .isEnded(Objects.requireNonNull(groupOrder).isEnded())
                     .build();
 
         } catch (Exception e) {
-            throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "convertWishDto에러 : 개발자에게 문의 바랍니다.");
+            throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "convertWishDto에러 : 백엔드에게 문의 바랍니다.");
         }
     }
 
@@ -97,7 +104,7 @@ public class WishesService {
                                         )
                                         .product(
                                                 Product.builder()
-                                                        .id(wishCreateReq.getUserId())
+                                                        .id(wishCreateReq.getProductId())
                                                         .build()
                                         )
                                         .build()

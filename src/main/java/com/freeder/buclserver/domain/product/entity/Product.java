@@ -36,6 +36,7 @@ import com.freeder.buclserver.global.mixin.TimestampMixin;
 @Table(name = "product")
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class Product extends TimestampMixin implements Serializable {
 	@Id
 	@Column(name = "product_id")
@@ -51,9 +52,11 @@ public class Product extends TimestampMixin implements Serializable {
 	private ShippingInfo shippingInfo;
 
 	@OneToMany(mappedBy = "product")
+	@ToString.Exclude
 	private List<ProductOption> productOptions = new ArrayList<>();
 
 	@OneToMany(mappedBy = "product")
+	@ToString.Exclude
 	private List<ProductReview> productReviews = new ArrayList<>();
 
 	private String name;

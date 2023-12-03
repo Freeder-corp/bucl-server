@@ -24,6 +24,7 @@ import lombok.*;
 @Table(name = "wish")
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class Wish extends TimestampMixin {
 	@Id
 	@Column(name = "wish_id")
