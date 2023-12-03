@@ -74,4 +74,8 @@ public class UserShippingAddress {
 	public void cancelDefaultAddress() {
 		this.isDefaultAddress = false;
 	}
+
+	public void registerDefaultAddress() {
+		this.isDefaultAddress = true;
+	}
 }

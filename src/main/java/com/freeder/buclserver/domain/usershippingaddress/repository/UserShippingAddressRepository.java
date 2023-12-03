@@ -13,4 +13,8 @@ public interface UserShippingAddressRepository extends JpaRepository<UserShippin
 	Optional<UserShippingAddress> findByUserAndIsDefaultAddressIsTrue(User user);
 
 	List<UserShippingAddress> findAllByUser(User user);
+
+	boolean existsByUser(User user);
+
+	Optional<UserShippingAddress> findFirstByUser_IdOrderByIdDesc(Long userId);
 }
