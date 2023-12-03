@@ -32,24 +32,19 @@ public class AddressService {
 		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
 			.orElseThrow(() -> new UserIdNotFoundException(userId));
 
+		if (!userShippingAddressRepository.existsByUser(user)) {
+			UserShippingAddress userShippingAddress = createUserAddressEntity(user, request, true);
+			UserShippingAddress savedUserShippingAddress = userShippingAddressRepository.save(userShippingAddress);
+			return AddressCreateResponse.from(savedUserShippingAddress);
+		}
+
 		if (request.isDefaultAddress()) {
 			userShippingAddressRepository.findByUserAndIsDefaultAddressIsTrue(user)
 				.ifPresent(userAddress -> userAddress.cancelDefaultAddress());
 		}
 
-		UserShippingAddress userShippingAddress = UserShippingAddress.builder()
-			.user(user)
-			.shippingAddressName(request.shippingAddressName())
-			.recipientName(request.recipientName())
-			.zipCode(request.zipCode())
-			.address(request.address())
-			.addressDetail(request.addressDetail())
-			.contactNumber(request.contactNumber())
-			.isDefaultAddress(request.isDefaultAddress())
-			.build();
-
+		UserShippingAddress userShippingAddress = createUserAddressEntity(user, request, request.isDefaultAddress());
 		UserShippingAddress savedUserShippingAddress = userShippingAddressRepository.save(userShippingAddress);
-
 		return AddressCreateResponse.from(savedUserShippingAddress);
 	}
 
@@ -69,11 +64,16 @@ public class AddressService {
 			throw new UserIdNotFoundException(userId);
 		}
 
-		UserShippingAddress userAddress = userShippingAddressRepository.findById(addressId)
+		UserShippingAddress deleteUserAddress = userShippingAddressRepository.findById(addressId)
 			.orElseThrow(() -> new AddressIdNotFoundException(addressId));
 
-		if (userAddress.getUser().getId() != userId) {
+		if (deleteUserAddress.getUser().getId() != userId) {
 			throw new AddressUserNotMatchException();
+		}
+
+		if (deleteUserAddress.isDefaultAddress() == true) {
+			userShippingAddressRepository.findFirstByUser_IdOrderByIdDesc(userId)
+				.ifPresent(address -> address.registerDefaultAddress());
 		}
 
 		userShippingAddressRepository.deleteById(addressId);
@@ -88,5 +88,20 @@ public class AddressService {
 			.orElseThrow(DefaultAddressNotFoundException::new);
 
 		return UserShippingAddressDto.from(userAddress);
+	}
+
+	private UserShippingAddress createUserAddressEntity(
+		User user, AddressCreateRequest request, boolean isDefaultAddress
+	) {
+		return UserShippingAddress.builder()
+			.user(user)
+			.shippingAddressName(request.shippingAddressName())
+			.recipientName(request.recipientName())
+			.zipCode(request.zipCode())
+			.address(request.address())
+			.addressDetail(request.addressDetail())
+			.contactNumber(request.contactNumber())
+			.isDefaultAddress(isDefaultAddress)
+			.build();
 	}
 }
