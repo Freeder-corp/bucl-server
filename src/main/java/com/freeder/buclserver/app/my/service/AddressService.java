@@ -16,6 +16,7 @@ import com.freeder.buclserver.domain.usershippingaddress.repository.UserShipping
 import com.freeder.buclserver.global.exception.user.UserIdNotFoundException;
 import com.freeder.buclserver.global.exception.usershippingaddress.AddressIdNotFoundException;
 import com.freeder.buclserver.global.exception.usershippingaddress.AddressUserNotMatchException;
+import com.freeder.buclserver.global.exception.usershippingaddress.DefaultAddressNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -76,5 +77,16 @@ public class AddressService {
 		}
 
 		userShippingAddressRepository.deleteById(addressId);
+	}
+
+	@Transactional(readOnly = true)
+	public UserShippingAddressDto getMyDefaultAddress(Long userId) {
+		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
+			.orElseThrow(() -> new UserIdNotFoundException(userId));
+
+		UserShippingAddress userAddress = userShippingAddressRepository.findByUserAndIsDefaultAddressIsTrue(user)
+			.orElseThrow(DefaultAddressNotFoundException::new);
+
+		return UserShippingAddressDto.from(userAddress);
 	}
 }

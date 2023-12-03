@@ -95,4 +95,11 @@ public class MyController {
 		addressService.deleteMyAddress(userId, addressId);
 		return new BaseResponse(addressId, HttpStatus.OK, "요청 성공");
 	}
+
+	@GetMapping("/address/default")
+	public BaseResponse getMyDefaultAddress(@AuthenticationPrincipal CustomUserDetails userDetails) {
+		Long userId = Long.valueOf(userDetails.getUserId());
+		UserShippingAddressDto defaultAddress = addressService.getMyDefaultAddress(userId);
+		return new BaseResponse(defaultAddress, HttpStatus.OK, "요청 성공");
+	}
 }
