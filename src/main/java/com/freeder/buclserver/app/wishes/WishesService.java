@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,12 +33,12 @@ public class WishesService {
     private final ProductsCategoryService productsCategoryService;
 
     public BaseResponse<?> getWishesList(
-            Long userId,
+            Authentication authentication,
             int page,
             int pageSize
     ) {
 
-        Page<Wish> wishes = wishRepository.findByUserId(userId, setPaging(page, pageSize)).orElseThrow(() ->
+        Page<Wish> wishes = wishRepository.findByUserId((Long) authentication.getPrincipal(), setPaging(page, pageSize)).orElseThrow(() ->
                 new BaseException(HttpStatus.BAD_REQUEST, 400, "잘못된 userId 또는 찜목록이 없습니다."));
 
         List<WishDto> list = wishes.getContent().stream()
@@ -52,20 +53,32 @@ public class WishesService {
     }
 
     @Transactional
-    public BaseResponse<?> saveWish(WishDto.WishCreateReq wishCreateReq) {
+    public BaseResponse<?> saveWish(
+            Authentication authentication,
+            WishDto.WishCreateReq wishCreateReq
+    ) {
 
         return new BaseResponse<>(
-                WishCreateRes(wishCreateReq)
+                WishCreateRes(
+                        authentication,
+                        wishCreateReq
+                )
                 , HttpStatus.OK,
                 "요청 성공"
         );
     }
 
     @Transactional
-    public BaseResponse<?> deleteWish(Long wishId) {
+    public BaseResponse<?> deleteWish(
+            Authentication authentication,
+            Long productCode
+    ) {
 
         try {
-            wishRepository.deleteById(wishId);
+            wishRepository.deleteByUser_IdAndProduct_ProductCode(
+                    (Long) authentication.getPrincipal(),
+                    productCode
+            );
         } catch (Exception e) {
             throw new BaseException(HttpStatus.BAD_REQUEST, 400, "잘못된 wish_id");
         }
@@ -99,7 +112,10 @@ public class WishesService {
         }
     }
 
-    private WishDto.WishCreateRes WishCreateRes(WishDto.WishCreateReq wishCreateReq) {
+    private WishDto.WishCreateRes WishCreateRes(
+            Authentication authentication,
+            WishDto.WishCreateReq wishCreateReq
+    ) {
 
         return WishDto.WishCreateRes.builder()
                 .wishId(
@@ -107,7 +123,7 @@ public class WishesService {
                                 Wish.builder()
                                         .user(
                                                 User.builder()
-                                                        .id(wishCreateReq.getUserId())
+                                                        .id((Long) authentication.getPrincipal())
                                                         .build()
                                         )
                                         .product(

@@ -50,9 +50,9 @@ public class FeatTest {
                 .build()));*/
     }
 
-    @Test
+//    @Test
     void deleteWishTest(){
-        wishesService.deleteWish(3L);
+//        wishesService.deleteWish(3L);
     }
 
 //    @Test

@@ -14,6 +14,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class AffiliatesController {
     private final AffiliateService service;
 
+    @PostMapping
+    public BaseResponse<?> getSellingPage(@RequestBody AffiliateDto affiliateDto) throws Exception {
+        return service.getSellingPage(affiliateDto);
+    }
+
     @GetMapping("/{AffiliateEncrypt}")
     public BaseResponse<?> getAffiliateUrl(
             @PathVariable(name = "AffiliateEncrypt") String affiliateEncrypt

@@ -30,7 +30,6 @@ public class WishDto {
     @AllArgsConstructor
     public static class WishCreateReq{
         private Long productId;
-        private Long userId;
     }
 
     @Getter

@@ -1,4 +1,4 @@
-package com.freeder.buclserver.domain.selling.dto;
+package com.freeder.buclserver.domain.affiliate.dto;
 
 import lombok.Builder;
 import lombok.Getter;

@@ -10,4 +10,6 @@ import java.util.Optional;
 
 public interface WishRepository extends JpaRepository<Wish,Long> {
     Optional<Page<Wish>> findByUserId(Long userId, Pageable pageable);
+
+    void deleteByUser_IdAndProduct_ProductCode(Long userId, Long productCode);
 }
