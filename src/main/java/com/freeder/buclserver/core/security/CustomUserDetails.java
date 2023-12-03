@@ -1,4 +1,4 @@
-package com.freeder.buclserver.core.config.security;
+package com.freeder.buclserver.core.security;
 
 import java.util.Collection;
 import java.util.Collections;
