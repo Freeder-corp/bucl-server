@@ -39,7 +39,7 @@ public class AddressService {
 		}
 
 		if (request.isDefaultAddress()) {
-			userShippingAddressRepository.findByUserAndIsDefaultAddressIsTrue(user)
+			userShippingAddressRepository.findByUser_IdAndIsDefaultAddressIsTrue(userId)
 				.ifPresent(userAddress -> userAddress.cancelDefaultAddress());
 		}
 
@@ -81,13 +81,35 @@ public class AddressService {
 
 	@Transactional(readOnly = true)
 	public UserShippingAddressDto getMyDefaultAddress(Long userId) {
-		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
-			.orElseThrow(() -> new UserIdNotFoundException(userId));
+		if (!userRepository.existsByIdAndDeletedAtIsNull(userId)) {
+			throw new UserIdNotFoundException(userId);
+		}
 
-		UserShippingAddress userAddress = userShippingAddressRepository.findByUserAndIsDefaultAddressIsTrue(user)
+		UserShippingAddress userAddress = userShippingAddressRepository.findByUser_IdAndIsDefaultAddressIsTrue(userId)
 			.orElseThrow(DefaultAddressNotFoundException::new);
 
 		return UserShippingAddressDto.from(userAddress);
+	}
+
+	@Transactional
+	public UserShippingAddressDto registerMyDefaultAddress(Long userId, Long addressId) {
+		if (!userRepository.existsByIdAndDeletedAtIsNull(userId)) {
+			throw new UserIdNotFoundException(userId);
+		}
+
+		UserShippingAddress registerAddress = userShippingAddressRepository.findById(addressId)
+			.orElseThrow(() -> new AddressIdNotFoundException(addressId));
+
+		if (registerAddress.getUser().getId() != userId) {
+			throw new AddressUserNotMatchException();
+		}
+
+		userShippingAddressRepository.findByUser_IdAndIsDefaultAddressIsTrue(userId)
+			.ifPresent(address -> address.cancelDefaultAddress());
+
+		registerAddress.registerDefaultAddress();
+
+		return UserShippingAddressDto.from(registerAddress);
 	}
 
 	private UserShippingAddress createUserAddressEntity(
