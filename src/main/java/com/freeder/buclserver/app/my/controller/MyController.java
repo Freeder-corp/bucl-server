@@ -104,13 +104,13 @@ public class MyController {
 		return new BaseResponse(defaultAddress, HttpStatus.OK, "요청 성공");
 	}
 
-	@PatchMapping("/address/{addressId}/default")
-	public BaseResponse registerMyDefaultAddress(
+	@PatchMapping("/addresses/{addressId}/default")
+	public BaseResponse updateMyDefaultAddress(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@PathVariable Long addressId
 	) {
 		Long userId = Long.valueOf(userDetails.getUserId());
-		UserShippingAddressDto defaultAddress = addressService.registerMyDefaultAddress(userId, addressId);
+		UserShippingAddressDto defaultAddress = addressService.updateMyDefaultAddress(userId, addressId);
 		return new BaseResponse(defaultAddress, HttpStatus.OK, "요청 성공");
 	}
 }

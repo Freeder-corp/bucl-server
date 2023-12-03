@@ -8,7 +8,7 @@ public record AddressCreateRequest(
 	@NotBlank String zipCode,
 	@NotBlank String address,
 	@NotBlank String addressDetail,
-	String contactNumber,
+	@NotBlank String contactNumber,
 	boolean isDefaultAddress
 ) {
 }
