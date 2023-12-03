@@ -18,9 +18,11 @@ public class WishesController {
 
     @GetMapping("/{user_id}")
     public BaseResponse<?> getWishesList(
-            @PathVariable(name = "user_id") Long userId
+            @PathVariable(name = "user_id") Long userId,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int pageSize
     ) {
-        return service.getWishesList(userId);
+        return service.getWishesList(userId, page, pageSize);
     }
 
     @PostMapping()

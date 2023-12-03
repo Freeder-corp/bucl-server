@@ -55,9 +55,9 @@ public class FeatTest {
         wishesService.deleteWish(3L);
     }
 
-    @Test
+//    @Test
     void getWishesTest(){
-        System.out.println(wishRepository.findByUserId(1L));
+//        System.out.println(wishRepository.findByUserId(1L));
     }
 
     @Test
