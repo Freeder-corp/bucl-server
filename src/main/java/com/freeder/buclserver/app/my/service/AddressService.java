@@ -15,7 +15,6 @@ import com.freeder.buclserver.domain.usershippingaddress.entity.UserShippingAddr
 import com.freeder.buclserver.domain.usershippingaddress.repository.UserShippingAddressRepository;
 import com.freeder.buclserver.global.exception.user.UserIdNotFoundException;
 import com.freeder.buclserver.global.exception.usershippingaddress.AddressIdNotFoundException;
-import com.freeder.buclserver.global.exception.usershippingaddress.AddressUserNotMatchException;
 import com.freeder.buclserver.global.exception.usershippingaddress.DefaultAddressNotFoundException;
 
 import lombok.RequiredArgsConstructor;
@@ -39,7 +38,7 @@ public class AddressService {
 		}
 
 		if (request.isDefaultAddress()) {
-			userShippingAddressRepository.findByUser_IdAndIsDefaultAddressIsTrue(userId)
+			userShippingAddressRepository.findByUserAndIsDefaultAddressIsTrue(userId)
 				.ifPresent(userAddress -> userAddress.cancelDefaultAddress());
 		}
 
@@ -60,23 +59,18 @@ public class AddressService {
 
 	@Transactional
 	public void deleteMyAddress(Long userId, Long addressId) {
-		if (!userRepository.existsByIdAndDeletedAtIsNull(userId)) {
-			throw new UserIdNotFoundException(userId);
-		}
+		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
+			.orElseThrow(() -> new UserIdNotFoundException(userId));
 
 		UserShippingAddress deleteUserAddress = userShippingAddressRepository.findById(addressId)
 			.orElseThrow(() -> new AddressIdNotFoundException(addressId));
 
-		if (deleteUserAddress.getUser().getId() != userId) {
-			throw new AddressUserNotMatchException();
-		}
+		userShippingAddressRepository.deleteById(addressId);
 
 		if (deleteUserAddress.isDefaultAddress() == true) {
-			userShippingAddressRepository.findFirstByUser_IdOrderByIdDesc(userId)
+			userShippingAddressRepository.findFirstByUserOrderByIdDesc(user)
 				.ifPresent(address -> address.registerDefaultAddress());
 		}
-
-		userShippingAddressRepository.deleteById(addressId);
 	}
 
 	@Transactional(readOnly = true)
@@ -85,14 +79,14 @@ public class AddressService {
 			throw new UserIdNotFoundException(userId);
 		}
 
-		UserShippingAddress userAddress = userShippingAddressRepository.findByUser_IdAndIsDefaultAddressIsTrue(userId)
+		UserShippingAddress userAddress = userShippingAddressRepository.findByUserAndIsDefaultAddressIsTrue(userId)
 			.orElseThrow(DefaultAddressNotFoundException::new);
 
 		return UserShippingAddressDto.from(userAddress);
 	}
 
 	@Transactional
-	public UserShippingAddressDto registerMyDefaultAddress(Long userId, Long addressId) {
+	public UserShippingAddressDto updateMyDefaultAddress(Long userId, Long addressId) {
 		if (!userRepository.existsByIdAndDeletedAtIsNull(userId)) {
 			throw new UserIdNotFoundException(userId);
 		}
@@ -100,11 +94,7 @@ public class AddressService {
 		UserShippingAddress registerAddress = userShippingAddressRepository.findById(addressId)
 			.orElseThrow(() -> new AddressIdNotFoundException(addressId));
 
-		if (registerAddress.getUser().getId() != userId) {
-			throw new AddressUserNotMatchException();
-		}
-
-		userShippingAddressRepository.findByUser_IdAndIsDefaultAddressIsTrue(userId)
+		userShippingAddressRepository.findByUserAndIsDefaultAddressIsTrue(userId)
 			.ifPresent(address -> address.cancelDefaultAddress());
 
 		registerAddress.registerDefaultAddress();
