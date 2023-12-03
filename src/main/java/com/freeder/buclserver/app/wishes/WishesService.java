@@ -12,6 +12,7 @@ import com.freeder.buclserver.domain.wish.repository.WishRepository;
 import com.freeder.buclserver.global.exception.BaseException;
 import com.freeder.buclserver.global.response.BaseResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -36,10 +37,10 @@ public class WishesService {
             int pageSize
     ) {
 
-        List<Wish> wishes = wishRepository.findByUserId(userId, setPaging(page, pageSize)).orElseThrow(() ->
+        Page<Wish> wishes = wishRepository.findByUserId(userId, setPaging(page, pageSize)).orElseThrow(() ->
                 new BaseException(HttpStatus.BAD_REQUEST, 400, "잘못된 userId 또는 찜목록이 없습니다."));
 
-        List<WishDto> list = wishes.stream()
+        List<WishDto> list = wishes.getContent().stream()
                 .map(this::convertWishDto)
                 .toList();
 
