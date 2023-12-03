@@ -10,7 +10,7 @@ import com.freeder.buclserver.domain.usershippingaddress.entity.UserShippingAddr
 
 public interface UserShippingAddressRepository extends JpaRepository<UserShippingAddress, Long> {
 
-	Optional<UserShippingAddress> findByUserAndIsDefaultAddressIsTrue(User user);
+	Optional<UserShippingAddress> findByUser_IdAndIsDefaultAddressIsTrue(Long userId);
 
 	List<UserShippingAddress> findAllByUser(User user);
 

@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -100,6 +101,16 @@ public class MyController {
 	public BaseResponse getMyDefaultAddress(@AuthenticationPrincipal CustomUserDetails userDetails) {
 		Long userId = Long.valueOf(userDetails.getUserId());
 		UserShippingAddressDto defaultAddress = addressService.getMyDefaultAddress(userId);
+		return new BaseResponse(defaultAddress, HttpStatus.OK, "요청 성공");
+	}
+
+	@PatchMapping("/address/{addressId}/default")
+	public BaseResponse registerMyDefaultAddress(
+		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@PathVariable Long addressId
+	) {
+		Long userId = Long.valueOf(userDetails.getUserId());
+		UserShippingAddressDto defaultAddress = addressService.registerMyDefaultAddress(userId, addressId);
 		return new BaseResponse(defaultAddress, HttpStatus.OK, "요청 성공");
 	}
 }
