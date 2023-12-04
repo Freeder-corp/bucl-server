@@ -15,7 +15,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.antMatchers("/api/v1/rewards/**").permitAll()
 			.antMatchers("/api/v1/openapi/**").permitAll()
 			.anyRequest().authenticated()
-			.and()
+			.and().csrf().disable()
 			.httpBasic();
 	}
 }

@@ -51,6 +51,9 @@ public class ProductReview extends TimestampMixin {
 	@Column(name = "selected_option")
 	private String selectedOption;
 
+	@Column(name = "product_code")
+	private Long productCode;
+
 	public Product getProduct() {
 		return product;
 	}

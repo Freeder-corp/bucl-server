@@ -1,4 +1,10 @@
 spring:
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 0B
+      max-file-size: 100MB
+      max-request-size: 100MB
   profiles:
     active:
       - local
@@ -7,6 +13,7 @@ spring:
       local:
         - local-config
         - cloud
+
 openapi:
   client_id: 1da2592c-35cc-45d9-8f12-b1b90c939c25
   client_secret: 80914203-c42c-4971-a654-a62483c58ed9

@@ -4,21 +4,29 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.freeder.buclserver.domain.product.dto.ProductDTO;
 import com.freeder.buclserver.domain.product.dto.ProductDetailDTO;
 import com.freeder.buclserver.domain.productcategory.dto.ProductCategoryDTO;
 import com.freeder.buclserver.domain.productoption.dto.ProductOptionDTO;
 import com.freeder.buclserver.domain.productreview.dto.ReviewPhotoDTO;
+import com.freeder.buclserver.domain.productreview.dto.ReviewRequestDTO;
+import com.freeder.buclserver.global.exception.BaseException;
 import com.freeder.buclserver.global.response.BaseResponse;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/products")
 @Tag(name = "products 관련 API", description = "상품 관련 API")
@@ -103,4 +111,37 @@ public class ProductsController {
 		return new BaseResponse<>(reviewPhotos, HttpStatus.OK, "리뷰 사진 조회 성공");
 	}
 
+	@PostMapping("/{product_code}/review")
+	public BaseResponse<String> createOrUpdateReview(
+		@PathVariable("product_code") Long productCode,
+		@RequestPart("reviewRequest") ReviewRequestDTO reviewRequestDTO,
+		@RequestPart("images") List<MultipartFile> images
+	) {
+		try {
+			Long userId = 11L;
+			List<String> s3ImageUrls = productsReviewService.uploadImagesToS3(images);
+
+			productsReviewService.createOrUpdateReview(productCode, reviewRequestDTO, userId, s3ImageUrls);
+
+			return new BaseResponse<>("리뷰 생성 또는 수정 성공", HttpStatus.OK, "요청 성공");
+		} catch (Exception e) {
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "리뷰 생성 또는 수정 - 서버 에러");
+		}
+	}
+
+	@DeleteMapping("/{product_code}/review")
+	public BaseResponse<String> deleteReview(
+		@PathVariable("product_code") Long productCode,
+		@RequestParam Long reviewId
+	) {
+		try {
+			Long userId = 11L;
+			productsReviewService.deleteReview(productCode, reviewId, userId);
+
+			return new BaseResponse<>("리뷰 삭제 성공", HttpStatus.OK, "요청 성공");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new BaseResponse<>(null, HttpStatus.INTERNAL_SERVER_ERROR, "리뷰 삭제 실패");
+		}
+	}
 }

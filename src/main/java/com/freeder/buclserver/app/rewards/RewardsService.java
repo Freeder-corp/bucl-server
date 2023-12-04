@@ -19,10 +19,6 @@ public class RewardsService {
 	@Autowired
 	private RewardRepository rewardRepository;
 
-	public List<Reward> getUserRewards(Long userId) {
-		return rewardRepository.findByUserId(userId);
-	}
-
 	public Integer getUserRewardCrntAmount(Long userId) {
 		return rewardRepository.findFirstByUserId(userId).orElse(0);
 	}

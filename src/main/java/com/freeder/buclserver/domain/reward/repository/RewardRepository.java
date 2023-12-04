@@ -13,7 +13,6 @@ import com.freeder.buclserver.domain.reward.entity.Reward;
 
 @Repository
 public interface RewardRepository extends JpaRepository<Reward, Long> {
-	List<Reward> findByUserId(Long userId);
 
 	List<Reward> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
 

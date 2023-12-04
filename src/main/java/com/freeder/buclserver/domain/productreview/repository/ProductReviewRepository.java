@@ -1,5 +1,7 @@
 package com.freeder.buclserver.domain.productreview.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -28,6 +30,24 @@ public interface ProductReviewRepository extends JpaRepository<ProductReview, Lo
 	Page<ProductReview> findByProductProductCodeWithConditions(
 		@Param("productCode") Long productCode,
 		Pageable pageable
+	);
+
+	@Query("SELECT pr FROM ProductReview pr " +
+		"WHERE pr.user.id = :userId " +
+		"AND pr.product.productCode = :productCode")
+	Optional<ProductReview> findFirstByUserIdAndProductCode(
+		@Param("userId") Long userId,
+		@Param("productCode") Long productCode
+	);
+
+	@Query("SELECT pr FROM ProductReview pr " +
+		"WHERE pr.id = :reviewId " +
+		"AND pr.product.productCode = :productCode " +
+		"AND pr.user.id = :userId")
+	Optional<ProductReview> findByIdAndProduct_ProductCodeAndUser_Id(
+		@Param("reviewId") Long reviewId,
+		@Param("productCode") Long productCode,
+		@Param("userId") Long userId
 	);
 }
 
