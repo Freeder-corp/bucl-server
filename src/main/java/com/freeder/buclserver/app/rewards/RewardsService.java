@@ -23,6 +23,10 @@ public class RewardsService {
 		return rewardRepository.findByUserId(userId);
 	}
 
+	public Integer getUserRewardCrntAmount(Long userId) {
+		return rewardRepository.findFirstByUserId(userId).orElse(0);
+	}
+
 	public List<RewardDto> getRewardHistoryPageable(Long userId, int page, int pageSize) {
 		int offset = (page - 1) * pageSize;
 		Pageable pageable = PageRequest.of(offset, pageSize);

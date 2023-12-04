@@ -66,15 +66,15 @@ public class Reward extends TimestampMixin {
 	private RewardType rewardType;
 
 	@Column(name = "received_reward_amount")
-	private int receivedRewardAmount;
+	private Integer receivedRewardAmount;
 
 	@Column(name = "spent_reward_amount")
-	private int spentRewardAmount;
+	private Integer spentRewardAmount;
 
 	@Column(name = "previous_reward_sum")
-	private int previousRewardSum;
+	private Integer previousRewardSum;
 
 	@Column(name = "reward_sum")
-	private int rewardSum;
+	private Integer rewardSum;
 
 }

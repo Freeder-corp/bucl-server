@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.freeder.buclserver.core.security.CustomUserDetails;
 import com.freeder.buclserver.domain.reward.dto.RewardDto;
-import com.freeder.buclserver.domain.reward.entity.Reward;
 import com.freeder.buclserver.global.response.BaseResponse;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,10 +35,7 @@ public class RewardsController {
 	) {
 		try {
 			Long userId = 11L;
-			List<Reward> userRewards = rewardsService.getUserRewards(userId);
-			int currentRewardAmount = userRewards.stream()
-				.mapToInt(Reward::getRewardSum)
-				.sum();
+			int currentRewardAmount = rewardsService.getUserRewardCrntAmount(userId);
 
 			return new BaseResponse<>(currentRewardAmount, HttpStatus.OK, "리워드 조회 성공");
 		} catch (Exception e) {

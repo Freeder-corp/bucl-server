@@ -71,7 +71,7 @@ public class ConsumerOrder extends TimestampMixin {
 	private String orderCode;
 
 	@Column(name = "product_amount")
-	private int productAmount;
+	private Integer productAmount;
 
 	@Column(name = "order_num")
 	private int orderNum;
