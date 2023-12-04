@@ -38,11 +38,23 @@ public class ProductReview extends TimestampMixin {
 	@ManyToOne
 	@JoinColumn(name = "product_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private Product product;
-
+	@ManyToOne
+	@JoinColumn(name = "product_code", referencedColumnName = "product_code", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+	private Product productCode;
 	@Column(length = 300)
 	private String content;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "star_rate")
 	private StarRate starRate;
+
+	@Column(name = "image_path")
+	private String imagePath;
+
+	@Column(name = "selected_option")
+	private String selectedOption;
+
+	public Product getProduct() {
+		return product;
+	}
 }
