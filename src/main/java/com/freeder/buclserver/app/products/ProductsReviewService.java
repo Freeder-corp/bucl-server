@@ -36,10 +36,10 @@ public class ProductsReviewService {
 		try {
 			int offset = (page - 1) * pageSize;
 			Pageable pageable = PageRequest.of(offset, pageSize);
-			Page<ProductReview> reviewPage = productReviewRepository.findByProduct_productCode(
+			Page<ProductReview> reviewPage = productReviewRepository.findByProductProductCodeWithConditions(
 				productCode, pageable);
 
-			long reviewCount = productReviewRepository.countByProductCodeFk(productCode);
+			long reviewCount = productReviewRepository.countByProductCodeFkWithConditions(productCode);
 			float averageRating = productsCategoryService.calculateAverageRating(reviewPage.getContent());
 
 			List<ReviewDTO> reviewDTOs = reviewPage.getContent().stream()

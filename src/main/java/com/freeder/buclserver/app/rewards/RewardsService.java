@@ -47,7 +47,7 @@ public class RewardsService {
 			RewardType.CONSUMER.equals(reward.getRewardType()) ||
 			RewardType.REFUND.equals(reward.getRewardType())) {
 			return reward.getReceivedRewardAmount();
-		} else if (RewardType.USE.equals(reward.getRewardType()) ||
+		} else if (RewardType.SPEND.equals(reward.getRewardType()) ||
 			RewardType.WITHDRAWAL.equals(reward.getRewardType())) {
 			return -reward.getSpentRewardAmount();
 		} else {

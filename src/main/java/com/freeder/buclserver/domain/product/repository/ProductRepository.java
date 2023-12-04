@@ -13,14 +13,21 @@ import com.freeder.buclserver.domain.product.entity.Product;
 public interface ProductRepository extends JpaRepository<Product, Long> {
 	@Query("SELECT p FROM Product p " +
 		"WHERE p.productCategory.id = :categoryId " +
-		"ORDER BY p.consumerPrice * p.consumerRewardRate DESC, p.createdAt DESC")
-	Page<Product> findProductsOrderByReward(
+		"AND p.deletedAt IS NULL " +
+		"AND p.isExposed = true " +
+		"AND p.productStatus = com.freeder.buclserver.domain.product.vo.ProductStatus.ACTIVE " +
+		"ORDER BY p.productPriority DESC")
+	Page<Product> findProductsByConditions(
 		@Param("categoryId") Long categoryId,
 		Pageable pageable
 	);
 
-	Optional<Product> findByProductCode(Long productCode);
-
+	@Query("SELECT p FROM Product p " +
+		"WHERE p.productCode = :productCode " +
+		"AND p.deletedAt IS NULL " +
+		"AND p.isExposed = true " +
+		"AND p.productStatus = com.freeder.buclserver.domain.product.vo.ProductStatus.ACTIVE")
+	Optional<Product> findAvailableProductByCode(@Param("productCode") Long productCode);
 }
 
 

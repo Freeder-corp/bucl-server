@@ -1,7 +1,5 @@
 package com.freeder.buclserver.domain.productreview.vo;
 
-import java.util.Comparator;
-
 public enum StarRate {
 	ZERO(0.0),
 	HALF(0.5),
@@ -23,10 +21,6 @@ public enum StarRate {
 
 	public double getValue() {
 		return value;
-	}
-
-	public static Comparator<StarRate> comparator() {
-		return Comparator.comparingDouble(StarRate::getValue);
 	}
 }
 

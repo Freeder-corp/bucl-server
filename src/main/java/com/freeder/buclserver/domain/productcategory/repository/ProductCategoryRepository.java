@@ -11,7 +11,10 @@ import com.freeder.buclserver.domain.product.entity.Product;
 public interface ProductCategoryRepository extends JpaRepository<Product, Long> {
 	@Query("SELECT p FROM Product p " +
 		"WHERE p.productCategory.id = :categoryId " +
-		"ORDER BY p.consumerPrice * p.consumerRewardRate DESC, p.createdAt DESC")
+		"AND p.deletedAt IS NULL " +
+		"AND p.isExposed = true " +
+		"AND p.productStatus = com.freeder.buclserver.domain.product.vo.ProductStatus.ACTIVE " +
+		"ORDER BY p.productPriority DESC")
 	Page<Product> findProductsByCategory(
 		@Param("categoryId") Long categoryId,
 		Pageable pageable

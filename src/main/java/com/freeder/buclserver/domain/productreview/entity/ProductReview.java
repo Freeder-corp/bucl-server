@@ -38,9 +38,6 @@ public class ProductReview extends TimestampMixin {
 	@ManyToOne
 	@JoinColumn(name = "product_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private Product product;
-	@ManyToOne
-	@JoinColumn(name = "product_code", referencedColumnName = "product_code", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-	private Product productCode;
 	@Column(length = 300)
 	private String content;
 
@@ -56,5 +53,9 @@ public class ProductReview extends TimestampMixin {
 
 	public Product getProduct() {
 		return product;
+	}
+
+	public Long getProductCode() {
+		return product.getProductCode();
 	}
 }

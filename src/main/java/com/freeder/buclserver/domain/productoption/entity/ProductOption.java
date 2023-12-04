@@ -35,10 +35,6 @@ public class ProductOption extends TimestampMixin {
 	@ManyToOne
 	@JoinColumn(name = "product_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private Product product;
-	@ManyToOne
-	@JoinColumn(name = "product_code", referencedColumnName = "product_code", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-	private Product productCode;
-
 	@Column(name = "option_key")
 	@Enumerated(EnumType.STRING)
 	private OptionKey optionKey;
@@ -65,4 +61,8 @@ public class ProductOption extends TimestampMixin {
 	@ColumnDefault("true")
 	@Column(name = "is_exposed")
 	private boolean isExposed;
+
+	public Long getProductCode() {
+		return product.getProductCode();
+	}
 }

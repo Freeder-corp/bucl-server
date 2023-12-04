@@ -47,8 +47,8 @@ public class ProductsService {
 
 	public List<ProductDTO> getProducts(Long categoryId, int page, int pageSize) {
 		try {
-			Pageable pageable = PageRequest.of(page - 1, pageSize);
-			Page<Product> productsPage = productRepository.findProductsOrderByReward(categoryId, pageable);
+			Pageable pageable = PageRequest.of(page, pageSize);
+			Page<Product> productsPage = productRepository.findProductsByConditions(categoryId, pageable);
 			List<ProductDTO> products = productsPage.getContent().stream()
 				.map(this::convertToDTO)
 				.collect(Collectors.toList());
@@ -60,7 +60,7 @@ public class ProductsService {
 
 	public ProductDetailDTO getProductDetail(Long productCode) {
 		try {
-			Product product = productRepository.findByProductCode(productCode)
+			Product product = productRepository.findAvailableProductByCode(productCode)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
 					"Product not found with code: " + productCode));
 
@@ -114,7 +114,8 @@ public class ProductsService {
 
 	public List<ProductOptionDTO> getProductOptions(Long productCode) {
 		try {
-			List<ProductOption> productOptions = productOptionRepository.findByProduct_productCode(productCode);
+			List<ProductOption> productOptions = productOptionRepository.findByProductProductCodeWithConditions(
+				productCode);
 			return productOptions.stream()
 				.map(this::convertToDTO)
 				.collect(Collectors.toList());

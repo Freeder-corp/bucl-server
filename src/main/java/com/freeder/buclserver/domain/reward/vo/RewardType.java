@@ -5,5 +5,5 @@ public enum RewardType {
 	CONSUMER, // 구매
 	WITHDRAWAL, // 인출
 	REFUND, // 환불
-	USE // 사용
+	SPEND // 사용
 }

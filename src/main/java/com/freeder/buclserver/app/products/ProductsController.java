@@ -45,7 +45,7 @@ public class ProductsController {
 	@GetMapping
 	public BaseResponse<List<ProductDTO>> getProducts(
 		@RequestParam(defaultValue = "1") Long categoryId,
-		@RequestParam(defaultValue = "1") int page,
+		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "10") int pageSize
 	) {
 		List<ProductDTO> products = productsService.getProducts(categoryId, page, pageSize);
