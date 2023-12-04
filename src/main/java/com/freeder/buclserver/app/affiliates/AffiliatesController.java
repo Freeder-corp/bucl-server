@@ -3,6 +3,7 @@ package com.freeder.buclserver.app.affiliates;
 import com.freeder.buclserver.domain.affiliate.dto.AffiliateDto;
 import com.freeder.buclserver.global.response.BaseResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,8 +16,11 @@ public class AffiliatesController {
     private final AffiliateService service;
 
     @PostMapping
-    public BaseResponse<?> getSellingPage(@RequestBody AffiliateDto affiliateDto) throws Exception {
-        return service.getSellingPage(affiliateDto);
+    public BaseResponse<?> getSellingPage(
+            Authentication authentication,
+            @RequestBody AffiliateDto affiliateDto
+    ) throws Exception {
+        return service.getSellingPage(authentication, affiliateDto);
     }
 
     @GetMapping("/{AffiliateEncrypt}")

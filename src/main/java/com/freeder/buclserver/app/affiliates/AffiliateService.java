@@ -11,6 +11,7 @@ import com.freeder.buclserver.global.util.DateUtils;
 import com.freeder.buclserver.global.util.ImageParsing;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,12 +22,15 @@ public class AffiliateService {
     private final ImageParsing imageParsing;
     private final String FRONTURL = "https://bucl.co.kr/";   //예시
 
-    public BaseResponse<?> getSellingPage(AffiliateDto affiliateDto) throws Exception {
+    public BaseResponse<?> getSellingPage(
+            Authentication authentication,
+            AffiliateDto affiliateDto
+    ) throws Exception {
 
         return new BaseResponse<>(
                 convertSellingDto(
                         productRepository.findByIdForAffiliate(affiliateDto.getProductId()),
-                        createAffiliateUrl(affiliateDto)
+                        createAffiliateUrl(authentication, affiliateDto)
                 ),
                 HttpStatus.OK,
                 "요청 성공"
@@ -58,12 +62,15 @@ public class AffiliateService {
                 .build();
     }
 
-    private String createAffiliateUrl(AffiliateDto affiliateDto) throws Exception {
+    private String createAffiliateUrl(
+            Authentication authentication,
+            AffiliateDto affiliateDto
+    ) throws Exception {
         return cryptoAes256.encrypt(
                 String.format(
-                        "%s,%s,%d",
+                        "%d,%s,%d",
                         affiliateDto.getProductId(),
-                        affiliateDto.getUserId(),
+                        authentication.getPrincipal(),
                         DateUtils.nowDate())
         );
     }

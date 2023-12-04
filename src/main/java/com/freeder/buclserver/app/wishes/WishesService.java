@@ -11,6 +11,7 @@ import com.freeder.buclserver.domain.wish.entity.Wish;
 import com.freeder.buclserver.domain.wish.repository.WishRepository;
 import com.freeder.buclserver.global.exception.BaseException;
 import com.freeder.buclserver.global.response.BaseResponse;
+import com.freeder.buclserver.global.util.ImageParsing;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,6 +32,7 @@ public class WishesService {
     private final WishRepository wishRepository;
     private final GroupOrderRepository groupOrderRepository;
     private final ProductsCategoryService productsCategoryService;
+    private final ImageParsing imageParsing;
 
     public BaseResponse<?> getWishesList(
             Authentication authentication,
@@ -62,8 +64,8 @@ public class WishesService {
                 WishCreateRes(
                         authentication,
                         wishCreateReq
-                )
-                , HttpStatus.OK,
+                ),
+                HttpStatus.OK,
                 "요청 성공"
         );
     }
@@ -80,7 +82,7 @@ public class WishesService {
                     productCode
             );
         } catch (Exception e) {
-            throw new BaseException(HttpStatus.BAD_REQUEST, 400, "잘못된 wish_id");
+            throw new BaseException(HttpStatus.BAD_REQUEST, 400, "잘못된 product_code");
         }
 
         return new BaseResponse<>(
@@ -101,6 +103,8 @@ public class WishesService {
             return WishDto.builder()
                     .brandName(wish.getProduct().getBrandName())
                     .name(wish.getProduct().getName())
+                    .productCode(wish.getProduct().getProductCode())
+                    .imagePath(imageParsing.getImageList(wish.getProduct().getImagePath()))
                     .consumerPrice(wish.getProduct().getConsumerPrice())
                     .starRate(productsCategoryService.calculateAverageRating(wish.getProduct().getProductReviews()))
                     .consumerOrdersNumber(groupOrder == null ? 0 : groupOrder.getConsumerOrders().size())
