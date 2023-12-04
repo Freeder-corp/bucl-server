@@ -39,9 +39,6 @@ public class ProductReview extends TimestampMixin {
 	@JoinColumn(name = "product_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private Product product;
 
-	@Column(length = 300)
-	private String content;
-
 	@Enumerated(EnumType.STRING)
 	@Column(name = "star_rate")
 	private StarRate starRate;
@@ -51,4 +48,8 @@ public class ProductReview extends TimestampMixin {
 
 	@Column(name = "selected_option")
 	private String selectedOption;
+
+	public Product getProduct() {
+		return product;
+	}
 }

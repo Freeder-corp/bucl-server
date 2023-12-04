@@ -34,8 +34,8 @@ import lombok.RequiredArgsConstructor;
 @Builder
 public class OrderCancel extends TimestampMixin {
 	@Id
-	@Column(name = "order_cancel_code", unique = true, nullable = false)
-	private String orderCancelCode;
+	@Column(name = "order_cancel_id", unique = true, nullable = false)
+	private String orderCancelId;
 
 	@ManyToOne
 	@JoinColumn(name = "user_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
