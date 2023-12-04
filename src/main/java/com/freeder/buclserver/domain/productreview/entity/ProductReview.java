@@ -45,4 +45,10 @@ public class ProductReview extends TimestampMixin {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "star_rate")
 	private StarRate starRate;
+
+	@Column(name = "image_path")
+	private String imagePath;
+
+	@Column(name = "selected_option")
+	private String selectedOption;
 }

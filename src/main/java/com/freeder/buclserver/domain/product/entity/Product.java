@@ -57,7 +57,7 @@ public class Product extends TimestampMixin {
 	private String name;
 
 	@Column(name = "product_code", unique = true)
-	private long productCode;
+	private Long productCode;
 
 	@Column(name = "brand_name")
 	private String brandName;
