@@ -20,4 +20,7 @@ public interface RewardRepository extends JpaRepository<Reward, Long> {
 		nativeQuery = true)
 	Optional<Integer> findFirstByUserId(@Param("userId") Long userId);
 
+	@Query(value = "SELECT * FROM Reward WHERE user_id = :userId ORDER BY created_at DESC LIMIT 1", nativeQuery = true)
+	Optional<Reward> findRewardsByUserId(@Param("userId") Long userId);
+
 }

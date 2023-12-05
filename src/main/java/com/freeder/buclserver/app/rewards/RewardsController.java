@@ -5,12 +5,16 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.freeder.buclserver.core.security.CustomUserDetails;
 import com.freeder.buclserver.domain.reward.dto.RewardDto;
+import com.freeder.buclserver.domain.rewardwithdrawal.dto.WithdrawalHistoryDto;
+import com.freeder.buclserver.domain.rewardwithdrawal.dto.WithdrawalRequestDto;
 import com.freeder.buclserver.global.response.BaseResponse;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,10 +27,12 @@ import lombok.extern.slf4j.Slf4j;
 public class RewardsController {
 
 	private final RewardsService rewardsService;
+	private final RewardsWithdrawalService rewardsWithdrawalService;
 
 	@Autowired
-	public RewardsController(RewardsService rewardsService) {
+	public RewardsController(RewardsService rewardsService, RewardsWithdrawalService rewardsWithdrawalService) {
 		this.rewardsService = rewardsService;
+		this.rewardsWithdrawalService = rewardsWithdrawalService;
 	}
 
 	@GetMapping("/crnt-amt")
@@ -66,4 +72,45 @@ public class RewardsController {
 		return Long.parseLong(userDetails.getUserId());
 	}
 
+	@PostMapping("/withdrawals")
+	public BaseResponse<String> withdrawReward(
+		// @AuthenticationPrincipal CustomUserDetails userDetails,
+		@RequestBody WithdrawalRequestDto withdrawalRequestDto
+	) {
+		try {
+			// Long userId = getUserIdFromUserDetails(userDetails);
+			Long userId = 11L;
+			rewardsWithdrawalService.withdrawReward(
+				userId,
+				withdrawalRequestDto.getBankCodeStd(),
+				withdrawalRequestDto.getBankName(),
+				withdrawalRequestDto.getWithdrawalAmount(),
+				withdrawalRequestDto.getAccountNum(),
+				withdrawalRequestDto.getAccountHolderName()
+			);
+
+			return new BaseResponse<>("Success", HttpStatus.OK, "리워드 인출 성공");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new BaseResponse<>(null, HttpStatus.INTERNAL_SERVER_ERROR, "리워드 인출 실패");
+		}
+	}
+
+	@GetMapping("/withdrawals")
+	public BaseResponse<List<WithdrawalHistoryDto>> getWithdrawalHistory(
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "10") int pageSize // 한 페이지당 10개씩 보내도록 수정
+	) {
+		try {
+			// Long userId = getUserIdFromUserDetails(userDetails);
+			Long userId = 11L;
+			List<WithdrawalHistoryDto> withdrawalHistory = rewardsWithdrawalService.getWithdrawalHistory(userId, page,
+				pageSize);
+
+			return new BaseResponse<>(withdrawalHistory, HttpStatus.OK, "인출내역 조회 성공");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new BaseResponse<>(null, HttpStatus.INTERNAL_SERVER_ERROR, "인출내역 조회 실패");
+		}
+	}
 }

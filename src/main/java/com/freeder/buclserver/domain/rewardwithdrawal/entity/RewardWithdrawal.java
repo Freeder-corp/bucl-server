@@ -38,6 +38,8 @@ public class RewardWithdrawal {
 	@Column(name = "bank_name")
 	private String bankName;
 
+	@Column(name = "reward_withdrawal_amount")
+	private Integer rewardWithdrawalAmount;
 	@Column(name = "account_num")
 	private String accountNum;
 

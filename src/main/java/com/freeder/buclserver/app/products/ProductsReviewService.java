@@ -1,6 +1,7 @@
 package com.freeder.buclserver.app.products;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -133,7 +134,7 @@ public class ProductsReviewService {
 				ProductReview existingReview = existingReviewOptional.get();
 				existingReview.setContent(reviewRequestDTO.getReviewContent());
 				existingReview.setStarRate(reviewRequestDTO.getStarRate());
-
+				existingReview.setUpdatedAt(LocalDateTime.now());
 				existingReview.setImagePath(existingReview.getImagePath() + " " + String.join(" ", s3ImageUrls));
 
 				productReviewRepository.save(existingReview);
@@ -151,7 +152,7 @@ public class ProductsReviewService {
 				newReview.setProduct(product);
 				newReview.setContent(reviewRequestDTO.getReviewContent());
 				newReview.setStarRate(reviewRequestDTO.getStarRate());
-
+				newReview.setCreatedAt(LocalDateTime.now());
 				newReview.setImagePath(String.join(" ", s3ImageUrls));
 				newReview.setProductCode(productCode);
 
@@ -173,7 +174,8 @@ public class ProductsReviewService {
 				throw new BaseException(HttpStatus.FORBIDDEN, 403, "해당 리뷰를 삭제할 권한이 없음");
 			}
 
-			productReviewRepository.delete(reviewToDelete);
+			reviewToDelete.setDeletedAt(LocalDateTime.now());
+			productReviewRepository.save(reviewToDelete);
 		} catch (BaseException e) {
 			throw e;
 		} catch (Exception e) {
