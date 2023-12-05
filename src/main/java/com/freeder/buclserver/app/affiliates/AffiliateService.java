@@ -10,6 +10,7 @@ import com.freeder.buclserver.global.util.CryptoAes256;
 import com.freeder.buclserver.global.util.DateUtils;
 import com.freeder.buclserver.global.util.ImageParsing;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,9 @@ public class AffiliateService {
     private final CryptoAes256 cryptoAes256;
     private final ProductRepository productRepository;
     private final ImageParsing imageParsing;
-    private final String FRONTURL = "https://bucl.co.kr/";   //예시
+    private final String FRONTURL = "https://bucl.co.kr/";   //TODO: 프론트주소도 config로 뺄지? 일단 하드코딩
+//    @Value("bucl.affiliateEXP")                            //TODO: 정책적으로 판매링크 만료시간 정착요망
+    private Long expireTime = -1L;
 
     public BaseResponse<?> getSellingPage(
             Authentication authentication,
@@ -51,7 +54,10 @@ public class AffiliateService {
 
     ////////////////////////////////////////private영역/////////////////////////////////////////
 
-    private SellingDto convertSellingDto(Product product, String url) {
+    private SellingDto convertSellingDto(
+            Product product,
+            String url
+    ) {
 
         return SellingDto.builder()
                 .brandName(product.getBrandName())
@@ -81,7 +87,10 @@ public class AffiliateService {
 
             String[] body = cryptoAes256.decrypt(affiliateEncrypt).split(",");
 
-            if (!DateUtils.isOneWeekPassed(Long.parseLong(body[body.length - 1]))) {
+            if (!DateUtils.isOneWeekPassed(
+                    Long.parseLong(body[body.length - 1]),
+                    expireTime
+            )) {
                 throw new BaseException(HttpStatus.BAD_REQUEST, 400, "만료된 링크입니다.");
             }
 
@@ -94,7 +103,10 @@ public class AffiliateService {
     }
 
 
-    private AffiliateDto convertAffiliateDto(String productId, String userId) {
+    private AffiliateDto convertAffiliateDto(
+            String productId,
+            String userId
+    ) {
         return AffiliateDto.builder()
                 .productId(Long.valueOf(productId))
                 .userId(Long.valueOf(userId))

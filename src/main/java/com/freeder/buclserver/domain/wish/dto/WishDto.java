@@ -18,7 +18,7 @@ public class WishDto {
     private int consumerPrice;
     private float starRate;
     private int consumerOrdersNumber;
-    private boolean isEnded;
+    private Boolean isEnded;
 
     @Getter
     @Builder
@@ -34,14 +34,5 @@ public class WishDto {
     @AllArgsConstructor
     public static class WishCreateReq{
         private Long productId;
-    }
-
-    @Getter
-    @Setter
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class WishDeleteReq{
-        private Long wishId;
     }
 }
