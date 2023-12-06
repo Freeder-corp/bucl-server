@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.freeder.buclserver.domain.reward.entity.Reward;
 import com.freeder.buclserver.domain.reward.repository.RewardRepository;
@@ -15,23 +16,21 @@ import com.freeder.buclserver.domain.reward.vo.RewardType;
 import com.freeder.buclserver.domain.rewardwithdrawal.dto.WithdrawalHistoryDto;
 import com.freeder.buclserver.domain.rewardwithdrawal.entity.RewardWithdrawal;
 import com.freeder.buclserver.domain.rewardwithdrawal.repository.RewardWithdrawalRepository;
-import com.freeder.buclserver.domain.user.repository.UserRepository;
 
 @Service
 public class RewardsWithdrawalService {
 
 	private final RewardWithdrawalRepository rewardWithdrawalRepository;
 	private final RewardRepository rewardRepository;
-	private final UserRepository userRepository;
 
 	@Autowired
 	public RewardsWithdrawalService(RewardWithdrawalRepository rewardWithdrawalRepository,
-		RewardRepository rewardRepository, UserRepository userRepository) {
+		RewardRepository rewardRepository) {
 		this.rewardWithdrawalRepository = rewardWithdrawalRepository;
 		this.rewardRepository = rewardRepository;
-		this.userRepository = userRepository;
 	}
 
+	@Transactional
 	public void withdrawReward(Long userId, String bankCodeStd, String bankName, Integer withdrawalAmount,
 		String accountNum, String accountHolderName) {
 

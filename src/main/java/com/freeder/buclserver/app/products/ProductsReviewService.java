@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3Client;
@@ -57,6 +58,7 @@ public class ProductsReviewService {
 		this.productsCategoryService = productsCategoryService;
 	}
 
+	@Transactional(readOnly = true)
 	public ProductReviewResult getProductReviews(Long productCode, int page, int pageSize) {
 		try {
 			int offset = (page - 1) * pageSize;
@@ -121,6 +123,7 @@ public class ProductsReviewService {
 		}
 	}
 
+	@Transactional
 	public void createOrUpdateReview(Long productCode, ReviewRequestDTO reviewRequestDTO, Long userId,
 		List<String> s3ImageUrls) {
 		try {
@@ -164,6 +167,7 @@ public class ProductsReviewService {
 		}
 	}
 
+	@Transactional
 	public void deleteReview(Long productCode, Long reviewId, Long userId) {
 		try {
 			ProductReview reviewToDelete = productReviewRepository.findByIdAndProduct_ProductCodeAndUser_Id(reviewId,
@@ -183,6 +187,7 @@ public class ProductsReviewService {
 		}
 	}
 
+	@Transactional
 	public List<String> uploadImagesToS3(List<MultipartFile> images) {
 		List<String> s3ImageUrls = new ArrayList<>();
 

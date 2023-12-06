@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.freeder.buclserver.domain.product.dto.ProductDTO;
@@ -45,6 +46,7 @@ public class ProductsService {
 		this.imageParsing = imageParsing;
 	}
 
+	@Transactional(readOnly = true)
 	public List<ProductDTO> getProducts(Long categoryId, int page, int pageSize) {
 		try {
 			Pageable pageable = PageRequest.of(page, pageSize);
@@ -58,6 +60,7 @@ public class ProductsService {
 		}
 	}
 
+	@Transactional(readOnly = true)
 	public ProductDetailDTO getProductDetail(Long productCode) {
 		try {
 			Product product = productRepository.findAvailableProductByCode(productCode)
@@ -112,6 +115,7 @@ public class ProductsService {
 		}
 	}
 
+	@Transactional(readOnly = true)
 	public List<ProductOptionDTO> getProductOptions(Long productCode) {
 		try {
 			List<ProductOption> productOptions = productOptionRepository.findByProductProductCodeWithConditions(

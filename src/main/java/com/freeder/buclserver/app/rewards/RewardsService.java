@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.freeder.buclserver.domain.reward.dto.RewardDto;
 import com.freeder.buclserver.domain.reward.entity.Reward;
@@ -19,10 +20,12 @@ public class RewardsService {
 	@Autowired
 	private RewardRepository rewardRepository;
 
+	@Transactional(readOnly = true)
 	public Integer getUserRewardCrntAmount(Long userId) {
-		return rewardRepository.findFirstByUserId(userId).orElse(0);
+		return rewardRepository.findFirstByUserId(userId).orElse(0).intValue();
 	}
 
+	@Transactional(readOnly = true)
 	public List<RewardDto> getRewardHistoryPageable(Long userId, int page, int pageSize) {
 		int offset = (page - 1) * pageSize;
 		Pageable pageable = PageRequest.of(offset, pageSize);

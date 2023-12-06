@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.freeder.buclserver.domain.productreview.dto.ReviewPhotoDTO;
 import com.freeder.buclserver.domain.productreview.entity.ProductReview;
@@ -26,6 +27,7 @@ public class ProductsReviewPhotoService {
 		this.imageParsing = imageParsing;
 	}
 
+	@Transactional(readOnly = true)
 	public List<ReviewPhotoDTO> getProductReviewPhotos(Long productCode, int page, int pageSize) {
 		try {
 			Pageable pageable = PageRequest.of(page - 1, pageSize);
