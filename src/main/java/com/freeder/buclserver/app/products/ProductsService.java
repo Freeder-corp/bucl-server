@@ -25,6 +25,9 @@ import com.freeder.buclserver.domain.productreview.entity.ProductReview;
 import com.freeder.buclserver.global.exception.BaseException;
 import com.freeder.buclserver.global.util.ImageParsing;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class ProductsService {
 
@@ -54,8 +57,10 @@ public class ProductsService {
 			List<ProductDTO> products = productsPage.getContent().stream()
 				.map(this::convertToDTO)
 				.collect(Collectors.toList());
+			log.info("상품 목록 조회 성공 - categoryId: {}, page: {}, pageSize: {}", categoryId, page, pageSize);
 			return products;
 		} catch (Exception e) {
+			log.error("상품 목록 조회 실패 - categoryId: {}, page: {}, pageSize: {}", categoryId, page, pageSize, e);
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 목록 조회 - 서버 에러");
 		}
 	}
@@ -81,6 +86,7 @@ public class ProductsService {
 			List<String> imageUrls = imageParsing.getImageList(product.getImagePath());
 			List<String> firstFiveImages = imageUrls.stream().limit(5).collect(Collectors.toList());
 
+			log.info("상품 상세 정보 조회 성공 - productCode: {}", productCode);
 			return new ProductDetailDTO(
 				product.getProductCode(),
 				product.getName(),
@@ -95,6 +101,7 @@ public class ProductsService {
 				reviewPreviews
 			);
 		} catch (Exception e) {
+			log.error("상품 상세 정보 조회 실패 - productCode: {}", productCode, e);
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 상세 정보 조회 - 서버 에러");
 		}
 	}
@@ -111,6 +118,7 @@ public class ProductsService {
 				thumbnailUrl
 			);
 		} catch (Exception e) {
+			log.error("상품 리뷰 미리보기 변환 실패", e);
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 리뷰 미리보기 변환 - 서버 에러");
 		}
 	}
@@ -120,10 +128,13 @@ public class ProductsService {
 		try {
 			List<ProductOption> productOptions = productOptionRepository.findByProductProductCodeWithConditions(
 				productCode);
+
+			log.info("상품 옵션 조회 성공 - productCode: {}", productCode);
 			return productOptions.stream()
 				.map(this::convertToDTO)
 				.collect(Collectors.toList());
 		} catch (Exception e) {
+			log.error("상품 옵션 조회 실패 - productCode: {}", productCode, e);
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 옵션 조회 - 서버 에러");
 		}
 	}
@@ -149,6 +160,7 @@ public class ProductsService {
 				roundedReward
 			);
 		} catch (Exception e) {
+			log.error("상품 정보 변환 실패", e);
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 정보 변환 - 서버 에러");
 		}
 	}

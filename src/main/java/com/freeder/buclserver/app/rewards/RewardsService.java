@@ -14,6 +14,9 @@ import com.freeder.buclserver.domain.reward.entity.Reward;
 import com.freeder.buclserver.domain.reward.repository.RewardRepository;
 import com.freeder.buclserver.domain.reward.vo.RewardType;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class RewardsService {
 
@@ -27,13 +30,19 @@ public class RewardsService {
 
 	@Transactional(readOnly = true)
 	public List<RewardDto> getRewardHistoryPageable(Long userId, int page, int pageSize) {
-		int offset = (page - 1) * pageSize;
-		Pageable pageable = PageRequest.of(offset, pageSize);
-		List<Reward> rewardHistory = rewardRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable);
+		try {
+			Pageable pageable = PageRequest.of(page, pageSize);
+			List<Reward> rewardHistory = rewardRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable);
 
-		return rewardHistory.stream()
-			.map(this::mapRewardToDto)
-			.collect(Collectors.toList());
+			log.info("적립금 내역 조회 성공 - userId: {}, page: {}, pageSize: {}", userId, page, pageSize);
+
+			return rewardHistory.stream()
+				.map(this::mapRewardToDto)
+				.collect(Collectors.toList());
+		} catch (Exception e) {
+			log.error("적립금 내역 조회 실패 - userId: {}, page: {}, pageSize: {}", userId, page, pageSize, e);
+			throw e;
+		}
 	}
 
 	private RewardDto mapRewardToDto(Reward reward) {
@@ -46,15 +55,20 @@ public class RewardsService {
 	}
 
 	private int calculateNetReward(Reward reward) {
-		if (RewardType.BUSINESS.equals(reward.getRewardType()) ||
-			RewardType.CONSUMER.equals(reward.getRewardType()) ||
-			RewardType.REFUND.equals(reward.getRewardType())) {
-			return reward.getReceivedRewardAmount();
-		} else if (RewardType.SPEND.equals(reward.getRewardType()) ||
-			RewardType.WITHDRAWAL.equals(reward.getRewardType())) {
-			return -reward.getSpentRewardAmount();
-		} else {
-			return 0;
+		try {
+			if (RewardType.BUSINESS.equals(reward.getRewardType()) ||
+				RewardType.CONSUMER.equals(reward.getRewardType()) ||
+				RewardType.REFUND.equals(reward.getRewardType())) {
+				return reward.getReceivedRewardAmount();
+			} else if (RewardType.SPEND.equals(reward.getRewardType()) ||
+				RewardType.WITHDRAWAL.equals(reward.getRewardType())) {
+				return -reward.getSpentRewardAmount();
+			} else {
+				return 0;
+			}
+		} catch (Exception e) {
+			log.error("적립금 계산 실패 - userId: {}, rewardId: {}", reward.getUser().getId(), reward.getId(), e);
+			throw e;
 		}
 	}
 

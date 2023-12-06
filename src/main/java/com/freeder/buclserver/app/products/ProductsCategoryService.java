@@ -17,6 +17,9 @@ import com.freeder.buclserver.domain.productreview.entity.ProductReview;
 import com.freeder.buclserver.global.exception.BaseException;
 import com.freeder.buclserver.global.util.ImageParsing;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class ProductsCategoryService {
 	private final ProductCategoryRepository productCategoryRepository;
@@ -30,13 +33,16 @@ public class ProductsCategoryService {
 	@Transactional(readOnly = true)
 	public List<ProductCategoryDTO> getCategoryProducts(Long categoryId, int page, int pageSize) {
 		try {
-			Pageable pageable = PageRequest.of(page - 1, pageSize);
+			Pageable pageable = PageRequest.of(page, pageSize);
 			Page<Product> categoryProductsPage = productCategoryRepository.findProductsByCategory(categoryId, pageable);
 			List<ProductCategoryDTO> categoryProducts = categoryProductsPage.getContent().stream()
 				.map(this::convertToCategoryDTO)
 				.collect(Collectors.toList());
+
+			log.info("카테고리 제품 조회 성공 - categoryId: {}, page: {}, pageSize: {}", categoryId, page, pageSize);
 			return categoryProducts;
 		} catch (Exception e) {
+			log.error("카테고리 제품 조회 실패 - categoryId: {}, page: {}, pageSize: {}", categoryId, page, pageSize, e);
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "카테고리 제품 조회 - 서버 에러");
 		}
 	}
@@ -76,6 +82,7 @@ public class ProductsCategoryService {
 
 			return Math.round(averageRating * 10.0f) / 10.0f;
 		} catch (Exception e) {
+			log.error("별점 평균 계산 실패", e);
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "별점 평균 계산 - 서버 에러");
 		}
 	}

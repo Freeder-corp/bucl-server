@@ -55,13 +55,13 @@ public class RewardsController {
 	@GetMapping("histories")
 	@Transactional(readOnly = true)
 	public BaseResponse<List<RewardDto>> getRewardHistory(
-		@RequestParam("page") int page,
-		@RequestParam("size") int size
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "5") int pageSize
 	) {
 		try {
 			// Long userId = getUserIdFromUserDetails(userDetails);
 			Long userId = 11L;
-			List<RewardDto> rewardHistory = rewardsService.getRewardHistoryPageable(userId, page, size);
+			List<RewardDto> rewardHistory = rewardsService.getRewardHistoryPageable(userId, page, pageSize);
 
 			return new BaseResponse<>(rewardHistory, HttpStatus.OK, "적립금 내역 조회 성공");
 		} catch (IllegalArgumentException e) {
@@ -104,7 +104,7 @@ public class RewardsController {
 	@Transactional(readOnly = true)
 	public BaseResponse<List<WithdrawalHistoryDto>> getWithdrawalHistory(
 		@RequestParam(defaultValue = "0") int page,
-		@RequestParam(defaultValue = "10") int pageSize // 한 페이지당 10개씩 보내도록 수정
+		@RequestParam(defaultValue = "10") int pageSize
 	) {
 		try {
 			// Long userId = getUserIdFromUserDetails(userDetails);

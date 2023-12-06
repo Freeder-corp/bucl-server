@@ -61,8 +61,7 @@ public class ProductsReviewService {
 	@Transactional(readOnly = true)
 	public ProductReviewResult getProductReviews(Long productCode, int page, int pageSize) {
 		try {
-			int offset = (page - 1) * pageSize;
-			Pageable pageable = PageRequest.of(offset, pageSize);
+			Pageable pageable = PageRequest.of(page, pageSize);
 			Page<ProductReview> reviewPage = productReviewRepository.findByProductProductCodeWithConditions(
 				productCode, pageable);
 
@@ -76,8 +75,10 @@ public class ProductsReviewService {
 					.thenComparing(ReviewDTO::getCreatedAt).reversed())
 				.collect(Collectors.toList());
 
+			log.info("상품 리뷰 조회 성공 - productCode: {}, page: {}, pageSize: {}", productCode, page, pageSize);
 			return new ProductReviewResult(reviewCount, averageRating, reviewDTOs);
 		} catch (Exception e) {
+			log.error("상품 리뷰 조회 실패 - productCode: {}, page: {}, pageSize: {}", productCode, page, pageSize, e);
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 리뷰 조회 - 서버 에러");
 		}
 	}
@@ -141,6 +142,8 @@ public class ProductsReviewService {
 				existingReview.setImagePath(existingReview.getImagePath() + " " + String.join(" ", s3ImageUrls));
 
 				productReviewRepository.save(existingReview);
+				log.info("리뷰 수정 성공 - productCode: {}, userId: {}, reviewId: {}", productCode, userId,
+					existingReview.getId());
 
 			} else {
 
@@ -160,9 +163,11 @@ public class ProductsReviewService {
 				newReview.setProductCode(productCode);
 
 				productReviewRepository.save(newReview);
-
+				log.info("리뷰 생성 성공 - productCode: {}, userId: {}, reviewId: {}", productCode, userId,
+					newReview.getId());
 			}
 		} catch (Exception e) {
+			log.error("리뷰 생성 또는 수정 실패 - productCode: {}, userId: {}", productCode, userId, e);
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "리뷰 생성 또는 수정 - 서버 에러");
 		}
 	}
@@ -180,9 +185,11 @@ public class ProductsReviewService {
 
 			reviewToDelete.setDeletedAt(LocalDateTime.now());
 			productReviewRepository.save(reviewToDelete);
+			log.info("리뷰 삭제 성공 - productCode: {}, userId: {}, reviewId: {}", productCode, userId, reviewId);
 		} catch (BaseException e) {
 			throw e;
 		} catch (Exception e) {
+			log.error("리뷰 삭제 실패 - productCode: {}, userId: {}, reviewId: {}", productCode, userId, reviewId, e);
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "리뷰 삭제 - 서버 에러");
 		}
 	}

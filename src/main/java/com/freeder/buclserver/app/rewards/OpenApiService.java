@@ -20,10 +20,10 @@ import com.freeder.buclserver.domain.openapi.dto.OpenApiAccessTokenDto;
 import com.freeder.buclserver.domain.openapi.repository.AccessTokenRepository;
 import com.freeder.buclserver.global.exception.BaseException;
 
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
-@RequiredArgsConstructor
 public class OpenApiService {
 
 	private final AccessTokenRepository accessTokenRepository;
@@ -34,37 +34,45 @@ public class OpenApiService {
 	@Value("${openapi.client_secret}")
 	String clientSecret;
 
+	public OpenApiService(AccessTokenRepository accessTokenRepository) {
+		this.accessTokenRepository = accessTokenRepository;
+	}
+
 	@Transactional
 	public void requestOpenApiAccessToken() {
+		try {
+			RestTemplate rest = new RestTemplate();
 
-		RestTemplate rest = new RestTemplate();
+			URI uri = URI.create("https://testapi.openbanking.or.kr/oauth/2.0/token");
 
-		URI uri = URI.create("https://testapi.openbanking.or.kr/oauth/2.0/token");
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			MultiValueMap<String, String> param = new LinkedMultiValueMap<>();
+			param.add("client_id", clientId);
+			param.add("client_secret", clientSecret);
+			param.add("scope", "oob");
+			param.add("grant_type", "client_credentials");
 
-		MultiValueMap<String, String> param = new LinkedMultiValueMap<>();
-		param.add("client_id", clientId);
-		param.add("client_secret", clientSecret);
-		param.add("scope", "oob");
-		param.add("grant_type", "client_credentials");
+			LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 
-		LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
-
-		if (accessTokenRepository.findFirstByExpireDateAfter(now).isEmpty()) {
-			OpenApiAccessTokenDto newAccessTokenRes;
-			try {
+			if (accessTokenRepository.findFirstByExpireDateAfter(now).isEmpty()) {
+				OpenApiAccessTokenDto newAccessTokenRes;
 				newAccessTokenRes = rest.postForObject(
 					uri,
 					new HttpEntity<>(param, headers),
 					OpenApiAccessTokenDto.class
 				);
-			} catch (Exception e) {
-				throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, e.getMessage());
+
+				accessTokenRepository.save(newAccessTokenRes.toEntity());
+				log.info("새로운 OpenAPI Access Token 발급 성공: {}", newAccessTokenRes.getAccess_token());
+			} else {
+				log.info("현재 유효한 OpenAPI Access Token이 있어 새로 발급하지 않습니다.");
 			}
-			accessTokenRepository.save(newAccessTokenRes.toEntity());
+		} catch (Exception e) {
+			log.error("OpenAPI Access Token 발급 실패", e);
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, e.getMessage());
 		}
 	}
 }

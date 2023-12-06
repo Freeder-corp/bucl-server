@@ -66,7 +66,7 @@ public class ProductsController {
 	@Transactional(readOnly = true)
 	public BaseResponse<List<ProductCategoryDTO>> getProductsByCategory(
 		@PathVariable(name = "category_id") Long categoryId,
-		@RequestParam(defaultValue = "1") int page,
+		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "10") int pageSize
 	) {
 		List<ProductCategoryDTO> categoryProducts = productsCategoryService.getCategoryProducts(categoryId, page,
@@ -92,7 +92,7 @@ public class ProductsController {
 	@Transactional(readOnly = true)
 	public BaseResponse<ProductsReviewService.ProductReviewResult> getProductReviews(
 		@PathVariable("product_code") Long productCode,
-		@RequestParam(defaultValue = "1") int page,
+		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "5") int pageSize
 	) {
 		ProductsReviewService.ProductReviewResult result = productsReviewService.getProductReviews(productCode, page,
@@ -104,12 +104,12 @@ public class ProductsController {
 	@Transactional(readOnly = true)
 	public BaseResponse<List<ReviewPhotoDTO>> getReviewPhotos(
 		@PathVariable("product_code") Long productCode,
-		@RequestParam(defaultValue = "1") int page,
+		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "5") int pageSize,
 		@RequestParam(defaultValue = "preview") String display
 	) {
 		int adjustedPageSize = "fullview".equals(display) ? 20 : pageSize;
-		int startItemIndex = (page - 1) * adjustedPageSize + 1;
+		int startItemIndex = page * adjustedPageSize + 1;
 
 		List<ReviewPhotoDTO> reviewPhotos = productsReviewPhotoService.getProductReviewPhotos(productCode,
 			startItemIndex,

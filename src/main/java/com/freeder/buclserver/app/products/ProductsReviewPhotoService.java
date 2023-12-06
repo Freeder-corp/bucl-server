@@ -16,6 +16,9 @@ import com.freeder.buclserver.domain.productreview.repository.ProductReviewRepos
 import com.freeder.buclserver.global.exception.BaseException;
 import com.freeder.buclserver.global.util.ImageParsing;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class ProductsReviewPhotoService {
 
@@ -30,7 +33,7 @@ public class ProductsReviewPhotoService {
 	@Transactional(readOnly = true)
 	public List<ReviewPhotoDTO> getProductReviewPhotos(Long productCode, int page, int pageSize) {
 		try {
-			Pageable pageable = PageRequest.of(page - 1, pageSize);
+			Pageable pageable = PageRequest.of(page, pageSize);
 			Page<ProductReview> reviewPage = productReviewRepository.findByProductProductCodeWithConditions(productCode,
 				pageable);
 
@@ -38,8 +41,10 @@ public class ProductsReviewPhotoService {
 				.map(this::convertToPhotoDTO)
 				.collect(Collectors.toList());
 
+			log.info("상품 리뷰 사진 조회 성공 - productCode: {}, page: {}, pageSize: {}", productCode, page, pageSize);
 			return reviewPhotos;
 		} catch (Exception e) {
+			log.error("상품 리뷰 사진 조회 실패 - productCode: {}, page: {}, pageSize: {}", productCode, page, pageSize, e);
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 리뷰 사진 조회 - 서버 에러");
 		}
 	}
@@ -47,8 +52,10 @@ public class ProductsReviewPhotoService {
 	private ReviewPhotoDTO convertToPhotoDTO(ProductReview review) {
 		try {
 			String thumbnailUrl = imageParsing.getThumbnailUrl(review.getImagePath());
+			log.info("상품 리뷰 사진 변환 성공 - reviewId: {}", review.getId());
 			return new ReviewPhotoDTO(thumbnailUrl);
 		} catch (Exception e) {
+			log.error("상품 리뷰 사진 변환 실패 - reviewId: {}", review.getId(), e);
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 리뷰 사진 변환 - 서버 에러");
 		}
 	}
