@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -51,6 +52,7 @@ public class ProductsController {
 	}
 
 	@GetMapping
+	@Transactional(readOnly = true)
 	public BaseResponse<List<ProductDTO>> getProducts(
 		@RequestParam(defaultValue = "1") Long categoryId,
 		@RequestParam(defaultValue = "0") int page,
@@ -61,6 +63,7 @@ public class ProductsController {
 	}
 
 	@GetMapping("/categories/{category_id}")
+	@Transactional(readOnly = true)
 	public BaseResponse<List<ProductCategoryDTO>> getProductsByCategory(
 		@PathVariable(name = "category_id") Long categoryId,
 		@RequestParam(defaultValue = "1") int page,
@@ -72,18 +75,21 @@ public class ProductsController {
 	}
 
 	@GetMapping("/{product_code}")
+	@Transactional(readOnly = true)
 	public BaseResponse<ProductDetailDTO> getProductDetail(@PathVariable("product_code") Long productCode) {
 		ProductDetailDTO productDetail = productsService.getProductDetail(productCode);
 		return new BaseResponse<>(productDetail, HttpStatus.OK, "요청 성공");
 	}
 
 	@GetMapping("/{product_code}/options")
+	@Transactional(readOnly = true)
 	public BaseResponse<List<ProductOptionDTO>> getProductOptions(@PathVariable("product_code") Long productCode) {
 		List<ProductOptionDTO> productOptions = productsService.getProductOptions(productCode);
 		return new BaseResponse<>(productOptions, HttpStatus.OK, "옵션 요청 성공");
 	}
 
 	@GetMapping("/{product_code}/reviews")
+	@Transactional(readOnly = true)
 	public BaseResponse<ProductsReviewService.ProductReviewResult> getProductReviews(
 		@PathVariable("product_code") Long productCode,
 		@RequestParam(defaultValue = "1") int page,
@@ -95,6 +101,7 @@ public class ProductsController {
 	}
 
 	@GetMapping("/{product_code}/photo-reviews")
+	@Transactional(readOnly = true)
 	public BaseResponse<List<ReviewPhotoDTO>> getReviewPhotos(
 		@PathVariable("product_code") Long productCode,
 		@RequestParam(defaultValue = "1") int page,
@@ -112,6 +119,7 @@ public class ProductsController {
 	}
 
 	@PostMapping("/{product_code}/review")
+	@Transactional
 	public BaseResponse<String> createOrUpdateReview(
 		@PathVariable("product_code") Long productCode,
 		@RequestPart("reviewRequest") ReviewRequestDTO reviewRequestDTO,
@@ -130,6 +138,7 @@ public class ProductsController {
 	}
 
 	@DeleteMapping("/{product_code}/review")
+	@Transactional
 	public BaseResponse<String> deleteReview(
 		@PathVariable("product_code") Long productCode,
 		@RequestParam Long reviewId
