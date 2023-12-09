@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,6 +25,7 @@ import com.freeder.buclserver.domain.user.dto.response.MyOrderResponse;
 import com.freeder.buclserver.domain.user.dto.response.MyProfileResponse;
 import com.freeder.buclserver.domain.usershippingaddress.dto.UserShippingAddressDto;
 import com.freeder.buclserver.domain.usershippingaddress.dto.request.AddressCreateRequest;
+import com.freeder.buclserver.domain.usershippingaddress.dto.request.AddressUpdateRequest;
 import com.freeder.buclserver.domain.usershippingaddress.dto.response.AddressCreateResponse;
 import com.freeder.buclserver.global.response.BaseResponse;
 
@@ -82,6 +84,17 @@ public class MyController {
 		Long userId = Long.valueOf(userDetails.getUserId());
 		List<UserShippingAddressDto> addressList = addressService.getMyAddressList(userId);
 		return new BaseResponse(addressList, HttpStatus.OK, "요청 성공");
+	}
+
+	@PutMapping("/addresses/{addressId}")
+	public BaseResponse updateMyAddress(
+		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@PathVariable Long addressId,
+		@Valid @RequestBody AddressUpdateRequest addressUpdateRequest
+	) {
+		Long userId = Long.valueOf(userDetails.getUserId());
+		UserShippingAddressDto address = addressService.updateMyAddress(userId, addressId, addressUpdateRequest);
+		return new BaseResponse(address, HttpStatus.OK, "요청 성공");
 	}
 
 	@DeleteMapping("/addresses/{addressId}")
