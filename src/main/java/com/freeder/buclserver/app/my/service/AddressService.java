@@ -15,6 +15,7 @@ import com.freeder.buclserver.domain.usershippingaddress.entity.UserShippingAddr
 import com.freeder.buclserver.domain.usershippingaddress.repository.UserShippingAddressRepository;
 import com.freeder.buclserver.global.exception.user.UserIdNotFoundException;
 import com.freeder.buclserver.global.exception.usershippingaddress.AddressIdNotFoundException;
+import com.freeder.buclserver.global.exception.usershippingaddress.AddressUserNotMatchException;
 import com.freeder.buclserver.global.exception.usershippingaddress.DefaultAddressNotFoundException;
 
 import lombok.RequiredArgsConstructor;
@@ -31,18 +32,17 @@ public class AddressService {
 		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
 			.orElseThrow(() -> new UserIdNotFoundException(userId));
 
+		UserShippingAddress userShippingAddress;
+
 		if (!userShippingAddressRepository.existsByUser(user)) {
-			UserShippingAddress userShippingAddress = createUserAddressEntity(user, request, true);
-			UserShippingAddress savedUserShippingAddress = userShippingAddressRepository.save(userShippingAddress);
-			return AddressCreateResponse.from(savedUserShippingAddress);
+			userShippingAddress = createUserAddressEntity(user, request, true);
+		} else {
+			if (request.isDefaultAddress()) {
+				clearExistingDefaultAddress(userId);
+			}
+			userShippingAddress = createUserAddressEntity(user, request, request.isDefaultAddress());
 		}
 
-		if (request.isDefaultAddress()) {
-			userShippingAddressRepository.findByUserAndIsDefaultAddressIsTrue(userId)
-				.ifPresent(userAddress -> userAddress.cancelDefaultAddress());
-		}
-
-		UserShippingAddress userShippingAddress = createUserAddressEntity(user, request, request.isDefaultAddress());
 		UserShippingAddress savedUserShippingAddress = userShippingAddressRepository.save(userShippingAddress);
 		return AddressCreateResponse.from(savedUserShippingAddress);
 	}
@@ -67,7 +67,7 @@ public class AddressService {
 
 		userShippingAddressRepository.deleteById(addressId);
 
-		if (deleteUserAddress.isDefaultAddress() == true) {
+		if (deleteUserAddress.isDefaultAddress()) {
 			userShippingAddressRepository.findFirstByUserOrderByIdDesc(user)
 				.ifPresent(address -> address.registerDefaultAddress());
 		}
@@ -94,12 +94,19 @@ public class AddressService {
 		UserShippingAddress registerAddress = userShippingAddressRepository.findById(addressId)
 			.orElseThrow(() -> new AddressIdNotFoundException(addressId));
 
-		userShippingAddressRepository.findByUserAndIsDefaultAddressIsTrue(userId)
-			.ifPresent(address -> address.cancelDefaultAddress());
+		if (registerAddress.getUser().getId() != userId) {
+			throw new AddressUserNotMatchException();
+		}
 
+		clearExistingDefaultAddress(userId);
 		registerAddress.registerDefaultAddress();
 
 		return UserShippingAddressDto.from(registerAddress);
+	}
+
+	private void clearExistingDefaultAddress(Long userId) {
+		userShippingAddressRepository.findByUserAndIsDefaultAddressIsTrue(userId)
+			.ifPresent(userAddress -> userAddress.clearDefaultAddress());
 	}
 
 	private UserShippingAddress createUserAddressEntity(

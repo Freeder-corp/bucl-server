@@ -35,7 +35,7 @@ public record MyOrderResponse(
 			productOrderQty,
 			consumerOrder.getCsStatus(),
 			shipping.getShippingStatus(),
-			createDeliveryTrackingUrl(shipping)
+			shipping != null ? createDeliveryTrackingUrl(shipping) : null
 		);
 	}
 
