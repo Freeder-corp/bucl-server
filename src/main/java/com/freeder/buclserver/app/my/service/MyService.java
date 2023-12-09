@@ -1,26 +1,25 @@
 package com.freeder.buclserver.app.my.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.freeder.buclserver.domain.affiliate.entity.Affiliate;
 import com.freeder.buclserver.domain.affiliate.repository.AffiliateRepository;
 import com.freeder.buclserver.domain.consumerorder.entity.ConsumerOrder;
 import com.freeder.buclserver.domain.consumerorder.repository.ConsumerOrderRepository;
+import com.freeder.buclserver.domain.consumerpayment.entity.ConsumerPayment;
+import com.freeder.buclserver.domain.consumerpayment.repository.ConsumerPaymentRepository;
 import com.freeder.buclserver.domain.consumerpurchaseorder.repository.ConsumerPurchaseOrderRepository;
-import com.freeder.buclserver.domain.payment.entity.Payment;
-import com.freeder.buclserver.domain.payment.repository.PaymentRepository;
 import com.freeder.buclserver.domain.reward.repository.RewardRepository;
-import com.freeder.buclserver.domain.shipping.entity.Shipping;
 import com.freeder.buclserver.domain.shipping.repository.ShippingRepository;
 import com.freeder.buclserver.domain.shippingaddress.entity.ShippingAddress;
 import com.freeder.buclserver.domain.shippingaddress.repository.ShippingAddressRepository;
 import com.freeder.buclserver.domain.user.dto.UserDto;
-import com.freeder.buclserver.domain.user.dto.response.MyAffiliateResponse;
 import com.freeder.buclserver.domain.user.dto.response.MyOrderDetailResponse;
 import com.freeder.buclserver.domain.user.dto.response.MyOrderResponse;
 import com.freeder.buclserver.domain.user.dto.response.MyProfileResponse;
@@ -44,7 +43,7 @@ public class MyService {
 	private final ConsumerPurchaseOrderRepository consumerPurchaseOrderRepository;
 	private final ShippingRepository shippingRepository;
 	private final ShippingAddressRepository shippingAddressRepository;
-	private final PaymentRepository paymentRepository;
+	private final ConsumerPaymentRepository consumerPaymentRepository;
 
 	@Transactional(readOnly = true)
 	public Optional<UserDto> findBySocialIdAndDeletedAtIsNull(String socialUid) {
@@ -89,45 +88,16 @@ public class MyService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<MyAffiliateResponse> getMyAffiliates(Long userId) {
-		List<MyAffiliateResponse> affiliateResponseList = new ArrayList<>();
-
+	public List<MyOrderResponse> getMyOrders(Long userId, int page, int pageSize) {
 		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
 			.orElseThrow(() -> new UserIdNotFoundException(userId));
 
-		List<Affiliate> affiliateList = affiliateRepository.findAllByUserOrderByCreatedAtDesc(user);
+		Pageable pageable = PageRequest.of(page - 1, pageSize);
 
-		for (Affiliate affiliate : affiliateList) {
-			int totalReceivedReward = rewardRepository.findReceivedRewardAmount(
-				affiliate.getUser().getId(),
-				affiliate.getProduct().getId()
-			);
-			MyAffiliateResponse affiliateResponse = MyAffiliateResponse.from(affiliate, totalReceivedReward);
-			affiliateResponseList.add(affiliateResponse);
-		}
-
-		return affiliateResponseList;
-	}
-
-	@Transactional(readOnly = true)
-	public List<MyOrderResponse> getMyOrders(Long userId) {
-		List<MyOrderResponse> orderResponseList = new ArrayList<>();
-
-		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
-			.orElseThrow(() -> new UserIdNotFoundException(userId));
-
-		List<ConsumerOrder> consumerOrderList =
-			consumerOrderRepository.findAllByConsumerOrderByCreatedAtDesc(user);
-
-		for (ConsumerOrder consumerOrder : consumerOrderList) {
-			// TODO: 1개의 주문에 대해 한 옵션만 선택 가능함에 따라 로직 변경 필요
-			int totalProductQty = consumerPurchaseOrderRepository.findTotalProductOrderQty(consumerOrder.getId());
-			Shipping shipping = shippingRepository.findByConsumerOrder(consumerOrder);
-			MyOrderResponse orderResponse = MyOrderResponse.from(consumerOrder, totalProductQty, shipping);
-			orderResponseList.add(orderResponse);
-		}
-
-		return orderResponseList;
+		return consumerOrderRepository.findAllByConsumerOrderByCreatedAtDesc(user, pageable).getContent().stream()
+			.filter(consumerOrder -> consumerOrder.getConsumer().getId() == userId)
+			.map(this::getMyOrderInfo)
+			.collect(Collectors.toUnmodifiableList());
 	}
 
 	@Transactional(readOnly = true)
@@ -143,16 +113,26 @@ public class MyService {
 			throw new ConsumerUserNotMatchException();
 		}
 
-		// TODO: 1개의 주문에 대해 한 옵션만 선택 가능함에 따라 로직 변경 필요
-		int totalProductQty = consumerPurchaseOrderRepository.findTotalProductOrderQty(consumerOrder.getId());
-		Shipping shipping = shippingRepository.findByConsumerOrder(consumerOrder);
-		ShippingAddress shippingAddress = shippingAddressRepository.findByShipping(shipping);
-		Payment payment = paymentRepository.findByConsumerOrder(consumerOrder);
+		int productOrderQty = consumerPurchaseOrderRepository.findProductOrderQty(consumerOrder.getId());
+		ConsumerPayment payment = consumerPaymentRepository.findByConsumerOrder(consumerOrder);
 
-		return MyOrderDetailResponse.from(consumerOrder, shippingAddress, payment, totalProductQty);
+		return shippingRepository.findByConsumerOrderAndIsActiveIsTrue(consumerOrder)
+			.map(shipping -> {
+				ShippingAddress shippingAddress = shippingAddressRepository.findByShipping(shipping);
+				return MyOrderDetailResponse.from(consumerOrder, shippingAddress, payment, productOrderQty);
+			})
+			.orElseGet(() -> MyOrderDetailResponse.from(consumerOrder, null, payment, productOrderQty));
 	}
 
 	private MyProfileResponse getMyProfileWithoutReward(String profilePath, String nickname) {
 		return MyProfileResponse.of(profilePath, nickname, 0);
+	}
+
+	private MyOrderResponse getMyOrderInfo(ConsumerOrder consumerOrder) {
+		int productOrderQty = consumerPurchaseOrderRepository.findProductOrderQty(consumerOrder.getId());
+
+		return shippingRepository.findByConsumerOrderAndIsActiveIsTrue(consumerOrder)
+			.map(shipping -> MyOrderResponse.from(consumerOrder, productOrderQty, shipping))
+			.orElseGet(() -> MyOrderResponse.from(consumerOrder, productOrderQty, null));
 	}
 }

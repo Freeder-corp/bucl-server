@@ -3,10 +3,10 @@ package com.freeder.buclserver.domain.user.dto.response;
 import java.time.LocalDateTime;
 
 import com.freeder.buclserver.domain.consumerorder.entity.ConsumerOrder;
-import com.freeder.buclserver.domain.payment.entity.Payment;
-import com.freeder.buclserver.domain.payment.vo.PaymentMethod;
-import com.freeder.buclserver.domain.payment.vo.PaymentStatus;
-import com.freeder.buclserver.domain.payment.vo.PgProvider;
+import com.freeder.buclserver.domain.consumerpayment.entity.ConsumerPayment;
+import com.freeder.buclserver.domain.consumerpayment.vo.PaymentMethod;
+import com.freeder.buclserver.domain.consumerpayment.vo.PaymentStatus;
+import com.freeder.buclserver.domain.consumerpayment.vo.PgProvider;
 import com.freeder.buclserver.domain.shippingaddress.entity.ShippingAddress;
 
 public record MyOrderDetailResponse(
@@ -29,7 +29,7 @@ public record MyOrderDetailResponse(
 ) {
 
 	public static MyOrderDetailResponse from(
-		ConsumerOrder consumerOrder, ShippingAddress shippingAddress, Payment payment, int productOrderQty
+		ConsumerOrder consumerOrder, ShippingAddress shippingAddress, ConsumerPayment payment, int productOrderQty
 	) {
 		return new MyOrderDetailResponse(
 			consumerOrder.getCreatedAt(),
