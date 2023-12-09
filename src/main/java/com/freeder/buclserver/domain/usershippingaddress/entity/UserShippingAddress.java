@@ -12,6 +12,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.freeder.buclserver.domain.user.entity.User;
+import com.freeder.buclserver.domain.usershippingaddress.dto.request.AddressUpdateRequest;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -76,5 +77,15 @@ public class UserShippingAddress {
 
 	public void registerDefaultAddress() {
 		this.isDefaultAddress = true;
+	}
+
+	public void updateAll(AddressUpdateRequest request) {
+		this.shippingAddressName = request.shippingAddressName();
+		this.recipientName = request.recipientName();
+		this.zipCode = request.zipCode();
+		this.address = request.address();
+		this.addressDetail = request.addressDetail();
+		this.contactNumber = request.contactNumber();
+		this.isDefaultAddress = request.isDefaultAddress();
 	}
 }

@@ -20,4 +20,6 @@ public interface UserShippingAddressRepository extends JpaRepository<UserShippin
 	boolean existsByUser(User user);
 
 	Optional<UserShippingAddress> findFirstByUserOrderByIdDesc(User user);
+
+	long countByUser(User user);
 }
