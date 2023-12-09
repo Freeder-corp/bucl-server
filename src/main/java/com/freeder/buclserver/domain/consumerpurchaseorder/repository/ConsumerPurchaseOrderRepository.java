@@ -7,7 +7,7 @@ import com.freeder.buclserver.domain.consumerpurchaseorder.entity.ConsumerPurcha
 
 public interface ConsumerPurchaseOrderRepository extends JpaRepository<ConsumerPurchaseOrder, Long> {
 
-	@Query("SELECT COALESCE(sum(cpo.productOrderQty), 0) FROM ConsumerPurchaseOrder cpo "
+	@Query("SELECT COALESCE(cpo.productOrderQty, 0) FROM ConsumerPurchaseOrder cpo "
 		+ "WHERE cpo.consumerOrder.id = :consumerOrderId")
-	int findTotalProductOrderQty(Long consumerOrderId);
+	int findProductOrderQty(Long consumerOrderId);
 }

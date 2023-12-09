@@ -15,6 +15,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.freeder.buclserver.global.response.ErrorResponse;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class JwtExceptionFilter extends OncePerRequestFilter {
 
@@ -32,6 +35,8 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
 	}
 
 	private void setErrorResponse(HttpServletResponse response) throws IOException {
+		log.error("[Unauthorized_Exception]: 유효하지 않는 JWT 토큰을 사용한 요청입니다.");
+
 		response.setStatus(HttpStatus.UNAUTHORIZED.value());
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 		response.setCharacterEncoding("utf-8");

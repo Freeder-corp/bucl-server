@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.freeder.buclserver.app.my.service.AddressService;
 import com.freeder.buclserver.app.my.service.MyService;
 import com.freeder.buclserver.core.security.CustomUserDetails;
-import com.freeder.buclserver.domain.user.dto.response.MyAffiliateResponse;
 import com.freeder.buclserver.domain.user.dto.response.MyOrderDetailResponse;
 import com.freeder.buclserver.domain.user.dto.response.MyOrderResponse;
 import com.freeder.buclserver.domain.user.dto.response.MyProfileResponse;
@@ -46,17 +46,14 @@ public class MyController {
 		return new BaseResponse(myProfile, HttpStatus.OK, "요청 성공");
 	}
 
-	@GetMapping("/profile/affiliates")
-	public BaseResponse getMyAffiliates(@AuthenticationPrincipal CustomUserDetails userDetails) {
-		Long userId = Long.valueOf(userDetails.getUserId());
-		List<MyAffiliateResponse> myAffiliateList = myService.getMyAffiliates(userId);
-		return new BaseResponse(myAffiliateList, HttpStatus.OK, "요청 성공");
-	}
-
 	@GetMapping("/profile/orders")
-	public BaseResponse getMyOrders(@AuthenticationPrincipal CustomUserDetails userDetails) {
+	public BaseResponse getMyOrders(
+		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@RequestParam(defaultValue = "1") int page,
+		@RequestParam(defaultValue = "10") int pageSize
+	) {
 		Long userId = Long.valueOf(userDetails.getUserId());
-		List<MyOrderResponse> myOrderList = myService.getMyOrders(userId);
+		List<MyOrderResponse> myOrderList = myService.getMyOrders(userId, page, pageSize);
 		return new BaseResponse(myOrderList, HttpStatus.OK, "요청 성공");
 	}
 
