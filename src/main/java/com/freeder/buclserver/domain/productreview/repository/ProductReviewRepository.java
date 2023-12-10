@@ -24,6 +24,7 @@ public interface ProductReviewRepository extends JpaRepository<ProductReview, Lo
 	@Query("SELECT pr FROM ProductReview pr " +
 		"WHERE pr.product.productCode = :productCode " +
 		"AND pr.product.deletedAt IS NULL " +
+		"AND pr.deletedAt IS NULL " +
 		"AND pr.product.isExposed = true " +
 		"AND pr.product.productStatus = com.freeder.buclserver.domain.product.vo.ProductStatus.ACTIVE " +
 		"ORDER BY pr.starRate DESC, pr.createdAt DESC")
