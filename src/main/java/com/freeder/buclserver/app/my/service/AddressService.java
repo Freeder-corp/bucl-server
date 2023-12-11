@@ -99,6 +99,10 @@ public class AddressService {
 		UserShippingAddress deleteUserAddress = userShippingAddressRepository.findById(addressId)
 			.orElseThrow(() -> new AddressIdNotFoundException(addressId));
 
+		if (deleteUserAddress.getUser().getId() != userId) {
+			throw new AddressUserNotMatchException();
+		}
+
 		userShippingAddressRepository.deleteById(addressId);
 
 		if (deleteUserAddress.isDefaultAddress()) {
