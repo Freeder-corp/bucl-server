@@ -56,9 +56,10 @@ public class ProductsController {
 	public BaseResponse<List<ProductDTO>> getProducts(
 		@RequestParam(defaultValue = "1") Long categoryId,
 		@RequestParam(defaultValue = "0") int page,
-		@RequestParam(defaultValue = "10") int pageSize
+		@RequestParam(defaultValue = "10") int pageSize,
+		@RequestParam(required = false) Long userId
 	) {
-		List<ProductDTO> products = productsService.getProducts(categoryId, page, pageSize);
+		List<ProductDTO> products = productsService.getProducts(categoryId, page, pageSize, userId);
 		return new BaseResponse<>(products, HttpStatus.OK, "요청 성공");
 	}
 
@@ -67,17 +68,21 @@ public class ProductsController {
 	public BaseResponse<List<ProductCategoryDTO>> getProductsByCategory(
 		@PathVariable(name = "category_id") Long categoryId,
 		@RequestParam(defaultValue = "0") int page,
-		@RequestParam(defaultValue = "10") int pageSize
+		@RequestParam(defaultValue = "10") int pageSize,
+		@RequestParam(required = false) Long userId
 	) {
 		List<ProductCategoryDTO> categoryProducts = productsCategoryService.getCategoryProducts(categoryId, page,
-			pageSize);
+			pageSize, userId);
 		return new BaseResponse<>(categoryProducts, HttpStatus.OK, "요청 성공");
 	}
 
 	@GetMapping("/{product_code}")
 	@Transactional(readOnly = true)
-	public BaseResponse<ProductDetailDTO> getProductDetail(@PathVariable("product_code") Long productCode) {
-		ProductDetailDTO productDetail = productsService.getProductDetail(productCode);
+	public BaseResponse<ProductDetailDTO> getProductDetail(
+		@PathVariable("product_code") Long productCode,
+		@RequestParam(required = false) Long userId
+	) {
+		ProductDetailDTO productDetail = productsService.getProductDetail(productCode, userId);
 		return new BaseResponse<>(productDetail, HttpStatus.OK, "요청 성공");
 	}
 

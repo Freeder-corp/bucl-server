@@ -22,4 +22,5 @@ public class ProductDetailDTO {
 	private int totalReviewCount;
 	private List<String> imagePaths;
 	private List<ReviewPreviewDTO> reviewPreviews;
+	private boolean wish;
 }

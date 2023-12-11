@@ -21,6 +21,7 @@ import com.freeder.buclserver.domain.productoption.entity.ProductOption;
 import com.freeder.buclserver.domain.productoption.repository.ProductOptionRepository;
 import com.freeder.buclserver.domain.productreview.dto.ReviewPreviewDTO;
 import com.freeder.buclserver.domain.productreview.entity.ProductReview;
+import com.freeder.buclserver.domain.wish.repository.WishRepository;
 import com.freeder.buclserver.global.exception.BaseException;
 import com.freeder.buclserver.global.util.ImageParsing;
 
@@ -33,6 +34,7 @@ public class ProductsService {
 	private final ProductsCategoryService productsCategoryService;
 	private final ProductRepository productRepository;
 	private final ProductOptionRepository productOptionRepository;
+	private final WishRepository wishRepository;
 	private final ImageParsing imageParsing;
 
 	@Autowired
@@ -40,21 +42,22 @@ public class ProductsService {
 		ProductsCategoryService productsCategoryService,
 		ProductRepository productRepository,
 		ProductOptionRepository productOptionRepository,
-		ImageParsing imageParsing
+		WishRepository wishRepository, ImageParsing imageParsing
 	) {
 		this.productsCategoryService = productsCategoryService;
 		this.productRepository = productRepository;
 		this.productOptionRepository = productOptionRepository;
+		this.wishRepository = wishRepository;
 		this.imageParsing = imageParsing;
 	}
 
 	@Transactional(readOnly = true)
-	public List<ProductDTO> getProducts(Long categoryId, int page, int pageSize) {
+	public List<ProductDTO> getProducts(Long categoryId, int page, int pageSize, Long userId) {
 		try {
 			Pageable pageable = PageRequest.of(page, pageSize);
 			Page<Product> productsPage = productRepository.findProductsByConditions(categoryId, pageable);
 			List<ProductDTO> products = productsPage.getContent().stream()
-				.map(this::convertToDTO)
+				.map(product -> convertToDTO(product, userId))
 				.collect(Collectors.toList());
 			log.info("상품 목록 조회 성공 - categoryId: {}, page: {}, pageSize: {}", categoryId, page, pageSize);
 			return products;
@@ -65,7 +68,7 @@ public class ProductsService {
 	}
 
 	@Transactional(readOnly = true)
-	public ProductDetailDTO getProductDetail(Long productCode) {
+	public ProductDetailDTO getProductDetail(Long productCode, Long userId) {
 		try {
 			Product product = productRepository.findAvailableProductByCode(productCode)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -85,6 +88,12 @@ public class ProductsService {
 			List<String> imageUrls = imageParsing.getImageList(product.getImagePath());
 			List<String> firstFiveImages = imageUrls.stream().limit(5).collect(Collectors.toList());
 
+			boolean wished = false;
+
+			if (userId != null) {
+				wished = wishRepository.existsByUser_IdAndProduct_IdAndDeletedAtIsNull(userId, product.getId());
+			}
+
 			log.info("상품 상세 정보 조회 성공 - productCode: {}", productCode);
 			return new ProductDetailDTO(
 				product.getProductCode(),
@@ -97,7 +106,8 @@ public class ProductsService {
 				product.getCreatedAt(),
 				reviewCount,
 				firstFiveImages,
-				reviewPreviews
+				reviewPreviews,
+				wished
 			);
 		} catch (Exception e) {
 			log.error("상품 상세 정보 조회 실패 - productCode: {}", productCode, e);
@@ -142,12 +152,17 @@ public class ProductsService {
 		return new ProductOptionDTO(productOption.getOptionValue(), productOption.getOptionExtraAmount());
 	}
 
-	private ProductDTO convertToDTO(Product product) {
+	private ProductDTO convertToDTO(Product product, Long userId) {
 		try {
 			String thumbnailUrl = imageParsing.getThumbnailUrl(product.getImagePath());
 			float calculatedReward = (product.getSalePrice() * product.getConsumerRewardRate()) / 100;
 			float roundedReward = Math.round(calculatedReward * 100.0f) / 100.0f;
 
+			boolean wished = false;
+
+			if (userId != null) {
+				wished = wishRepository.existsByUser_IdAndProduct_IdAndDeletedAtIsNull(userId, product.getId());
+			}
 			return new ProductDTO(
 				product.getProductCode(),
 				product.getName(),
@@ -155,7 +170,8 @@ public class ProductsService {
 				thumbnailUrl,
 				product.getSalePrice(),
 				product.getConsumerPrice(),
-				roundedReward
+				roundedReward,
+				wished
 			);
 		} catch (Exception e) {
 			log.error("상품 정보 변환 실패", e);

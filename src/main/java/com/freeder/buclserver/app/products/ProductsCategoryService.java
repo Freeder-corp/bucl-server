@@ -14,6 +14,7 @@ import com.freeder.buclserver.domain.product.entity.Product;
 import com.freeder.buclserver.domain.productcategory.dto.ProductCategoryDTO;
 import com.freeder.buclserver.domain.productcategory.repository.ProductCategoryRepository;
 import com.freeder.buclserver.domain.productreview.entity.ProductReview;
+import com.freeder.buclserver.domain.wish.repository.WishRepository;
 import com.freeder.buclserver.global.exception.BaseException;
 import com.freeder.buclserver.global.util.ImageParsing;
 
@@ -23,20 +24,23 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class ProductsCategoryService {
 	private final ProductCategoryRepository productCategoryRepository;
+	private final WishRepository wishRepository;
 	private final ImageParsing imageParsing;
 
-	public ProductsCategoryService(ProductCategoryRepository productCategoryRepository, ImageParsing imageParsing) {
+	public ProductsCategoryService(ProductCategoryRepository productCategoryRepository, WishRepository wishRepository,
+		ImageParsing imageParsing) {
 		this.productCategoryRepository = productCategoryRepository;
+		this.wishRepository = wishRepository;
 		this.imageParsing = imageParsing;
 	}
 
 	@Transactional(readOnly = true)
-	public List<ProductCategoryDTO> getCategoryProducts(Long categoryId, int page, int pageSize) {
+	public List<ProductCategoryDTO> getCategoryProducts(Long categoryId, int page, int pageSize, Long userId) {
 		try {
 			Pageable pageable = PageRequest.of(page, pageSize);
 			Page<Product> categoryProductsPage = productCategoryRepository.findProductsByCategory(categoryId, pageable);
 			List<ProductCategoryDTO> categoryProducts = categoryProductsPage.getContent().stream()
-				.map(this::convertToCategoryDTO)
+				.map(product -> convertToCategoryDTO(product, userId))
 				.collect(Collectors.toList());
 
 			log.info("카테고리 제품 조회 성공 - categoryId: {}, page: {}, pageSize: {}", categoryId, page, pageSize);
@@ -47,13 +51,18 @@ public class ProductsCategoryService {
 		}
 	}
 
-	public ProductCategoryDTO convertToCategoryDTO(Product product) {
+	public ProductCategoryDTO convertToCategoryDTO(Product product, Long userId) {
 		List<ProductReview> reviews = product.getReviews();
 		int reviewCount = reviews.size();
 		float averageRating = calculateAverageRating(reviews);
 		String thumbnailUrl = imageParsing.getThumbnailUrl(product.getImagePath());
 		averageRating = Math.round(averageRating * 10.0f) / 10.0f;
 
+		boolean wished = false;
+
+		if (userId != null) {
+			wished = wishRepository.existsByUser_IdAndProduct_IdAndDeletedAtIsNull(userId, product.getId());
+		}
 		return new ProductCategoryDTO(
 			product.getProductCode(),
 			product.getName(),
@@ -63,7 +72,8 @@ public class ProductsCategoryService {
 			Math.round(product.getConsumerPrice() * product.getConsumerRewardRate()),
 			product.getDiscountRate(),
 			reviewCount,
-			averageRating
+			averageRating,
+			wished
 		);
 	}
 
