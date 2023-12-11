@@ -109,7 +109,7 @@ public class ProductsController {
 		@RequestParam(defaultValue = "preview") String display
 	) {
 		int adjustedPageSize = "fullview".equals(display) ? 20 : pageSize;
-		int startItemIndex = page * adjustedPageSize + 1;
+		int startItemIndex = page * adjustedPageSize;
 
 		List<ReviewPhotoDTO> reviewPhotos = productsReviewPhotoService.getProductReviewPhotos(productCode,
 			startItemIndex,

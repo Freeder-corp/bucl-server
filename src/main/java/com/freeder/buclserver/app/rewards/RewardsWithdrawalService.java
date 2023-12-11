@@ -16,6 +16,7 @@ import com.freeder.buclserver.domain.reward.vo.RewardType;
 import com.freeder.buclserver.domain.rewardwithdrawal.dto.WithdrawalHistoryDto;
 import com.freeder.buclserver.domain.rewardwithdrawal.entity.RewardWithdrawal;
 import com.freeder.buclserver.domain.rewardwithdrawal.repository.RewardWithdrawalRepository;
+import com.freeder.buclserver.domain.rewardwithdrawal.vo.WithdrawalStatus;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,7 +48,7 @@ public class RewardsWithdrawalService {
 			Integer currentRewardAmount = reward.getRewardSum();
 
 			// 인출 가능한 최소 리워드는 5000 이상이어야 합니다.
-			if (currentRewardAmount < 5000) {
+			if (withdrawalAmount < 5000) {
 				throw new IllegalArgumentException("현재 인출 가능한 포인트는 5000P 이상입니다.");
 			} else if (currentRewardAmount < withdrawalAmount) {
 				throw new IllegalArgumentException("현재 인출 가능한 포인트는 " + currentRewardAmount + "P 입니다.");
@@ -61,22 +62,23 @@ public class RewardsWithdrawalService {
 			rewardWithdrawal.setRewardWithdrawalAmount(withdrawalAmount);
 			rewardWithdrawal.setAccountNum(accountNum);
 			rewardWithdrawal.setAccountHolderName(accountHolderName);
+			rewardWithdrawal.setWithdrawalStatus(WithdrawalStatus.WTHDR_WTNG);
 			rewardWithdrawal.setWithdrawn(true);
 			rewardWithdrawal.setLastUsedDate(LocalDateTime.now());
 
 			// 리워드 인출 기록 저장
-			rewardWithdrawalRepository.save(rewardWithdrawal);
+			RewardWithdrawal newRewardWithdrawal = rewardWithdrawalRepository.save(rewardWithdrawal);
 
 			// WITHDRAWAL 리워드 생성 및 저장
 			Reward newReward = new Reward();
 			newReward.setUser(reward.getUser());
 			newReward.setCreatedAt(LocalDateTime.now());
 			newReward.setPreviousRewardSum(reward.getRewardSum());
-			newReward.setReceivedRewardAmount(0);
+			newReward.setReceivedRewardAmount(-1 * withdrawalAmount);
 			newReward.setRewardSum(reward.getRewardSum() - withdrawalAmount);
 			newReward.setRewardType(RewardType.WITHDRAWAL);
 			newReward.setSpentRewardAmount(withdrawalAmount);
-			newReward.setRewardWithdrawalAccount(reward.getRewardWithdrawalAccount());
+			newReward.setRewardWithdrawal(newRewardWithdrawal);
 			rewardRepository.save(newReward);
 
 			log.info("리워드 인출 성공 - userId: {}, withdrawalAmount: {}", userId, withdrawalAmount);
@@ -106,6 +108,7 @@ public class RewardsWithdrawalService {
 	private WithdrawalHistoryDto convertToDto(RewardWithdrawal rewardWithdrawal) {
 		WithdrawalHistoryDto dto = new WithdrawalHistoryDto();
 		dto.setRewardWithdrawalAmount(rewardWithdrawal.getRewardWithdrawalAmount());
+		dto.setWithdrawalStatus(rewardWithdrawal.getWithdrawalStatus());
 		dto.setLastUsedDate(rewardWithdrawal.getLastUsedDate());
 		return dto;
 	}
