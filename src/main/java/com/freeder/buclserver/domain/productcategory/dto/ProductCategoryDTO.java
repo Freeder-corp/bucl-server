@@ -6,13 +6,13 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class ProductCategoryDTO {
-	private Long id;
+	private Long productCode;
 	private String name;
 	private String imagePath;
 	private int salePrice;
 	private int consumerPrice;
 	private int reward;
-	private int discountRate;
+	private float discountRate;
 	private int totalReviewCount;
 	private float averageRating;
 }

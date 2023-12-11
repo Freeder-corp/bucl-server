@@ -81,17 +81,17 @@ public class Product extends TimestampMixin implements Serializable {
 	private TaxStatus taxStatus;
 
 	@Column(name = "margin_rate")
-	private int marginRate;
+	private Integer marginRate;
 	@Column(name = "tax_rate")
-	private int taxRate;
+	private Integer taxRate;
 	@Column(name = "discount_rate")
-	private int discountRate;
+	private Float discountRate;
 
 	@Column(name = "consumer_reward_rate")
-	private int consumerRewardRate;
+	private Float consumerRewardRate;
 
 	@Column(name = "business_reward_rate")
-	private int businessRewardRate;
+	private Float businessRewardRate;
 
 	@Column(name = "image_path", length = 5000)
 	private String imagePath;
@@ -107,7 +107,7 @@ public class Product extends TimestampMixin implements Serializable {
 	private String skuCode;
 
 	@Column(name = "product_priority")
-	private int productPriority;
+	private Integer productPriority;
 
 	@ColumnDefault("true")
 	@Column(name = "is_exposed")

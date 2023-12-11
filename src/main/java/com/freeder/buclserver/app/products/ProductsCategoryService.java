@@ -55,12 +55,12 @@ public class ProductsCategoryService {
 		averageRating = Math.round(averageRating * 10.0f) / 10.0f;
 
 		return new ProductCategoryDTO(
-			product.getId(),
+			product.getProductCode(),
 			product.getName(),
 			thumbnailUrl,
 			product.getSalePrice(),
 			product.getConsumerPrice(),
-			product.getConsumerPrice() * product.getConsumerRewardRate(),
+			Math.round(product.getConsumerPrice() * product.getConsumerRewardRate()),
 			product.getDiscountRate(),
 			reviewCount,
 			averageRating

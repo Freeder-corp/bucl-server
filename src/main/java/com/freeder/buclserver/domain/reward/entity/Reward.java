@@ -19,7 +19,7 @@ import com.freeder.buclserver.domain.consumerorder.entity.ConsumerOrder;
 import com.freeder.buclserver.domain.orderrefund.entity.OrderRefund;
 import com.freeder.buclserver.domain.product.entity.Product;
 import com.freeder.buclserver.domain.reward.vo.RewardType;
-import com.freeder.buclserver.domain.rewardwithdrawalaccount.entity.RewardWithdrawalAccount;
+import com.freeder.buclserver.domain.rewardwithdrawal.entity.RewardWithdrawal;
 import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.global.mixin.TimestampMixin;
 
@@ -52,9 +52,9 @@ public class Reward extends TimestampMixin {
 	@JoinColumn(name = "order_refund_id", nullable = true, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private OrderRefund orderRefund;
 
-	@ManyToOne
-	@JoinColumn(name = "reward_withdrawal_account", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-	private RewardWithdrawalAccount rewardWithdrawalAccount;
+	@OneToOne
+	@JoinColumn(name = "reward_withdrawal_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+	private RewardWithdrawal rewardWithdrawal;
 
 	@Column(name = "product_name")
 	private String productName;

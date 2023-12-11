@@ -50,6 +50,7 @@ public class RewardsService {
 			reward.getProductBrandName(),
 			reward.getProductName(),
 			calculateNetReward(reward),
+			reward.getRewardType(),
 			reward.getCreatedAt()
 		);
 	}

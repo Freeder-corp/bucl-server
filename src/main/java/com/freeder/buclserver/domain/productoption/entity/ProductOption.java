@@ -47,7 +47,7 @@ public class ProductOption extends TimestampMixin {
 	private int optionSequence;
 
 	@Column(name = "product_qty")
-	private int productQty;
+	private Integer productQty;
 
 	@Column(name = "max_order_qty")
 	private int maxOrderQty;

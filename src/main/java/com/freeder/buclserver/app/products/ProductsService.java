@@ -1,6 +1,5 @@
 package com.freeder.buclserver.app.products;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -140,8 +139,7 @@ public class ProductsService {
 	}
 
 	private ProductOptionDTO convertToDTO(ProductOption productOption) {
-		String[] values = productOption.getOptionValue().split(",");
-		return new ProductOptionDTO(Arrays.asList(values), productOption.getOptionExtraAmount());
+		return new ProductOptionDTO(productOption.getOptionValue(), productOption.getOptionExtraAmount());
 	}
 
 	private ProductDTO convertToDTO(Product product) {
