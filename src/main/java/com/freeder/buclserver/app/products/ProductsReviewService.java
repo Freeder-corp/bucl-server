@@ -17,8 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.freeder.buclserver.domain.product.entity.Product;
 import com.freeder.buclserver.domain.product.repository.ProductRepository;
 import com.freeder.buclserver.domain.productreview.dto.ReviewDTO;
@@ -31,6 +29,10 @@ import com.freeder.buclserver.global.exception.BaseException;
 import com.freeder.buclserver.global.util.ImageParsing;
 
 import lombok.extern.slf4j.Slf4j;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetUrlRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Slf4j
 @Service
@@ -41,19 +43,19 @@ public class ProductsReviewService {
 	private final ProductReviewRepository productReviewRepository;
 	private final UserRepository userRepository;
 	private final ProductRepository productRepository;
-
+	private final S3Client s3Client;
 	private final ImageParsing imageParsing;
-
 	private final ProductsCategoryService productsCategoryService;
 
 	public ProductsReviewService(ProductReviewRepository productReviewRepository,
 		UserRepository userRepository,
 		ProductRepository productRepository,
-		ImageParsing imageParsing,
+		S3Client s3Client, ImageParsing imageParsing,
 		ProductsCategoryService productsCategoryService) {
 		this.productReviewRepository = productReviewRepository;
 		this.userRepository = userRepository;
 		this.productRepository = productRepository;
+		this.s3Client = s3Client;
 		this.imageParsing = imageParsing;
 		this.productsCategoryService = productsCategoryService;
 	}
@@ -198,13 +200,13 @@ public class ProductsReviewService {
 	public List<String> uploadImagesToS3(List<MultipartFile> images) {
 		List<String> s3ImageUrls = new ArrayList<>();
 
-		for (MultipartFile image : images) {
-			try {
+		try {
+			for (MultipartFile image : images) {
 				String s3ImageUrl = uploadImageToS3(image);
 				s3ImageUrls.add(s3ImageUrl);
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
+		} catch (IOException e) {
+			log.error("이미지 업로드 실패", e);
 		}
 
 		return s3ImageUrls;
@@ -213,13 +215,15 @@ public class ProductsReviewService {
 	private String uploadImageToS3(MultipartFile image) throws IOException {
 		String originalFilename = image.getOriginalFilename();
 
-		ObjectMetadata metadata = new ObjectMetadata();
-		metadata.setContentLength(image.getSize());
-		metadata.setContentType(image.getContentType());
+		PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+			.bucket(bucket)
+			.key(originalFilename)
+			.build();
 
-		AmazonS3Client amazonS3Client = new AmazonS3Client();
-		amazonS3Client.putObject(bucket, originalFilename, image.getInputStream(), metadata);
+		s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(image.getInputStream(), image.getSize()));
 
-		return amazonS3Client.getUrl(bucket, originalFilename).toString();
+		return s3Client.utilities()
+			.getUrl(GetUrlRequest.builder().bucket(bucket).key(originalFilename).build())
+			.toString();
 	}
 }
