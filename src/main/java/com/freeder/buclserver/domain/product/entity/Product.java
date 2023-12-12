@@ -18,6 +18,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.freeder.buclserver.domain.consumerorder.entity.ConsumerOrder;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
@@ -50,6 +51,10 @@ public class Product extends TimestampMixin implements Serializable {
 	@ManyToOne
 	@JoinColumn(name = "shipping_info_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private ShippingInfo shippingInfo;
+
+	@OneToMany(mappedBy = "product")
+	@ToString.Exclude
+	private List<ConsumerOrder> consumerOrders = new ArrayList<>();
 
 	@OneToMany(mappedBy = "product")
 	@ToString.Exclude

@@ -9,5 +9,5 @@ spring:
         - cloud
 
 crypto:
-  secretkey: mvptestbuclfrien
-  iv: buclaskdniop2was
+  secretkey: mvptestbuclfrien         #32자까지
+  iv: buclaskdniop2was                #16자까지
