@@ -31,6 +31,4 @@ public class ConsumerOrderDto {
     private String memoContent;         //shipping_address
     private Integer shippingFee;         //shipping_info
     private String shippingFeePhrase;   //shipping_info
-    private String shippingCoName;      //shipping_info
-    private String infoContent;         //shipping_info
 }

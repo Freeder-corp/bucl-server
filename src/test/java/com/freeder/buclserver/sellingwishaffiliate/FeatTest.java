@@ -13,6 +13,7 @@ import com.freeder.buclserver.domain.grouporder.repository.GroupOrderRepository;
 import com.freeder.buclserver.domain.product.entity.Product;
 import com.freeder.buclserver.domain.product.repository.ProductRepository;
 import com.freeder.buclserver.domain.shipping.entity.Shipping;
+import com.freeder.buclserver.domain.shipping.vo.ShippingStatus;
 import com.freeder.buclserver.domain.shippingaddress.entity.ShippingAddress;
 import com.freeder.buclserver.domain.shippinginfo.entity.ShippingInfo;
 import com.freeder.buclserver.domain.wish.dto.WishDto;
@@ -87,20 +88,26 @@ public class FeatTest {
         System.out.println(groupOrderRepository.findByProduct_Id(1L));
     }
 
-    @Test
+//    @Test
     @Transactional
-    void excelupdate() {
-        List<TrackingNumDto> trackingNumDtos = new ArrayList<>();
+    void excelupdate(List<TrackingNumDto> trackingNumDtos) {
+//        List<TrackingNumDto> trackingNumDtos = new ArrayList<>();
         for (TrackingNumDto i : trackingNumDtos) {
-            ConsumerOrder order = consumerOrderRepository.findByOrderCode(i.getShippingNum()).orElseThrow(() ->
+            ConsumerOrder order = consumerOrderRepository.findByOrderCode(i.getOrderCode()).orElseThrow(() ->
                     new BaseException(HttpStatus.BAD_REQUEST, 400, "잘못된필드")
             );
-            order.get
 
+            Shipping shipping = order.getShippings().stream().filter(Shipping::isActive).findFirst().orElseThrow(() ->
+                    new BaseException(HttpStatus.BAD_REQUEST, 400, "활성화된 배송정보가 없습니다.")
+            );
+            ShippingInfo shippingInfo = shipping.getShippingInfo();
+            shipping.setShippingStatus(ShippingStatus.IN_DELIVERY);
+            shipping.setTrackingNum(i.getTrakingNum());
+            shippingInfo.setShippingCoName(i.getShippingCoName());
         }
     }
 
-    @Test
+//    @Test
     @Transactional(readOnly = true)
     void excelTest() {
         Product product = productRepository.findById(1L).orElseThrow(() ->
@@ -146,8 +153,6 @@ public class FeatTest {
                 .memoContent(shippingAddress.getMemoContent())
                 .shippingFee(shippingInfo.getShippingFee())
                 .shippingFeePhrase(shippingInfo.getShippingFeePhrase())
-                .shippingCoName(shippingInfo.getShippingCoName())
-                .infoContent(shippingInfo.getInfoContent())
                 .build();
     }
 

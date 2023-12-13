@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 @Getter
@@ -14,8 +15,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TrackingNumDto {
-
+    @NotEmpty
+    private String orderCode;
+    @NotEmpty
     private String trakingNum;
-    private String shippingNum;
+    @NotEmpty
+    private String shippingCoName;
 
 }
