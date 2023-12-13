@@ -17,7 +17,7 @@ import java.util.List;
 public class OrdersController {
 
     private final OrdersService service;
-    
+
     @GetMapping("/document/{product_id}")
     public BaseResponse<?> getOrdersDocument(
             @PathVariable(name = "product_id") Long productId

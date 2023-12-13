@@ -14,10 +14,12 @@ import com.freeder.buclserver.global.mixin.TimestampMixin;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Getter
 @Setter
+@DynamicUpdate
 @Table(name = "shipping_info")
 public class ShippingInfo extends TimestampMixin {
 	@Id
