@@ -14,6 +14,6 @@ public class ProductDTO {
 	private int salePrice;
 	private int consumerPrice;
 	private float reward;
-	private boolean wish;
+	private boolean wished;
 }
 

@@ -155,8 +155,8 @@ public class ProductsService {
 	private ProductDTO convertToDTO(Product product, Long userId) {
 		try {
 			String thumbnailUrl = imageParsing.getThumbnailUrl(product.getImagePath());
-			float calculatedReward = (product.getSalePrice() * product.getConsumerRewardRate()) / 100;
-			float roundedReward = Math.round(calculatedReward * 100.0f) / 100.0f;
+			float calculatedReward = (product.getSalePrice() * product.getConsumerRewardRate());
+			float roundedReward = Math.round(calculatedReward);
 
 			boolean wished = false;
 

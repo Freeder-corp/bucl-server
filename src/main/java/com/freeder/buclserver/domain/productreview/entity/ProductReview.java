@@ -45,7 +45,7 @@ public class ProductReview extends TimestampMixin {
 	@Column(name = "star_rate")
 	private StarRate starRate;
 
-	@Column(name = "image_path")
+	@Column(name = "image_path", length = 5000)
 	private String imagePath;
 
 	@Column(name = "selected_option")
