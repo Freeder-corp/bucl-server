@@ -51,9 +51,9 @@ public class ProductsReviewPhotoService {
 
 	private ReviewPhotoDTO convertToPhotoDTO(ProductReview review) {
 		try {
-			String thumbnailUrl = imageParsing.getThumbnailUrl(review.getImagePath());
+			List<String> imageList = imageParsing.getImageList(review.getImagePath());
 			log.info("상품 리뷰 사진 변환 성공 - reviewId: {}", review.getId());
-			return new ReviewPhotoDTO(thumbnailUrl);
+			return new ReviewPhotoDTO(imageList);
 		} catch (Exception e) {
 			log.error("상품 리뷰 사진 변환 실패 - reviewId: {}", review.getId(), e);
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 리뷰 사진 변환 - 서버 에러");
