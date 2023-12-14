@@ -1,9 +1,11 @@
 package com.freeder.buclserver.app.wishes;
 
 import com.freeder.buclserver.app.products.ProductsCategoryService;
+import com.freeder.buclserver.domain.consumerorder.entity.ConsumerOrder;
 import com.freeder.buclserver.domain.grouporder.entity.GroupOrder;
 import com.freeder.buclserver.domain.grouporder.repository.GroupOrderRepository;
 import com.freeder.buclserver.domain.product.entity.Product;
+import com.freeder.buclserver.domain.product.repository.ProductRepository;
 import com.freeder.buclserver.domain.productreview.entity.ProductReview;
 import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.domain.wish.dto.WishDto;
@@ -18,7 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,10 +33,11 @@ import java.util.Optional;
 public class WishesService {
     private final WishRepository wishRepository;
     private final GroupOrderRepository groupOrderRepository;
+    private final ProductRepository productRepository;
     private final ProductsCategoryService productsCategoryService;
     private final ImageParsing imageParsing;
 
-    public BaseResponse<?> getWishesList(
+    /*public BaseResponse<?> getWishesList(
             Authentication authentication,
             int page,
             int pageSize
@@ -98,7 +101,10 @@ public class WishesService {
 
     private WishDto convertWishDto(Wish wish) {
         try {
-            GroupOrder groupOrder = groupOrderRepository.findByProduct_Id(wish.getProduct().getId()).orElse(null);
+
+            GroupOrder groupOrder = groupOrderRepository.findByProduct_Id(wish.getProduct().getId()).orElseThrow(() ->
+                    new BaseException(HttpStatus.BAD_REQUEST, 400, "잘못된상품ID")
+            );
 
             return WishDto.builder()
                     .brandName(wish.getProduct().getBrandName())
@@ -107,7 +113,7 @@ public class WishesService {
                     .imagePath(imageParsing.getImageList(wish.getProduct().getImagePath()))
                     .consumerPrice(wish.getProduct().getConsumerPrice())
                     .starRate(productsCategoryService.calculateAverageRating(wish.getProduct().getProductReviews()))
-                    .consumerOrdersNumber(groupOrder == null ? 0 : groupOrder.getConsumerOrders().size())
+                    .consumerOrdersNumber(wish.getProduct().getConsumerOrders().size())
                     .isEnded(Objects.requireNonNull(groupOrder).isEnded())
                     .build();
 
@@ -139,7 +145,7 @@ public class WishesService {
                         ).getId()
                 )
                 .build();
-    }
+    }*/
 
     private Pageable setPaging(
             int page,

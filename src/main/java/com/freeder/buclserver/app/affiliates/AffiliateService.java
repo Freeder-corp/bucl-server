@@ -12,7 +12,7 @@ import com.freeder.buclserver.global.util.ImageParsing;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
+
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,7 +25,7 @@ public class AffiliateService {
 //    @Value("bucl.affiliateEXP")                            //TODO: 정책적으로 판매링크 만료시간 정착요망
     private Long expireTime = -1L;
 
-    public BaseResponse<?> getSellingPage(
+    /*public BaseResponse<?> getSellingPage(
             Authentication authentication,
             AffiliateDto affiliateDto
     ) throws Exception {
@@ -80,7 +80,7 @@ public class AffiliateService {
                         DateUtils.nowDate())
         );
     }
-
+*/
 
     private String[] validUrl(String affiliateEncrypt) {
         try {

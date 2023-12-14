@@ -3,7 +3,7 @@ package com.freeder.buclserver.app.wishes;
 import com.freeder.buclserver.domain.wish.dto.WishDto;
 import com.freeder.buclserver.global.response.BaseResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
+
 import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,7 +17,7 @@ import java.util.List;
 public class WishesController {
     private final WishesService service;
 
-    @GetMapping()
+    /*@GetMapping()
     public BaseResponse<?> getWishesList(
             Authentication authentication,
             @RequestParam(defaultValue = "1") int page,
@@ -40,5 +40,5 @@ public class WishesController {
             Authentication authentication
     ) {
         return service.deleteWish(authentication, productCode);
-    }
+    }*/
 }

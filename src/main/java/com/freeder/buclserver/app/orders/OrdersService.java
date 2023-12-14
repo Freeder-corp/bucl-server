@@ -18,6 +18,7 @@ import com.freeder.buclserver.global.response.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -25,33 +26,44 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrdersService {
     private final ConsumerOrderRepository consumerOrderRepository;
-    private final ProductRepository productRepository;
 
+    @Transactional(readOnly = true)
     public BaseResponse<?> getOrdersDocument(Long productId) {
-        Product product = productRepository.findById(productId).orElseThrow(() ->
+
+        List<ConsumerOrder> orders = consumerOrderRepository.findByProduct_Id(productId).orElseThrow(() ->
                 new BaseException(HttpStatus.BAD_REQUEST, 400, "잘못된필드")
         );
 
-        List<ConsumerOrder> consumerOrders = product.getConsumerOrders().stream()
+        if (orders.size()==0){
+            throw new BaseException(HttpStatus.BAD_REQUEST,400,"구매자가없습니다.");
+        }
+
+        List<ConsumerOrder> consumerOrders = orders.stream()
                 .filter(consumerOrder ->
                         consumerOrder.getOrderStatus().equals(OrderStatus.ORDERED) && consumerOrder.getCsStatus().equals(CsStatus.NONE)
                 )
                 .toList();
 
+        String productName = consumerOrders.get(0).getProduct().getName();
+
         List<ConsumerOrderDto> orderDtos = consumerOrders.stream()
-                .map(consumerOrder -> convertConsumerOrders(product.getName(), consumerOrder))
+                .map(consumerOrder -> convertConsumerOrders(productName, consumerOrder))
                 .toList();
 
         return new BaseResponse<>(orderDtos, HttpStatus.OK, "요청 성공");
     }
 
+    @Transactional
     public BaseResponse<?> updateTrackingNum(List<TrackingNumDto> trackingNumDtos) {
         for (TrackingNumDto i : trackingNumDtos) {
             ConsumerOrder order = consumerOrderRepository.findByOrderCode(i.getOrderCode()).orElseThrow(() ->
                     new BaseException(HttpStatus.BAD_REQUEST, 400, "잘못된필드")
             );
 
-            Shipping shipping = order.getShippings().stream().filter(Shipping::isActive).findFirst().orElseThrow(() ->
+            Shipping shipping = order.getShippings().stream()
+                    .filter(Shipping::isActive)
+                    .findFirst()
+                    .orElseThrow(() ->
                     new BaseException(HttpStatus.BAD_REQUEST, 400, "활성화된 배송정보가 없습니다.")
             );
 
@@ -59,7 +71,7 @@ public class OrdersService {
 
             shipping.setShippingStatus(ShippingStatus.IN_DELIVERY);
             shipping.setTrackingNum(i.getTrakingNum());
-            shippingInfo.setShippingCoName(i.getShippingCoName());
+//            shippingInfo.setShippingCoName(i.getShippingCoName());   //TODO: 배송업체명 처리방법..?
         }
         return new BaseResponse<>(null,HttpStatus.OK,"요청 성공");
     }
