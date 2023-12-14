@@ -65,8 +65,8 @@ public class ProductsController {
 
 	@GetMapping("/categories/{category_id}")
 	@Transactional(readOnly = true)
-	public BaseResponse<List<ProductCategoryDTO>> getProductsByCategory(
-		@PathVariable(name = "category_id") Long categoryId,
+	public BaseResponse<List<ProductCategoryDTO>> getProductByCategory(
+		@PathVariable(name = "category_id", required = true) Long categoryId,
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "10") int pageSize,
 		@RequestParam(required = false) Long userId
@@ -88,7 +88,9 @@ public class ProductsController {
 
 	@GetMapping("/{product_code}/options")
 	@Transactional(readOnly = true)
-	public BaseResponse<List<ProductOptionDTO>> getProductOptions(@PathVariable("product_code") Long productCode) {
+	public BaseResponse<List<ProductOptionDTO>> getProductOptions(
+		@PathVariable("product_code") Long productCode
+	) {
 		List<ProductOptionDTO> productOptions = productsService.getProductOptions(productCode);
 		return new BaseResponse<>(productOptions, HttpStatus.OK, "옵션 요청 성공");
 	}

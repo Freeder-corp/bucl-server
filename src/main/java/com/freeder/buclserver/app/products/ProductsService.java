@@ -87,7 +87,7 @@ public class ProductsService {
 
 			List<String> imageUrls = imageParsing.getImageList(product.getImagePath());
 			List<String> firstFiveImages = imageUrls.stream().limit(5).collect(Collectors.toList());
-
+			List<String> detailImages = imageParsing.getImageList(product.getDetailImagePath());
 			boolean wished = false;
 
 			if (userId != null) {
@@ -106,6 +106,7 @@ public class ProductsService {
 				product.getCreatedAt(),
 				reviewCount,
 				firstFiveImages,
+				detailImages,
 				reviewPreviews,
 				wished
 			);
@@ -124,6 +125,7 @@ public class ProductsService {
 				review.getCreatedAt(),
 				review.getProduct().getName(),
 				review.getContent(),
+				review.getStarRate().getValue(),
 				thumbnailUrl
 			);
 		} catch (Exception e) {
