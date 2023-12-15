@@ -48,6 +48,13 @@ public class MyController {
 		return new BaseResponse(myProfile, HttpStatus.OK, "요청 성공");
 	}
 
+	@PatchMapping("/profile/default-image")
+	public BaseResponse updateProfileImageAsDefault(@AuthenticationPrincipal CustomUserDetails userDetails) {
+		Long userId = Long.valueOf(userDetails.getUserId());
+		myService.updateProfileImageAsDefault(userId);
+		return new BaseResponse(null, HttpStatus.OK, "요청 성공");
+	}
+
 	@GetMapping("/profile/orders")
 	public BaseResponse getMyOrders(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
