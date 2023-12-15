@@ -39,7 +39,7 @@ public record UserDto(
 	}
 
 	public static UserDto from(User user) {
-		return new UserDto(
+		return of(
 			user.getId(),
 			user.getEmail(),
 			user.getNickname(),
