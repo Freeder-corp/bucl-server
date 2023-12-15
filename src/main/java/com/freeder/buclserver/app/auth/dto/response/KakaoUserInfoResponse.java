@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.freeder.buclserver.domain.user.dto.UserDto;
+import com.freeder.buclserver.domain.user.util.ProfileImage;
 import com.freeder.buclserver.domain.user.vo.Gender;
 import com.freeder.buclserver.domain.user.vo.JoinType;
 import com.freeder.buclserver.domain.user.vo.Role;
@@ -13,6 +14,7 @@ import com.freeder.buclserver.domain.user.vo.UserState;
 
 import lombok.Getter;
 
+// TODO: 회원 가입 시 받아올 회원 정보 추가
 @Getter
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class KakaoUserInfoResponse {
@@ -41,7 +43,7 @@ public class KakaoUserInfoResponse {
 			null,
 			this.kakaoAccount.email,
 			this.kakaoAccount.profile.nickname,
-			this.kakaoAccount.profile.profileImageUrl,
+			ProfileImage.defaultImageUrl,
 			null,
 			null,
 			Role.ROLE_USER,
