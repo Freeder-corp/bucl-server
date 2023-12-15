@@ -144,4 +144,8 @@ public class User extends TimestampMixin {
 	public void updateProfilePathAsDefault() {
 		this.profilePath = ProfileImage.defaultImageUrl;
 	}
+
+	public void updateProfilePath(String uploadFileUrl) {
+		this.profilePath = uploadFileUrl;
+	}
 }
