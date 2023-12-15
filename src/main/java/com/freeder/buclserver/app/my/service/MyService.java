@@ -1,6 +1,7 @@
 package com.freeder.buclserver.app.my.service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -8,8 +9,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.freeder.buclserver.domain.affiliate.repository.AffiliateRepository;
 import com.freeder.buclserver.domain.consumerorder.entity.ConsumerOrder;
 import com.freeder.buclserver.domain.consumerorder.repository.ConsumerOrderRepository;
 import com.freeder.buclserver.domain.consumerpayment.entity.ConsumerPayment;
@@ -25,6 +26,7 @@ import com.freeder.buclserver.domain.user.dto.response.MyOrderResponse;
 import com.freeder.buclserver.domain.user.dto.response.MyProfileResponse;
 import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.domain.user.repository.UserRepository;
+import com.freeder.buclserver.domain.user.util.ProfileImage;
 import com.freeder.buclserver.global.exception.auth.WithdrawalBadRequestException;
 import com.freeder.buclserver.global.exception.consumerorder.ConsumerUserNotMatchException;
 import com.freeder.buclserver.global.exception.consumerorder.OrderIdNotFoundException;
@@ -39,7 +41,6 @@ public class MyService {
 
 	private final UserRepository userRepository;
 	private final RewardRepository rewardRepository;
-	private final AffiliateRepository affiliateRepository;
 	private final ConsumerOrderRepository consumerOrderRepository;
 	private final ConsumerPurchaseOrderRepository consumerPurchaseOrderRepository;
 	private final ShippingRepository shippingRepository;
@@ -97,6 +98,19 @@ public class MyService {
 		profileS3Service.deleteFile(user.getProfilePath());
 
 		user.updateProfilePathAsDefault();
+	}
+
+	@Transactional
+	public void updateProfileImage(Long userId, MultipartFile profileImageFile) {
+		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
+			.orElseThrow(() -> new UserIdNotFoundException(userId));
+
+		if (!Objects.equals(user.getProfilePath(), ProfileImage.defaultImageUrl)) {
+			profileS3Service.deleteFile(user.getProfilePath());
+		}
+
+		String uploadFileUrl = profileS3Service.uploadFile(profileImageFile);
+		user.updateProfilePath(uploadFileUrl);
 	}
 
 	@Transactional(readOnly = true)
