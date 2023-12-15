@@ -13,7 +13,7 @@ public record MyProfileResponse(
 	}
 
 	public static MyProfileResponse from(Reward reward) {
-		return MyProfileResponse.of(
+		return of(
 			reward.getUser().getProfilePath(),
 			reward.getUser().getNickname(),
 			reward.getRewardSum()
