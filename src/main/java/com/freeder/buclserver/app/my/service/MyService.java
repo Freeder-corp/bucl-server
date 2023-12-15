@@ -32,8 +32,9 @@ import com.freeder.buclserver.global.exception.user.UserIdNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 
-@Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
+@Service
 public class MyService {
 
 	private final UserRepository userRepository;
@@ -44,6 +45,7 @@ public class MyService {
 	private final ShippingRepository shippingRepository;
 	private final ShippingAddressRepository shippingAddressRepository;
 	private final ConsumerPaymentRepository consumerPaymentRepository;
+	private final ProfileS3Service profileS3Service;
 
 	@Transactional(readOnly = true)
 	public Optional<UserDto> findBySocialIdAndDeletedAtIsNull(String socialUid) {
@@ -85,6 +87,16 @@ public class MyService {
 		return rewardRepository.findFirstByUserOrderByCreatedAtDesc(user)
 			.map(MyProfileResponse::from)
 			.orElseGet(() -> getMyProfileWithoutReward(user.getProfilePath(), user.getNickname()));
+	}
+
+	@Transactional
+	public void updateProfileImageAsDefault(Long userId) {
+		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
+			.orElseThrow(() -> new UserIdNotFoundException(userId));
+
+		profileS3Service.deleteFile(user.getProfilePath());
+
+		user.updateProfilePathAsDefault();
 	}
 
 	@Transactional(readOnly = true)
