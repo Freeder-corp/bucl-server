@@ -54,9 +54,13 @@ public class AuthController {
 	}
 
 	@PostMapping("/renewal/tokens")
-	public BaseResponse renewTokens(@Valid @RequestBody RefreshTokenRequest request) {
+	public BaseResponse renewTokens(@Valid @RequestBody RefreshTokenRequest request, HttpServletResponse response) {
 		TokenResponse tokens = jwtTokenService.renewTokens(request.refreshToken());
-		return new BaseResponse(tokens, HttpStatus.OK, "요청 성공");
+
+		response.addCookie(createCookie("access-token", tokens.accessToken(), COOKIE_MAX_AGE_ACCESS_TOKEN));
+		response.addCookie(createCookie("refresh-token", tokens.refreshToken(), COOKIE_MAX_AGE_REFRESH_TOKEN));
+
+		return new BaseResponse(null, HttpStatus.OK, "요청 성공");
 	}
 
 	@PostMapping("/logout")
