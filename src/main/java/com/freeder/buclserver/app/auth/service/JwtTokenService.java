@@ -22,12 +22,12 @@ public class JwtTokenService {
 	private final UserRepository userRepository;
 
 	@Transactional
-	public TokenResponse createJwtTokens(Long memberId, Role role) {
-		User user = userRepository.findById(memberId)
-			.orElseThrow(() -> new UserIdNotFoundException(memberId));
+	public TokenResponse createJwtTokens(Long userId, Role role) {
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new UserIdNotFoundException(userId));
 
-		String accessToken = jwtTokenProvider.createAccessToken(memberId, role);
-		String refreshToken = jwtTokenProvider.createRefreshToken(memberId, role);
+		String accessToken = jwtTokenProvider.createAccessToken(userId, role);
+		String refreshToken = jwtTokenProvider.createRefreshToken(userId, role);
 
 		user.updateRefreshToken(refreshToken);
 

@@ -12,8 +12,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import com.freeder.buclserver.domain.user.vo.Role;
+import com.freeder.buclserver.global.exception.auth.JwtTokenExpiredException;
+import com.freeder.buclserver.global.exception.auth.JwtTokenValidException;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -24,8 +27,8 @@ import lombok.RequiredArgsConstructor;
 @Component
 public class JwtTokenProvider {
 
-	private static final long ACCESS_TOKEN_EXPIRED_TIME = 1000 * 60 * 60 * 1;
-	private static final long REFRESH_TOKEN_EXPIRED_TIME = 1000 * 60 * 60 * 24 * 30;
+	private static final long ACCESS_TOKEN_EXPIRED_TIME = 1000L * 60 * 60 * 1;
+	private static final long REFRESH_TOKEN_EXPIRED_TIME = 1000L * 60 * 60 * 24 * 30;
 
 	@Value("${jwt.secret-key}")
 	private String secretKey;
@@ -50,10 +53,16 @@ public class JwtTokenProvider {
 	}
 
 	public void validateToken(String token) {
-		Jwts.parserBuilder()
-			.setSigningKey(encodeKey)
-			.build()
-			.parseClaimsJws(token);
+		try {
+			Jwts.parserBuilder()
+				.setSigningKey(encodeKey)
+				.build()
+				.parseClaimsJws(token);
+		} catch (ExpiredJwtException ex) {
+			throw new JwtTokenExpiredException();
+		} catch (Exception ex) {
+			throw new JwtTokenValidException();
+		}
 	}
 
 	public String getUserRole(String token) {

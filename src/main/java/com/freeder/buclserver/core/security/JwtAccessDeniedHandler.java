@@ -26,7 +26,7 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 		HttpServletResponse response,
 		AccessDeniedException accessDeniedException
 	) throws IOException {
-		log.error("[Forbidden_Exception]: 사용자가 필요한 권한이 없는 상태로 접근했습니다.");
+		log.error("[Access_Denied_Handler]: 사용자가 필요한 권한이 없는 상태로 접근했습니다.");
 
 		response.setStatus(HttpStatus.FORBIDDEN.value());
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
