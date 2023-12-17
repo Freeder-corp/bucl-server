@@ -28,7 +28,7 @@ public interface ProductReviewRepository extends JpaRepository<ProductReview, Lo
 		"AND pr.product.isExposed = true " +
 		"AND pr.product.productStatus = com.freeder.buclserver.domain.product.vo.ProductStatus.ACTIVE " +
 		"ORDER BY pr.starRate DESC, pr.createdAt DESC")
-	Page<ProductReview> findByProductProductCodeWithConditions(
+	Optional<Page<ProductReview>> findByProductProductCodeWithConditions(
 		@Param("productCode") Long productCode,
 		Pageable pageable
 	);

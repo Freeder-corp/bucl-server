@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +30,7 @@ import com.freeder.buclserver.global.exception.BaseException;
 import com.freeder.buclserver.global.util.ImageParsing;
 
 import lombok.extern.slf4j.Slf4j;
+import software.amazon.awssdk.core.exception.SdkException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetUrlRequest;
@@ -65,7 +67,8 @@ public class ProductsReviewService {
 		try {
 			Pageable pageable = PageRequest.of(page, pageSize);
 			Page<ProductReview> reviewPage = productReviewRepository.findByProductProductCodeWithConditions(
-				productCode, pageable);
+					productCode, pageable)
+				.orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND, 404, "해당 리뷰를 찾을 수 없음"));
 
 			long reviewCount = productReviewRepository.countByProductCodeFkWithConditions(productCode);
 			float averageRating = productsCategoryService.calculateAverageRating(reviewPage.getContent());
@@ -79,6 +82,9 @@ public class ProductsReviewService {
 
 			log.info("상품 리뷰 조회 성공 - productCode: {}, page: {}, pageSize: {}", productCode, page, pageSize);
 			return new ProductReviewResult(reviewCount, averageRating, reviewDTOs);
+		} catch (DataAccessException e) {
+			log.error("데이터베이스 조회 실패 - productCode: {}, page: {}, pageSize: {}", productCode, page, pageSize, e);
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "리뷰 조회 - 데이터베이스 에러");
 		} catch (Exception e) {
 			log.error("상품 리뷰 조회 실패 - productCode: {}, page: {}, pageSize: {}", productCode, page, pageSize, e);
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 리뷰 조회 - 서버 에러");
@@ -137,7 +143,9 @@ public class ProductsReviewService {
 
 			if (existingReviewOptional.isPresent()) {
 
-				ProductReview existingReview = existingReviewOptional.get();
+				ProductReview existingReview = existingReviewOptional.orElseThrow(() ->
+					new BaseException(HttpStatus.NOT_FOUND, 404, "해당 리뷰를 찾을 수 없음")
+				);
 				existingReview.setContent(reviewRequestDTO.getReviewContent());
 				existingReview.setStarRate(reviewRequestDTO.getStarRate());
 				existingReview.setUpdatedAt(LocalDateTime.now());
@@ -168,6 +176,9 @@ public class ProductsReviewService {
 				log.info("리뷰 생성 성공 - productCode: {}, userId: {}, reviewId: {}", productCode, userId,
 					newReview.getId());
 			}
+		} catch (DataAccessException e) {
+			log.error("데이터베이스 조회 또는 조작 실패 - productCode: {}, userId: {}", productCode, userId, e);
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "리뷰 생성 또는 수정 - 데이터베이스 에러");
 		} catch (Exception e) {
 			log.error("리뷰 생성 또는 수정 실패 - productCode: {}, userId: {}", productCode, userId, e);
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "리뷰 생성 또는 수정 - 서버 에러");
@@ -207,23 +218,29 @@ public class ProductsReviewService {
 			}
 		} catch (IOException e) {
 			log.error("이미지 업로드 실패", e);
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "이미지 업로드 - 서버 에러");
 		}
 
 		return s3ImageUrls;
 	}
 
 	private String uploadImageToS3(MultipartFile image) throws IOException {
-		String originalFilename = image.getOriginalFilename();
+		try {
+			String originalFilename = image.getOriginalFilename();
 
-		PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-			.bucket(bucket)
-			.key(originalFilename)
-			.build();
+			PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+				.bucket(bucket)
+				.key(originalFilename)
+				.build();
 
-		s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(image.getInputStream(), image.getSize()));
+			s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(image.getInputStream(), image.getSize()));
 
-		return s3Client.utilities()
-			.getUrl(GetUrlRequest.builder().bucket(bucket).key(originalFilename).build())
-			.toString();
+			return s3Client.utilities()
+				.getUrl(GetUrlRequest.builder().bucket(bucket).key(originalFilename).build())
+				.toString();
+		} catch (SdkException | IOException e) {
+			log.error("S3에 이미지 업로드 실패", e);
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "S3 이미지 업로드 - 서버 에러");
+		}
 	}
 }

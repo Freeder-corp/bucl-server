@@ -1,5 +1,7 @@
 package com.freeder.buclserver.domain.productcategory.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,7 +17,7 @@ public interface ProductCategoryRepository extends JpaRepository<Product, Long> 
 		"AND p.isExposed = true " +
 		"AND p.productStatus = com.freeder.buclserver.domain.product.vo.ProductStatus.ACTIVE " +
 		"ORDER BY p.productPriority DESC")
-	Page<Product> findProductsByCategory(
+	Optional<Page<Product>> findProductsByCategory(
 		@Param("categoryId") Long categoryId,
 		Pageable pageable
 	);

@@ -1,6 +1,7 @@
 package com.freeder.buclserver.domain.productoption.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -17,5 +18,5 @@ public interface ProductOptionRepository extends JpaRepository<ProductOption, Lo
 		"AND po.product.deletedAt IS NULL " +
 		"AND po.product.isExposed = true " +
 		"AND po.product.productStatus = com.freeder.buclserver.domain.product.vo.ProductStatus.ACTIVE")
-	List<ProductOption> findByProductProductCodeWithConditions(@Param("productCode") Long productCode);
+	Optional<List<ProductOption>> findByProductProductCodeWithConditions(@Param("productCode") Long productCode);
 }

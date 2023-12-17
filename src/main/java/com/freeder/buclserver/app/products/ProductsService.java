@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -55,12 +57,22 @@ public class ProductsService {
 	public List<ProductDTO> getProducts(Long categoryId, int page, int pageSize, Long userId) {
 		try {
 			Pageable pageable = PageRequest.of(page, pageSize);
-			Page<Product> productsPage = productRepository.findProductsByConditions(categoryId, pageable);
+			Page<Product> productsPage = productRepository.findProductsByConditions(categoryId, pageable)
+				.orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND, 404, "해당 상품을 찾을 수 없음"));
+
+			if (productsPage == null) {
+				log.error("상품 목록이 존재하지 않습니다.");
+				throw new BaseException(HttpStatus.NOT_FOUND, 404, "상품 목록이 존재하지 않습니다.");
+			}
+
 			List<ProductDTO> products = productsPage.getContent().stream()
 				.map(product -> convertToDTO(product, userId))
 				.collect(Collectors.toList());
 			log.info("상품 목록 조회 성공 - categoryId: {}, page: {}, pageSize: {}", categoryId, page, pageSize);
 			return products;
+		} catch (DataAccessException e) {
+			log.error("데이터 액세스 오류 발생", e);
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "데이터 액세스 오류");
 		} catch (Exception e) {
 			log.error("상품 목록 조회 실패 - categoryId: {}, page: {}, pageSize: {}", categoryId, page, pageSize, e);
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 목록 조회 - 서버 에러");
@@ -71,8 +83,7 @@ public class ProductsService {
 	public ProductDetailDTO getProductDetail(Long productCode, Long userId) {
 		try {
 			Product product = productRepository.findAvailableProductByCode(productCode)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-					"Product not found with code: " + productCode));
+				.orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND, 404, "해당 상품을 찾을 수 없음"));
 
 			List<ProductReview> reviews = product.getReviews().stream()
 				.limit(3)
@@ -138,20 +149,30 @@ public class ProductsService {
 	public List<ProductOptionDTO> getProductOptions(Long productCode) {
 		try {
 			List<ProductOption> productOptions = productOptionRepository.findByProductProductCodeWithConditions(
-				productCode);
+					productCode)
+				.orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND, 404, "해당 옵션을 찾을 수 없음"));
 
 			log.info("상품 옵션 조회 성공 - productCode: {}", productCode);
 			return productOptions.stream()
 				.map(this::convertToDTO)
 				.collect(Collectors.toList());
+		} catch (EmptyResultDataAccessException e) {
+			log.error("상품 옵션 조회 실패 - productCode: {}", productCode, e);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "상품 옵션을 찾을 수 없습니다.");
 		} catch (Exception e) {
+			// 그 외 예외 처리
 			log.error("상품 옵션 조회 실패 - productCode: {}", productCode, e);
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 옵션 조회 - 서버 에러");
 		}
 	}
 
-	private ProductOptionDTO convertToDTO(ProductOption productOption) {
-		return new ProductOptionDTO(productOption.getOptionValue(), productOption.getOptionExtraAmount());
+	public ProductOptionDTO convertToDTO(ProductOption productOption) {
+		try {
+			return new ProductOptionDTO(productOption.getOptionValue(), productOption.getOptionExtraAmount());
+		} catch (Exception e) {
+			log.error("상품 옵션 DTO 변환 실패", e);
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 옵션 DTO 변환 실패");
+		}
 	}
 
 	private ProductDTO convertToDTO(Product product, Long userId) {
@@ -175,9 +196,12 @@ public class ProductsService {
 				roundedReward,
 				wished
 			);
+		} catch (IllegalArgumentException e) {
+			log.error("DTO 변환 중 잘못된 인자가 전달되었습니다.", e);
+			throw new BaseException(HttpStatus.BAD_REQUEST, 400, "DTO 변환 중 잘못된 인자가 전달되었습니다.");
 		} catch (Exception e) {
-			log.error("상품 정보 변환 실패", e);
-			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 정보 변환 - 서버 에러");
+			log.error("상품 정보 DTO 변환 실패", e);
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 정보 DTO 변환 - 서버 에러");
 		}
 	}
 }

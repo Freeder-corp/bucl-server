@@ -3,6 +3,7 @@ package com.freeder.buclserver.app.products;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,7 +36,8 @@ public class ProductsReviewPhotoService {
 		try {
 			Pageable pageable = PageRequest.of(page, pageSize);
 			Page<ProductReview> reviewPage = productReviewRepository.findByProductProductCodeWithConditions(productCode,
-				pageable);
+					pageable)
+				.orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND, 404, "해당 리뷰사진을 찾을 수 없음"));
 
 			List<ReviewPhotoDTO> reviewPhotos = reviewPage.getContent().stream()
 				.map(this::convertToPhotoDTO)
@@ -43,6 +45,9 @@ public class ProductsReviewPhotoService {
 
 			log.info("상품 리뷰 사진 조회 성공 - productCode: {}, page: {}, pageSize: {}", productCode, page, pageSize);
 			return reviewPhotos;
+		} catch (DataAccessException e) {
+			log.error("데이터베이스 조회 실패 - productCode: {}, page: {}, pageSize: {}", productCode, page, pageSize, e);
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "리뷰 사진 조회 - 데이터베이스 에러");
 		} catch (Exception e) {
 			log.error("상품 리뷰 사진 조회 실패 - productCode: {}, page: {}, pageSize: {}", productCode, page, pageSize, e);
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 리뷰 사진 조회 - 서버 에러");
@@ -52,11 +57,11 @@ public class ProductsReviewPhotoService {
 	private ReviewPhotoDTO convertToPhotoDTO(ProductReview review) {
 		try {
 			List<String> imageList = imageParsing.getImageList(review.getImagePath());
-			log.info("상품 리뷰 사진 변환 성공 - reviewId: {}", review.getId());
+			log.info("상품 리뷰 사진 DTO 변환 성공 - reviewId: {}", review.getId());
 			return new ReviewPhotoDTO(imageList);
 		} catch (Exception e) {
-			log.error("상품 리뷰 사진 변환 실패 - reviewId: {}", review.getId(), e);
-			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 리뷰 사진 변환 - 서버 에러");
+			log.error("상품 리뷰 사진 DTO 변환 실패 - reviewId: {}", review.getId(), e);
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 리뷰 사진 DTO 변환 - 서버 에러");
 		}
 	}
 }

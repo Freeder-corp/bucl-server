@@ -17,7 +17,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 		"AND p.isExposed = true " +
 		"AND p.productStatus = com.freeder.buclserver.domain.product.vo.ProductStatus.ACTIVE " +
 		"ORDER BY p.productPriority DESC")
-	Page<Product> findProductsByConditions(
+	Optional<Page<Product>> findProductsByConditions(
 		@Param("categoryId") Long categoryId,
 		Pageable pageable
 	);

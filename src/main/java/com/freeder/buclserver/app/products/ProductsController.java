@@ -79,9 +79,10 @@ public class ProductsController {
 	@GetMapping("/{product_code}")
 	@Transactional(readOnly = true)
 	public BaseResponse<ProductDetailDTO> getProductDetail(
-		@PathVariable("product_code") Long productCode,
+		@PathVariable(name = "product_code", required = true) Long productCode,
 		@RequestParam(required = false) Long userId
 	) {
+
 		ProductDetailDTO productDetail = productsService.getProductDetail(productCode, userId);
 		return new BaseResponse<>(productDetail, HttpStatus.OK, "요청 성공");
 	}
@@ -89,7 +90,7 @@ public class ProductsController {
 	@GetMapping("/{product_code}/options")
 	@Transactional(readOnly = true)
 	public BaseResponse<List<ProductOptionDTO>> getProductOptions(
-		@PathVariable("product_code") Long productCode
+		@PathVariable(name = "product_code", required = true) Long productCode
 	) {
 		List<ProductOptionDTO> productOptions = productsService.getProductOptions(productCode);
 		return new BaseResponse<>(productOptions, HttpStatus.OK, "옵션 요청 성공");
@@ -98,10 +99,11 @@ public class ProductsController {
 	@GetMapping("/{product_code}/reviews")
 	@Transactional(readOnly = true)
 	public BaseResponse<ProductsReviewService.ProductReviewResult> getProductReviews(
-		@PathVariable("product_code") Long productCode,
+		@PathVariable(name = "product_code", required = true) Long productCode,
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "5") int pageSize
 	) {
+
 		ProductsReviewService.ProductReviewResult result = productsReviewService.getProductReviews(productCode, page,
 			pageSize);
 		return new BaseResponse<>(result, HttpStatus.OK, "리뷰 조회 성공");
@@ -110,11 +112,12 @@ public class ProductsController {
 	@GetMapping("/{product_code}/photo-reviews")
 	@Transactional(readOnly = true)
 	public BaseResponse<List<ReviewPhotoDTO>> getReviewPhotos(
-		@PathVariable("product_code") Long productCode,
+		@PathVariable(name = "product_code", required = true) Long productCode,
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "5") int pageSize,
 		@RequestParam(defaultValue = "preview") String display
 	) {
+
 		int adjustedPageSize = "fullview".equals(display) ? 20 : pageSize;
 		int startItemIndex = page * adjustedPageSize;
 
@@ -128,7 +131,7 @@ public class ProductsController {
 	@PostMapping("/{product_code}/review")
 	@Transactional
 	public BaseResponse<String> createOrUpdateReview(
-		@PathVariable("product_code") Long productCode,
+		@PathVariable(name = "product_code", required = true) Long productCode,
 		@RequestPart("reviewRequest") ReviewRequestDTO reviewRequestDTO,
 		@RequestPart("images") List<MultipartFile> images
 	) {
@@ -147,7 +150,7 @@ public class ProductsController {
 	@DeleteMapping("/{product_code}/review")
 	@Transactional
 	public BaseResponse<String> deleteReview(
-		@PathVariable("product_code") Long productCode,
+		@PathVariable(name = "product_code", required = true) Long productCode,
 		@RequestParam Long reviewId
 	) {
 		try {

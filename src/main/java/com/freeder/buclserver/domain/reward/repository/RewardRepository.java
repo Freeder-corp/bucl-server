@@ -14,7 +14,7 @@ import com.freeder.buclserver.domain.reward.entity.Reward;
 @Repository
 public interface RewardRepository extends JpaRepository<Reward, Long> {
 
-	List<Reward> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
+	Optional<List<Reward>> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
 
 	@Query(value = "SELECT r.reward_sum FROM Reward r WHERE r.user_id = :userId ORDER BY r.created_at DESC LIMIT 1",
 		nativeQuery = true)

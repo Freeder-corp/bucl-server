@@ -57,6 +57,7 @@ public class RewardsController {
 	public BaseResponse<List<RewardDto>> getRewardHistory(
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "5") int pageSize
+		// @AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		try {
 			// Long userId = getUserIdFromUserDetails(userDetails);
@@ -105,6 +106,7 @@ public class RewardsController {
 	public BaseResponse<List<WithdrawalHistoryDto>> getWithdrawalHistory(
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "10") int pageSize
+		// @AuthenticationPrincipal CustomUserDetails userDetails,
 	) {
 		try {
 			// Long userId = getUserIdFromUserDetails(userDetails);
