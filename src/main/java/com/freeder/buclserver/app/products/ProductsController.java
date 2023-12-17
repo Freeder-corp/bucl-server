@@ -17,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.freeder.buclserver.domain.product.dto.ProductDTO;
 import com.freeder.buclserver.domain.product.dto.ProductDetailDTO;
-import com.freeder.buclserver.domain.productcategory.dto.ProductCategoryDTO;
 import com.freeder.buclserver.domain.productoption.dto.ProductOptionDTO;
 import com.freeder.buclserver.domain.productreview.dto.ReviewPhotoDTO;
 import com.freeder.buclserver.domain.productreview.dto.ReviewRequestDTO;
@@ -34,19 +33,16 @@ import lombok.extern.slf4j.Slf4j;
 public class ProductsController {
 
 	private final ProductsService productsService;
-	private final ProductsCategoryService productsCategoryService;
 	private final ProductsReviewService productsReviewService;
 	private final ProductsReviewPhotoService productsReviewPhotoService;
 
 	@Autowired
 	public ProductsController(
 		ProductsService productsService,
-		ProductsCategoryService productsCategoryService,
 		ProductsReviewService productsReviewService,
 		ProductsReviewPhotoService productsReviewPhotoService
 	) {
 		this.productsService = productsService;
-		this.productsCategoryService = productsCategoryService;
 		this.productsReviewService = productsReviewService;
 		this.productsReviewPhotoService = productsReviewPhotoService;
 	}
@@ -56,24 +52,11 @@ public class ProductsController {
 	public BaseResponse<List<ProductDTO>> getProducts(
 		@RequestParam(defaultValue = "1") Long categoryId,
 		@RequestParam(defaultValue = "0") int page,
-		@RequestParam(defaultValue = "10") int pageSize,
-		@RequestParam(required = false) Long userId
+		@RequestParam(defaultValue = "10") int pageSize
 	) {
+		Long userId = 1L;
 		List<ProductDTO> products = productsService.getProducts(categoryId, page, pageSize, userId);
 		return new BaseResponse<>(products, HttpStatus.OK, "요청 성공");
-	}
-
-	@GetMapping("/categories/{category_id}")
-	@Transactional(readOnly = true)
-	public BaseResponse<List<ProductCategoryDTO>> getProductsByCategory(
-		@PathVariable(name = "category_id") Long categoryId,
-		@RequestParam(defaultValue = "0") int page,
-		@RequestParam(defaultValue = "10") int pageSize,
-		@RequestParam(required = false) Long userId
-	) {
-		List<ProductCategoryDTO> categoryProducts = productsCategoryService.getCategoryProducts(categoryId, page,
-			pageSize, userId);
-		return new BaseResponse<>(categoryProducts, HttpStatus.OK, "요청 성공");
 	}
 
 	@GetMapping("/{product_code}")
