@@ -1,6 +1,7 @@
 package com.freeder.buclserver.app.products;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -117,15 +118,27 @@ public class ProductsController {
 		@RequestParam(defaultValue = "5") int pageSize,
 		@RequestParam(defaultValue = "preview") String display
 	) {
+		try {
+			int adjustedPageSize = "fullview".equals(display) ? 20 : pageSize;
+			int startItemIndex = page * adjustedPageSize;
 
-		int adjustedPageSize = "fullview".equals(display) ? 20 : pageSize;
-		int startItemIndex = page * adjustedPageSize;
+			List<List<ReviewPhotoDTO>> reviewPhotosList = productsReviewPhotoService.getProductReviewPhotos(productCode,
+				startItemIndex,
+				adjustedPageSize);
 
-		List<ReviewPhotoDTO> reviewPhotos = productsReviewPhotoService.getProductReviewPhotos(productCode,
-			startItemIndex,
-			adjustedPageSize);
+			List<ReviewPhotoDTO> reviewPhotos = reviewPhotosList.stream()
+				.flatMap(List::stream)
+				.collect(Collectors.toList());
 
-		return new BaseResponse<>(reviewPhotos, HttpStatus.OK, "리뷰 사진 조회 성공");
+			log.info("리뷰 사진 조회 성공 - productCode: {}, page: {}, pageSize: {}", productCode, page, pageSize);
+			return new BaseResponse<>(reviewPhotos, HttpStatus.OK, "리뷰 사진 조회 성공");
+		} catch (BaseException e) {
+			log.error("리뷰 사진 조회 실패 - productCode: {}, page: {}, pageSize: {}", productCode, page, pageSize, e);
+			throw e;
+		} catch (Exception e) {
+			log.error("리뷰 사진 조회 실패 - productCode: {}, page: {}, pageSize: {}", productCode, page, pageSize, e);
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "리뷰 사진 조회 - 서버 에러");
+		}
 	}
 
 	@PostMapping("/{product_code}/review")

@@ -1,5 +1,6 @@
 package com.freeder.buclserver.app.products;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,15 +33,15 @@ public class ProductsReviewPhotoService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<ReviewPhotoDTO> getProductReviewPhotos(Long productCode, int page, int pageSize) {
+	public List<List<ReviewPhotoDTO>> getProductReviewPhotos(Long productCode, int page, int pageSize) {
 		try {
 			Pageable pageable = PageRequest.of(page, pageSize);
 			Page<ProductReview> reviewPage = productReviewRepository.findByProductProductCodeWithConditions(productCode,
 					pageable)
 				.orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND, 404, "해당 리뷰사진을 찾을 수 없음"));
 
-			List<ReviewPhotoDTO> reviewPhotos = reviewPage.getContent().stream()
-				.map(this::convertToPhotoDTO)
+			List<List<ReviewPhotoDTO>> reviewPhotos = reviewPage.getContent().stream()
+				.map(review -> convertToPhotoDTO(review))
 				.collect(Collectors.toList());
 
 			log.info("상품 리뷰 사진 조회 성공 - productCode: {}, page: {}, pageSize: {}", productCode, page, pageSize);
@@ -54,11 +55,17 @@ public class ProductsReviewPhotoService {
 		}
 	}
 
-	private ReviewPhotoDTO convertToPhotoDTO(ProductReview review) {
+	private List<ReviewPhotoDTO> convertToPhotoDTO(ProductReview review) {
 		try {
 			List<String> imageList = imageParsing.getImageList(review.getImagePath());
-			log.info("상품 리뷰 사진 DTO 변환 성공 - reviewId: {}", review.getId());
-			return new ReviewPhotoDTO(imageList);
+			List<ReviewPhotoDTO> result = new ArrayList<>();
+
+			for (String imagePath : imageList) {
+				log.info("상품 리뷰 사진 DTO 변환 성공 - reviewId: {}", review.getId());
+				result.add(new ReviewPhotoDTO(imagePath));
+			}
+
+			return result;
 		} catch (Exception e) {
 			log.error("상품 리뷰 사진 DTO 변환 실패 - reviewId: {}", review.getId(), e);
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 리뷰 사진 DTO 변환 - 서버 에러");
