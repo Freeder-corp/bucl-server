@@ -22,8 +22,9 @@ import com.freeder.buclserver.global.exception.usershippingaddress.SingleAddress
 
 import lombok.RequiredArgsConstructor;
 
-@Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
+@Service
 public class AddressService {
 
 	private final UserRepository userRepository;
@@ -72,7 +73,7 @@ public class AddressService {
 		}
 
 		if (userShippingAddressRepository.countByUser(user) == 1L) {
-			if (request.isDefaultAddress() == false) {
+			if (!request.isDefaultAddress()) {
 				throw new SingleAddressDefaultRegisterException();
 			}
 		}
@@ -99,6 +100,10 @@ public class AddressService {
 		UserShippingAddress deleteUserAddress = userShippingAddressRepository.findById(addressId)
 			.orElseThrow(() -> new AddressIdNotFoundException(addressId));
 
+		if (deleteUserAddress.getUser().getId() != userId) {
+			throw new AddressUserNotMatchException();
+		}
+
 		userShippingAddressRepository.deleteById(addressId);
 
 		if (deleteUserAddress.isDefaultAddress()) {
@@ -124,17 +129,17 @@ public class AddressService {
 			throw new UserIdNotFoundException(userId);
 		}
 
-		UserShippingAddress registerAddress = userShippingAddressRepository.findById(addressId)
+		UserShippingAddress userAddress = userShippingAddressRepository.findById(addressId)
 			.orElseThrow(() -> new AddressIdNotFoundException(addressId));
 
-		if (registerAddress.getUser().getId() != userId) {
+		if (userAddress.getUser().getId() != userId) {
 			throw new AddressUserNotMatchException();
 		}
 
 		clearExistingDefaultAddress(userId);
-		registerAddress.registerDefaultAddress();
+		userAddress.registerDefaultAddress();
 
-		return UserShippingAddressDto.from(registerAddress);
+		return UserShippingAddressDto.from(userAddress);
 	}
 
 	private void clearExistingDefaultAddress(Long userId) {

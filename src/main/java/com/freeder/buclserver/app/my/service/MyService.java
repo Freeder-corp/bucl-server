@@ -27,7 +27,7 @@ import com.freeder.buclserver.domain.user.dto.response.MyProfileResponse;
 import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.domain.user.repository.UserRepository;
 import com.freeder.buclserver.domain.user.util.ProfileImage;
-import com.freeder.buclserver.global.exception.auth.WithdrawalBadRequestException;
+import com.freeder.buclserver.global.exception.auth.LogoutUserWithdrawalException;
 import com.freeder.buclserver.global.exception.consumerorder.ConsumerUserNotMatchException;
 import com.freeder.buclserver.global.exception.consumerorder.OrderIdNotFoundException;
 import com.freeder.buclserver.global.exception.user.UserIdNotFoundException;
@@ -74,7 +74,7 @@ public class MyService {
 			.orElseThrow(() -> new UserIdNotFoundException(userId));
 
 		if (user.getRefreshToken() == null) {
-			throw new WithdrawalBadRequestException();
+			throw new LogoutUserWithdrawalException();
 		}
 
 		user.withdrawal();
