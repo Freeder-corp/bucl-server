@@ -85,9 +85,11 @@ public class MyService {
 		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
 			.orElseThrow(() -> new UserIdNotFoundException(userId));
 
-		return rewardRepository.findFirstByUserOrderByCreatedAtDesc(user)
-			.map(MyProfileResponse::from)
-			.orElseGet(() -> getMyProfileWithoutReward(user.getProfilePath(), user.getNickname()));
+		List<Integer> rewardSum = rewardRepository.findUserRewardSum(userId, PageRequest.of(0, 1));
+
+		return rewardSum.isEmpty()
+			? MyProfileResponse.of(user.getProfilePath(), user.getNickname(), 0)
+			: MyProfileResponse.of(user.getProfilePath(), user.getNickname(), rewardSum.get(0));
 	}
 
 	@Transactional
@@ -148,10 +150,6 @@ public class MyService {
 				return MyOrderDetailResponse.from(consumerOrder, shippingAddress, payment, productOrderQty);
 			})
 			.orElseGet(() -> MyOrderDetailResponse.from(consumerOrder, null, payment, productOrderQty));
-	}
-
-	private MyProfileResponse getMyProfileWithoutReward(String profilePath, String nickname) {
-		return MyProfileResponse.of(profilePath, nickname, 0);
 	}
 
 	private MyOrderResponse getMyOrderInfo(ConsumerOrder consumerOrder) {
