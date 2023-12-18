@@ -27,7 +27,7 @@ import java.util.List;
 public class OrdersService {
     private final ConsumerOrderRepository consumerOrderRepository;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public BaseResponse<?> getOrdersDocument(Long productId) {
 
         List<ConsumerOrder> orders = consumerOrderRepository.findByProduct_Id(productId).orElseThrow(() ->
@@ -67,11 +67,10 @@ public class OrdersService {
                     new BaseException(HttpStatus.BAD_REQUEST, 400, "활성화된 배송정보가 없습니다.")
             );
 
-            ShippingInfo shippingInfo = shipping.getShippingInfo();
 
             shipping.setShippingStatus(ShippingStatus.IN_DELIVERY);
             shipping.setTrackingNum(i.getTrakingNum());
-//            shippingInfo.setShippingCoName(i.getShippingCoName());   //TODO: 배송업체명 처리방법..?
+            shipping.setShippingCoName(i.getShippingCoName());
         }
         return new BaseResponse<>(null,HttpStatus.OK,"요청 성공");
     }
@@ -90,6 +89,8 @@ public class OrdersService {
                     .orElseThrow(() ->
                             new BaseException(HttpStatus.BAD_REQUEST, 400, "활성화된 배송이 없습니다.")
                     );
+
+            shipping.setShippingStatus(ShippingStatus.PROCESSING);
 
             ShippingAddress shippingAddress = shipping.getShippingAddress();
             ShippingInfo shippingInfo = shipping.getShippingInfo();

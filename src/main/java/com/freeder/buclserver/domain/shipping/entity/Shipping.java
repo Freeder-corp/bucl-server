@@ -36,6 +36,9 @@ public class Shipping extends TimestampMixin {
 	@OneToOne(mappedBy = "shipping")
 	private ShippingAddress shippingAddress;
 
+	@Column(name = "shipping_co_name")
+	private String shippingCoName;
+
 	@Column(name = "shipping_num", unique = true)
 	private String shippingNum;
 
