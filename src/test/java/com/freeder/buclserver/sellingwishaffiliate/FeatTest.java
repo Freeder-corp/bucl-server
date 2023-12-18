@@ -55,7 +55,7 @@ public class FeatTest {
 
     //    @Test
     void sellingTest() {
-        Product product = productRepository.findByIdForAffiliate(1L);
+        Optional<Product> product = productRepository.findByIdForAffiliate(1L);
     }
 
     //    @Test

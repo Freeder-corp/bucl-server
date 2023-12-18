@@ -24,7 +24,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 	@Query("SELECT p " +
 			"FROM Product p " +
 			"WHERE p.id = :id")
-	Product findByIdForAffiliate(@Param("id") Long id);
+	Optional<Product> findByIdForAffiliate(@Param("id") Long id);
 
 
 }

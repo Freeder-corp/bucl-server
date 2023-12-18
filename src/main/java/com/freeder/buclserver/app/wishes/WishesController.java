@@ -17,7 +17,7 @@ import java.util.List;
 public class WishesController {
     private final WishesService service;
 
-    /*@GetMapping()
+    @GetMapping()
     public BaseResponse<?> getWishesList(
             Authentication authentication,
             @RequestParam(defaultValue = "1") int page,
@@ -40,5 +40,5 @@ public class WishesController {
             Authentication authentication
     ) {
         return service.deleteWish(authentication, productCode);
-    }*/
+    }
 }

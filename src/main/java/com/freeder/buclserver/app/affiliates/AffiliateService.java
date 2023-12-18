@@ -22,17 +22,19 @@ public class AffiliateService {
     private final ProductRepository productRepository;
     private final ImageParsing imageParsing;
     private final String FRONTURL = "https://bucl.co.kr/";   //TODO: 프론트주소도 config로 뺄지? 일단 하드코딩
-//    @Value("bucl.affiliateEXP")                            //TODO: 정책적으로 판매링크 만료시간 정착요망
+    //    @Value("bucl.affiliateEXP")                            //TODO: 정책적으로 판매링크 만료시간 정착요망
     private Long expireTime = -1L;
 
-    /*public BaseResponse<?> getSellingPage(
+    public BaseResponse<?> getSellingPage(
             Authentication authentication,
             AffiliateDto affiliateDto
     ) throws Exception {
 
         return new BaseResponse<>(
                 convertSellingDto(
-                        productRepository.findByIdForAffiliate(affiliateDto.getProductId()),
+                        productRepository.findByIdForAffiliate(affiliateDto.getProductId()).orElseThrow(() ->
+                                new BaseException(HttpStatus.BAD_REQUEST,400,"잘못된productID")
+                        ),
                         createAffiliateUrl(authentication, affiliateDto)
                 ),
                 HttpStatus.OK,
@@ -80,7 +82,6 @@ public class AffiliateService {
                         DateUtils.nowDate())
         );
     }
-*/
 
     private String[] validUrl(String affiliateEncrypt) {
         try {

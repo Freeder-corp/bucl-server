@@ -37,7 +37,7 @@ public class WishesService {
     private final ProductsCategoryService productsCategoryService;
     private final ImageParsing imageParsing;
 
-    /*public BaseResponse<?> getWishesList(
+    public BaseResponse<?> getWishesList(
             Authentication authentication,
             int page,
             int pageSize
@@ -145,7 +145,7 @@ public class WishesService {
                         ).getId()
                 )
                 .build();
-    }*/
+    }
 
     private Pageable setPaging(
             int page,
