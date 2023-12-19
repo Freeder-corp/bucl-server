@@ -53,9 +53,10 @@ public class FeatTest {
     @Autowired
     ConsumerOrderRepository consumerOrderRepository;
 
-    //    @Test
+    @Test
     void sellingTest() {
-        Optional<Product> product = productRepository.findByIdForAffiliate(1L);
+        Product product = productRepository.findByIdForAffiliate(1L).get();
+        System.out.println(product);
     }
 
     //    @Test
@@ -88,7 +89,7 @@ public class FeatTest {
         System.out.println(groupOrderRepository.findByProduct_Id(1L));
     }
 
-//    @Test
+    //    @Test
     @Transactional
     void excelupdate(List<TrackingNumDto> trackingNumDtos) {
 //        List<TrackingNumDto> trackingNumDtos = new ArrayList<>();
@@ -107,7 +108,7 @@ public class FeatTest {
         }
     }
 
-//    @Test
+    //    @Test
     @Transactional(readOnly = true)
     void excelTest() {
         Product product = productRepository.findById(1L).orElseThrow(() ->

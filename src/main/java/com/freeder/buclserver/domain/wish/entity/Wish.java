@@ -12,10 +12,10 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
+//@Table(name = "wish", indexes = @Index(name = "idx_wish_userId",columnList = "user_id"))
 @Table(name = "wish")
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class Wish extends TimestampMixin {
 	@Id
 	@Column(name = "wish_id")
