@@ -1,7 +1,6 @@
 package com.freeder.buclserver.app.products;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -17,7 +16,7 @@ public class ProductsReviewScheduler {
 	@Scheduled(cron = "0 0 4 * * ?")
 	public void cleanupOldReviews() {
 		try {
-			LocalDateTime threeMonthsAgo = LocalDateTime.now().minus(3, ChronoUnit.MONTHS);
+			LocalDateTime threeMonthsAgo = LocalDateTime.now().minusMonths(3);
 			productsReviewService.cleanupOldReviews(threeMonthsAgo);
 		} catch (Exception e) {
 			e.printStackTrace();
