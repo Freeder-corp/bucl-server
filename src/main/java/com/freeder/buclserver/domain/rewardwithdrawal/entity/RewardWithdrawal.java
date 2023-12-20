@@ -18,12 +18,16 @@ import javax.persistence.Table;
 import com.freeder.buclserver.domain.rewardwithdrawal.vo.WithdrawalStatus;
 import com.freeder.buclserver.domain.user.entity.User;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "reward_withdrawal")
 public class RewardWithdrawal {
 	@Id
