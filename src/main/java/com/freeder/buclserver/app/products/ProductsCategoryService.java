@@ -38,13 +38,23 @@ public class ProductsCategoryService {
 	public List<ProductCategoryDTO> getCategoryProducts(Long categoryId, int page, int pageSize, Long userId) {
 		try {
 			Pageable pageable = PageRequest.of(page, pageSize);
-			Page<Product> categoryProductsPage = productCategoryRepository.findProductsByCategory(categoryId, pageable);
+			Page<Product> categoryProductsPage = productCategoryRepository.findProductsByCategory(categoryId, pageable)
+				.orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND, 404, "해당 카테고리를 찾을 수 없음"));
+
 			List<ProductCategoryDTO> categoryProducts = categoryProductsPage.getContent().stream()
 				.map(product -> convertToCategoryDTO(product, userId))
 				.collect(Collectors.toList());
 
 			log.info("카테고리 제품 조회 성공 - categoryId: {}, page: {}, pageSize: {}", categoryId, page, pageSize);
 			return categoryProducts;
+		} catch (BaseException e) {
+			throw new BaseException(e.getHttpStatus(), e.getErrorCode(), e.getErrorMessage());
+		} catch (NullPointerException e) {
+			log.error("Null Point Access 에러 발생", e);
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "Null Point Access 에러 발생");
+		} catch (IllegalArgumentException e) {
+			log.error("IllegalArgumentException", e);
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "IllegalArgumentException 에러 발생");
 		} catch (Exception e) {
 			log.error("카테고리 제품 조회 실패 - categoryId: {}, page: {}, pageSize: {}", categoryId, page, pageSize, e);
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "카테고리 제품 조회 - 서버 에러");
@@ -52,29 +62,34 @@ public class ProductsCategoryService {
 	}
 
 	public ProductCategoryDTO convertToCategoryDTO(Product product, Long userId) {
-		List<ProductReview> reviews = product.getReviews();
-		int reviewCount = reviews.size();
-		float averageRating = calculateAverageRating(reviews);
-		String thumbnailUrl = imageParsing.getThumbnailUrl(product.getImagePath());
-		averageRating = Math.round(averageRating * 10.0f) / 10.0f;
+		try {
+			List<ProductReview> reviews = product.getReviews();
+			int reviewCount = reviews.size();
+			float averageRating = calculateAverageRating(reviews);
+			String thumbnailUrl = imageParsing.getThumbnailUrl(product.getImagePath());
+			averageRating = Math.round(averageRating * 10.0f) / 10.0f;
 
-		boolean wished = false;
+			boolean wished = false;
 
-		if (userId != null) {
-			wished = wishRepository.existsByUser_IdAndProduct_IdAndDeletedAtIsNull(userId, product.getId());
+			if (userId != null) {
+				wished = wishRepository.existsByUser_IdAndProduct_IdAndDeletedAtIsNull(userId, product.getId());
+			}
+			return new ProductCategoryDTO(
+				product.getProductCode(),
+				product.getName(),
+				thumbnailUrl,
+				product.getSalePrice(),
+				product.getConsumerPrice(),
+				Math.round(product.getConsumerPrice() * product.getConsumerRewardRate()),
+				product.getDiscountRate(),
+				reviewCount,
+				averageRating,
+				wished
+			);
+		} catch (Exception e) {
+			log.error("카테고리 DTO 변환 실패", e);
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "카테고리 DTO 변환 실패");
 		}
-		return new ProductCategoryDTO(
-			product.getProductCode(),
-			product.getName(),
-			thumbnailUrl,
-			product.getSalePrice(),
-			product.getConsumerPrice(),
-			Math.round(product.getConsumerPrice() * product.getConsumerRewardRate()),
-			product.getDiscountRate(),
-			reviewCount,
-			averageRating,
-			wished
-		);
 	}
 
 	public float calculateAverageRating(List<ProductReview> reviews) {
@@ -91,6 +106,9 @@ public class ProductsCategoryService {
 			float averageRating = totalRating / reviews.size();
 
 			return Math.round(averageRating * 10.0f) / 10.0f;
+		} catch (ArithmeticException e) {
+			log.error("별점 평균 계산 중 산술 연산 오류 발생", e);
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "별점 평균 계산 - 산술 연산 오류");
 		} catch (Exception e) {
 			log.error("별점 평균 계산 실패", e);
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "별점 평균 계산 - 서버 에러");
