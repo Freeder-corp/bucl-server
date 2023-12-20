@@ -122,7 +122,7 @@ public class MyService {
 
 		Pageable pageable = PageRequest.of(page - 1, pageSize);
 
-		return consumerOrderRepository.findAllByConsumerOrderByCreatedAtDesc(user, pageable).getContent().stream()
+		return consumerOrderRepository.findAllByConsumerOrderByCreatedAtDesc(user, pageable).stream()
 			.filter(consumerOrder -> consumerOrder.getConsumer().getId() == userId)
 			.map(this::getMyOrderInfo)
 			.collect(Collectors.toUnmodifiableList());
