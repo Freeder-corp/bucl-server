@@ -41,34 +41,24 @@ public class RewardsController {
 	public BaseResponse<Integer> getUserRewards(
 		// @AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		try {
-			Long userId = 11L;
-			int currentRewardAmount = rewardsService.getUserRewardCrntAmount(userId);
+		Long userId = 1L;
+		int currentRewardAmount = rewardsService.getUserRewardCrntAmount(userId);
 
-			return new BaseResponse<>(currentRewardAmount, HttpStatus.OK, "리워드 조회 성공");
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new BaseResponse<>(null, HttpStatus.INTERNAL_SERVER_ERROR, "리워드 조회 실패");
-		}
+		return new BaseResponse<>(currentRewardAmount, HttpStatus.OK, "리워드 조회 성공");
 	}
 
-	@GetMapping("histories")
+	@GetMapping("")
 	@Transactional(readOnly = true)
 	public BaseResponse<List<RewardDto>> getRewardHistory(
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "5") int pageSize
+		// @AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		try {
-			// Long userId = getUserIdFromUserDetails(userDetails);
-			Long userId = 11L;
-			List<RewardDto> rewardHistory = rewardsService.getRewardHistoryPageable(userId, page, pageSize);
+		// Long userId = getUserIdFromUserDetails(userDetails);
+		Long userId = 1L;
+		List<RewardDto> rewardHistory = rewardsService.getRewardHistoryPageable(userId, page, pageSize);
 
-			return new BaseResponse<>(rewardHistory, HttpStatus.OK, "적립금 내역 조회 성공");
-		} catch (IllegalArgumentException e) {
-			return new BaseResponse<>(null, HttpStatus.BAD_REQUEST, "유효하지 않은 유형");
-		} catch (Exception e) {
-			return new BaseResponse<>(null, HttpStatus.INTERNAL_SERVER_ERROR, "적립금 내역 조회 실패");
-		}
+		return new BaseResponse<>(rewardHistory, HttpStatus.OK, "적립금 내역 조회 성공");
 	}
 
 	private Long getUserIdFromUserDetails(CustomUserDetails userDetails) {
@@ -81,23 +71,18 @@ public class RewardsController {
 		// @AuthenticationPrincipal CustomUserDetails userDetails,
 		@RequestBody WithdrawalRequestDto withdrawalRequestDto
 	) {
-		try {
-			// Long userId = getUserIdFromUserDetails(userDetails);
-			Long userId = 11L;
-			rewardsWithdrawalService.withdrawReward(
-				userId,
-				withdrawalRequestDto.getBankCodeStd(),
-				withdrawalRequestDto.getBankName(),
-				withdrawalRequestDto.getWithdrawalAmount(),
-				withdrawalRequestDto.getAccountNum(),
-				withdrawalRequestDto.getAccountHolderName()
-			);
+		// Long userId = getUserIdFromUserDetails(userDetails);
+		Long userId = 1L;
+		rewardsWithdrawalService.withdrawReward(
+			userId,
+			withdrawalRequestDto.getBankCodeStd(),
+			withdrawalRequestDto.getBankName(),
+			withdrawalRequestDto.getWithdrawalAmount(),
+			withdrawalRequestDto.getAccountNum(),
+			withdrawalRequestDto.getAccountHolderName()
+		);
 
-			return new BaseResponse<>("Success", HttpStatus.OK, "리워드 인출 성공");
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new BaseResponse<>(null, HttpStatus.INTERNAL_SERVER_ERROR, "리워드 인출 실패");
-		}
+		return new BaseResponse<>("Success", HttpStatus.OK, "리워드 인출 성공");
 	}
 
 	@GetMapping("/withdrawals")
@@ -105,17 +90,13 @@ public class RewardsController {
 	public BaseResponse<List<WithdrawalHistoryDto>> getWithdrawalHistory(
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "10") int pageSize
+		// @AuthenticationPrincipal CustomUserDetails userDetails,
 	) {
-		try {
-			// Long userId = getUserIdFromUserDetails(userDetails);
-			Long userId = 11L;
-			List<WithdrawalHistoryDto> withdrawalHistory = rewardsWithdrawalService.getWithdrawalHistory(userId, page,
-				pageSize);
+		// Long userId = getUserIdFromUserDetails(userDetails);
+		Long userId = 1L;
+		List<WithdrawalHistoryDto> withdrawalHistory = rewardsWithdrawalService.getWithdrawalHistory(userId, page,
+			pageSize);
 
-			return new BaseResponse<>(withdrawalHistory, HttpStatus.OK, "인출내역 조회 성공");
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new BaseResponse<>(null, HttpStatus.INTERNAL_SERVER_ERROR, "인출내역 조회 실패");
-		}
+		return new BaseResponse<>(withdrawalHistory, HttpStatus.OK, "인출내역 조회 성공");
 	}
 }
