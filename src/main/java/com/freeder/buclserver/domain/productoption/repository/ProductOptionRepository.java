@@ -13,9 +13,10 @@ import com.freeder.buclserver.domain.productoption.entity.ProductOption;
 @Repository
 public interface ProductOptionRepository extends JpaRepository<ProductOption, Long> {
 
-	@Query("SELECT po FROM ProductOption po "
-		+ "WHERE po.product.productCode = :productCode " + "AND po.product.deletedAt IS NULL "
-		+ "AND po.product.isExposed = true "
-		+ "AND po.product.productStatus = com.freeder.buclserver.domain.product.vo.ProductStatus.ACTIVE")
+	@Query("SELECT po FROM ProductOption po " +
+		"WHERE po.product.productCode = :productCode " +
+		"AND po.product.deletedAt IS NULL " +
+		"AND po.product.isExposed = true " +
+		"AND po.product.productStatus = com.freeder.buclserver.domain.product.vo.ProductStatus.ACTIVE")
 	Optional<List<ProductOption>> findByProductProductCodeWithConditions(@Param("productCode") Long productCode);
 }

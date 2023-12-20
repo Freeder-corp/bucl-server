@@ -23,11 +23,13 @@ public interface ProductReviewRepository extends JpaRepository<ProductReview, Lo
 		+ "AND pr.product.productStatus = com.freeder.buclserver.domain.product.vo.ProductStatus.ACTIVE")
 	long countByProductCodeFkWithConditions(@Param("productCode") Long productCode);
 
-	@Query("SELECT pr FROM ProductReview pr "
-		+ "WHERE pr.product.productCode = :productCode " + "AND pr.product.deletedAt IS NULL "
-		+ "AND pr.deletedAt IS NULL " + "AND pr.product.isExposed = true "
-		+ "AND pr.product.productStatus = com.freeder.buclserver.domain.product.vo.ProductStatus.ACTIVE "
-		+ "ORDER BY pr.starRate DESC, pr.createdAt DESC")
+	@Query("SELECT pr FROM ProductReview pr " +
+		"WHERE pr.product.productCode = :productCode " +
+		"AND pr.product.deletedAt IS NULL " +
+		"AND pr.deletedAt IS NULL " +
+		"AND pr.product.isExposed = true " +
+		"AND pr.product.productStatus = com.freeder.buclserver.domain.product.vo.ProductStatus.ACTIVE " +
+		"ORDER BY pr.starRate DESC, pr.createdAt DESC")
 	Optional<Page<ProductReview>> findByProductProductCodeWithConditions(
 		@Param("productCode") Long productCode,
 		Pageable pageable
@@ -49,11 +51,6 @@ public interface ProductReviewRepository extends JpaRepository<ProductReview, Lo
 		@Param("productCode") Long productCode,
 		@Param("userId") Long userId
 	);
-
-	// @Modifying
-	// @Transactional
-	// @Query("DELETE FROM ProductReview pr WHERE pr.deletedAt IS NOT NULL AND pr.deletedAt < :date")
-	// void deleteByDeletedAtBefore(@Param("date") LocalDateTime date);
 
 	@Modifying
 	@Transactional

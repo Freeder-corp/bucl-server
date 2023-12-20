@@ -23,7 +23,7 @@ public class ProductsReviewScheduler {
 	@Scheduled(cron = "0 0 4 * * ?")
 	public void cleanupOldReviews() {
 		try {
-			LocalDateTime threeMonthsAgo = LocalDateTime.now().minus(3, ChronoUnit.MONTHS);
+			LocalDateTime threeMonthsAgo = LocalDateTime.now().minusMonths(3);
 			productsReviewService.cleanupOldReviews(threeMonthsAgo);
 		} catch (Exception e) {
 			log.error("리뷰 데이터 삭제 중 오류 발생", e);

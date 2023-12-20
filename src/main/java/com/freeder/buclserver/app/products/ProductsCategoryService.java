@@ -41,6 +41,10 @@ public class ProductsCategoryService {
 			Page<Product> categoryProductsPage = productCategoryRepository.findProductsByCategory(categoryId, pageable)
 				.orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND, 404, "해당 카테고리를 찾을 수 없음"));
 
+			if (categoryProductsPage == null) {
+				log.error("카테고리 목록이 존재하지 않습니다.");
+				throw new BaseException(HttpStatus.NOT_FOUND, 404, "카테고리 목록이 존재하지 않습니다.");
+			}
 			List<ProductCategoryDTO> categoryProducts = categoryProductsPage.getContent().stream()
 				.map(product -> convertToCategoryDTO(product, userId))
 				.collect(Collectors.toList());
@@ -101,6 +105,10 @@ public class ProductsCategoryService {
 			float totalRating = 0.0f;
 			for (ProductReview review : reviews) {
 				totalRating += review.getStarRate().getValue();
+			}
+
+			if (reviews.size() == 0) {
+				throw new ArithmeticException("별점 평균을 계산할 리뷰가 없습니다.");
 			}
 
 			float averageRating = totalRating / reviews.size();
