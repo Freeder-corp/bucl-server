@@ -56,6 +56,9 @@ public interface ProductReviewRepository extends JpaRepository<ProductReview, Lo
 	@Transactional
 	@Query("SELECT pr FROM ProductReview pr WHERE pr.deletedAt IS NOT NULL AND pr.deletedAt < :date")
 	List<ProductReview> findByDeletedAtBefore(@Param("date") LocalDateTime date);
+
+	// @Query("DELETE FROM ProductReview pr WHERE pr.deletedAt IS NOT NULL AND pr.deletedAt < :date")
+	// void deleteByDeletedAtBefore(@Param("date") LocalDateTime date);
 }
 
 
