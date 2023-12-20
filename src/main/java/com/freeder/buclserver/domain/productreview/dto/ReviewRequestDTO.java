@@ -12,6 +12,4 @@ import lombok.NoArgsConstructor;
 public class ReviewRequestDTO {
 	private String reviewContent;
 	private StarRate starRate;
-	private String imagePath;
-
 }
