@@ -1,13 +1,16 @@
 package com.freeder.buclserver.domain.productreview.repository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.freeder.buclserver.domain.productreview.entity.ProductReview;
 
@@ -50,6 +53,11 @@ public interface ProductReviewRepository extends JpaRepository<ProductReview, Lo
 		@Param("productCode") Long productCode,
 		@Param("userId") Long userId
 	);
+
+	@Modifying
+	@Transactional
+	@Query("DELETE FROM ProductReview pr WHERE pr.deletedAt IS NOT NULL AND pr.deletedAt < :date")
+	void deleteByDeletedAtBefore(@Param("date") LocalDateTime date);
 }
 
 

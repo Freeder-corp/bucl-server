@@ -208,6 +208,17 @@ public class ProductsReviewService {
 	}
 
 	@Transactional
+	public void cleanupOldReviews(LocalDateTime date) {
+		try {
+			productReviewRepository.deleteByDeletedAtBefore(date);
+			log.info("3개월 이상된 리뷰 데이터 삭제 완료");
+		} catch (Exception e) {
+			log.error("리뷰 데이터 삭제 중 오류 발생", e);
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "리뷰 데이터 삭제 - 서버 에러");
+		}
+	}
+
+	@Transactional
 	public List<String> uploadImagesToS3(List<MultipartFile> images) {
 		List<String> s3ImageUrls = new ArrayList<>();
 
