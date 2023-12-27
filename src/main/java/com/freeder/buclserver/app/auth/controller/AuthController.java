@@ -4,6 +4,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,8 +36,11 @@ public class AuthController {
 	private final KakaoApiClient kakaoApiClient;
 	private final MyService myService;
 
-	private static final int COOKIE_MAX_AGE_ACCESS_TOKEN = 60 * 60 * 1;
-	private static final int COOKIE_MAX_AGE_REFRESH_TOKEN = 60 * 60 * 24 * 30;
+	@Value("${bucl.service.auth.COOKIE-MAX-AGE-ACCESS-TOKEN}")
+	private int COOKIE_MAX_AGE_ACCESS_TOKEN;
+
+	@Value("${bucl.service.auth.COOKIE-MAX-AGE-REFRESH_TOKEN}")
+	private int COOKIE_MAX_AGE_REFRESH_TOKEN;
 
 	@PostMapping("/login/kakao")
 	public BaseResponse kakaoLogin(@Valid @RequestBody KakaoLoginRequest request, HttpServletResponse response) {
