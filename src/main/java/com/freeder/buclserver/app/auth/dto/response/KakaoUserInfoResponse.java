@@ -50,7 +50,7 @@ public class KakaoUserInfoResponse {
 			JoinType.KAKAO,
 			UserState.ACTIVE,
 			UserGrade.BASIC,
-			Gender.parseGenderEnum(this.kakaoAccount.gender),
+			Gender.MALE,
 			null,
 			this.id,
 			null,
