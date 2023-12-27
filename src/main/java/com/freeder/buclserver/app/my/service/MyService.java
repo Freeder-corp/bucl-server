@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,16 +28,19 @@ import com.freeder.buclserver.domain.user.dto.response.MyProfileResponse;
 import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.domain.user.repository.UserRepository;
 import com.freeder.buclserver.domain.user.util.ProfileImage;
+import com.freeder.buclserver.global.exception.BaseException;
 import com.freeder.buclserver.global.exception.auth.LogoutUserWithdrawalException;
 import com.freeder.buclserver.global.exception.consumerorder.ConsumerUserNotMatchException;
 import com.freeder.buclserver.global.exception.consumerorder.OrderIdNotFoundException;
 import com.freeder.buclserver.global.exception.user.UserIdNotFoundException;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
+@Slf4j
 public class MyService {
 
 	private final UserRepository userRepository;
@@ -85,71 +89,107 @@ public class MyService {
 		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
 			.orElseThrow(() -> new UserIdNotFoundException(userId));
 
-		List<Integer> rewardSum = rewardRepository.findUserRewardSum(userId, PageRequest.of(0, 1));
-
-		return rewardSum.isEmpty()
-			? MyProfileResponse.of(user.getProfilePath(), user.getNickname(), 0)
-			: MyProfileResponse.of(user.getProfilePath(), user.getNickname(), rewardSum.get(0));
+		try {
+			List<Integer> rewardSum = rewardRepository.findUserRewardSum(userId, PageRequest.of(0, 1));
+			return rewardSum.isEmpty()
+				? MyProfileResponse.of(user.getProfilePath(), user.getNickname(), 0)
+				: MyProfileResponse.of(user.getProfilePath(), user.getNickname(), rewardSum.get(0));
+		} catch (Exception e) {
+			log.error(String.format("{ \"type\": \"error\", \"msg\": %s }", e.getMessage()));
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR.value(), "");
+		}
 	}
 
 	@Transactional
 	public void updateProfileImageAsDefault(Long userId) {
-		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
-			.orElseThrow(() -> new UserIdNotFoundException(userId));
+		try {
+			User user = userRepository.findByIdAndDeletedAtIsNull(userId)
+				.orElseThrow(() -> new UserIdNotFoundException(userId));
 
-		profileS3Service.deleteFile(user.getProfilePath());
+			profileS3Service.deleteFile(user.getProfilePath());
 
-		user.updateProfilePathAsDefault();
+			user.updateProfilePathAsDefault();
+		} catch (BaseException e) {
+			throw e;
+		} catch (Exception e) {
+			log.error(String.format("{ \"type\": \"error\", \"msg\": %s }", e.getMessage()));
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR.value(),
+				e.getMessage());
+		}
 	}
 
 	@Transactional
 	public void updateProfileImage(Long userId, MultipartFile profileImageFile) {
-		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
-			.orElseThrow(() -> new UserIdNotFoundException(userId));
+		try {
+			User user = userRepository.findByIdAndDeletedAtIsNull(userId)
+				.orElseThrow(() -> new UserIdNotFoundException(userId));
 
-		if (!Objects.equals(user.getProfilePath(), ProfileImage.defaultImageUrl)) {
-			profileS3Service.deleteFile(user.getProfilePath());
+			if (!Objects.equals(user.getProfilePath(), ProfileImage.defaultImageUrl)) {
+				profileS3Service.deleteFile(user.getProfilePath());
+			}
+
+			String uploadFileUrl = profileS3Service.uploadFile(profileImageFile);
+			user.updateProfilePath(uploadFileUrl);
+		} catch (BaseException e) {
+			throw e;
+		} catch (Exception e) {
+			log.error(String.format("{ \"type\": \"error\", \"msg\": %s }", e.getMessage()));
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR.value(),
+				e.getMessage());
 		}
-
-		String uploadFileUrl = profileS3Service.uploadFile(profileImageFile);
-		user.updateProfilePath(uploadFileUrl);
 	}
 
 	@Transactional(readOnly = true)
 	public List<MyOrderResponse> getMyOrders(Long userId, int page, int pageSize) {
-		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
-			.orElseThrow(() -> new UserIdNotFoundException(userId));
+		try {
+			User user = userRepository.findByIdAndDeletedAtIsNull(userId)
+				.orElseThrow(() -> new UserIdNotFoundException(userId));
 
-		Pageable pageable = PageRequest.of(page - 1, pageSize);
+			Pageable pageable = PageRequest.of(page - 1, pageSize);
 
-		return consumerOrderRepository.findAllByConsumerOrderByCreatedAtDesc(user, pageable).stream()
-			.filter(consumerOrder -> consumerOrder.getConsumer().getId() == userId)
-			.map(this::getMyOrderInfo)
-			.collect(Collectors.toUnmodifiableList());
+			return consumerOrderRepository.findAllByConsumerOrderByCreatedAtDesc(user, pageable).stream()
+				.filter(consumerOrder -> consumerOrder.getConsumer().getId() == userId)
+				.map(this::getMyOrderInfo)
+				.collect(Collectors.toUnmodifiableList());
+		} catch (BaseException e) {
+			throw e;
+		} catch (Exception e) {
+			log.error(String.format("{ \"type\": \"error\", \"msg\": %s }", e.getMessage()));
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR.value(),
+				e.getMessage());
+		}
 	}
 
 	@Transactional(readOnly = true)
 	public MyOrderDetailResponse getMyOrderDetail(Long userId, Long consumerOrderId) {
-		if (!userRepository.existsByIdAndDeletedAtIsNull(userId)) {
-			throw new UserIdNotFoundException(userId);
+		try {
+			if (!userRepository.existsByIdAndDeletedAtIsNull(userId)) {
+				throw new UserIdNotFoundException(userId);
+			}
+
+			ConsumerOrder consumerOrder = consumerOrderRepository.findById(consumerOrderId)
+				.orElseThrow(() -> new OrderIdNotFoundException(consumerOrderId));
+
+			if (consumerOrder.getConsumer().getId() != userId) {
+				throw new ConsumerUserNotMatchException();
+			}
+
+			int productOrderQty = consumerPurchaseOrderRepository.findProductOrderQty(consumerOrder.getId());
+			ConsumerPayment payment = consumerPaymentRepository.findByConsumerOrder(consumerOrder);
+
+			return shippingRepository.findByConsumerOrderAndIsActiveIsTrue(consumerOrder)
+				.map(shipping -> {
+					ShippingAddress shippingAddress = shippingAddressRepository.findByShipping(shipping);
+					return MyOrderDetailResponse.from(consumerOrder, shippingAddress, payment, productOrderQty);
+				})
+				.orElseGet(() -> MyOrderDetailResponse.from(consumerOrder, null, payment, productOrderQty));
+		} catch (BaseException e) {
+			throw e;
+		} catch (Exception e) {
+			log.error(String.format("{ \"type\": \"error\", \"msg\": %s }", e.getMessage()));
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR.value(),
+				e.getMessage());
 		}
-
-		ConsumerOrder consumerOrder = consumerOrderRepository.findById(consumerOrderId)
-			.orElseThrow(() -> new OrderIdNotFoundException(consumerOrderId));
-
-		if (consumerOrder.getConsumer().getId() != userId) {
-			throw new ConsumerUserNotMatchException();
-		}
-
-		int productOrderQty = consumerPurchaseOrderRepository.findProductOrderQty(consumerOrder.getId());
-		ConsumerPayment payment = consumerPaymentRepository.findByConsumerOrder(consumerOrder);
-
-		return shippingRepository.findByConsumerOrderAndIsActiveIsTrue(consumerOrder)
-			.map(shipping -> {
-				ShippingAddress shippingAddress = shippingAddressRepository.findByShipping(shipping);
-				return MyOrderDetailResponse.from(consumerOrder, shippingAddress, payment, productOrderQty);
-			})
-			.orElseGet(() -> MyOrderDetailResponse.from(consumerOrder, null, payment, productOrderQty));
 	}
 
 	private MyOrderResponse getMyOrderInfo(ConsumerOrder consumerOrder) {
