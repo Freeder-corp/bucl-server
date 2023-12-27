@@ -1,6 +1,7 @@
 package com.freeder.buclserver.app.my.service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -8,8 +9,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.freeder.buclserver.domain.affiliate.repository.AffiliateRepository;
 import com.freeder.buclserver.domain.consumerorder.entity.ConsumerOrder;
 import com.freeder.buclserver.domain.consumerorder.repository.ConsumerOrderRepository;
 import com.freeder.buclserver.domain.consumerpayment.entity.ConsumerPayment;
@@ -25,25 +26,27 @@ import com.freeder.buclserver.domain.user.dto.response.MyOrderResponse;
 import com.freeder.buclserver.domain.user.dto.response.MyProfileResponse;
 import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.domain.user.repository.UserRepository;
-import com.freeder.buclserver.global.exception.auth.WithdrawalBadRequestException;
+import com.freeder.buclserver.domain.user.util.ProfileImage;
+import com.freeder.buclserver.global.exception.auth.LogoutUserWithdrawalException;
 import com.freeder.buclserver.global.exception.consumerorder.ConsumerUserNotMatchException;
 import com.freeder.buclserver.global.exception.consumerorder.OrderIdNotFoundException;
 import com.freeder.buclserver.global.exception.user.UserIdNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 
-@Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
+@Service
 public class MyService {
 
 	private final UserRepository userRepository;
 	private final RewardRepository rewardRepository;
-	private final AffiliateRepository affiliateRepository;
 	private final ConsumerOrderRepository consumerOrderRepository;
 	private final ConsumerPurchaseOrderRepository consumerPurchaseOrderRepository;
 	private final ShippingRepository shippingRepository;
 	private final ShippingAddressRepository shippingAddressRepository;
 	private final ConsumerPaymentRepository consumerPaymentRepository;
+	private final ProfileS3Service profileS3Service;
 
 	@Transactional(readOnly = true)
 	public Optional<UserDto> findBySocialIdAndDeletedAtIsNull(String socialUid) {
@@ -71,7 +74,7 @@ public class MyService {
 			.orElseThrow(() -> new UserIdNotFoundException(userId));
 
 		if (user.getRefreshToken() == null) {
-			throw new WithdrawalBadRequestException();
+			throw new LogoutUserWithdrawalException();
 		}
 
 		user.withdrawal();
@@ -82,9 +85,34 @@ public class MyService {
 		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
 			.orElseThrow(() -> new UserIdNotFoundException(userId));
 
-		return rewardRepository.findFirstByUserOrderByCreatedAtDesc(user)
-			.map(MyProfileResponse::from)
-			.orElseGet(() -> getMyProfileWithoutReward(user.getProfilePath(), user.getNickname()));
+		List<Integer> rewardSum = rewardRepository.findUserRewardSum(userId, PageRequest.of(0, 1));
+
+		return rewardSum.isEmpty()
+			? MyProfileResponse.of(user.getProfilePath(), user.getNickname(), 0)
+			: MyProfileResponse.of(user.getProfilePath(), user.getNickname(), rewardSum.get(0));
+	}
+
+	@Transactional
+	public void updateProfileImageAsDefault(Long userId) {
+		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
+			.orElseThrow(() -> new UserIdNotFoundException(userId));
+
+		profileS3Service.deleteFile(user.getProfilePath());
+
+		user.updateProfilePathAsDefault();
+	}
+
+	@Transactional
+	public void updateProfileImage(Long userId, MultipartFile profileImageFile) {
+		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
+			.orElseThrow(() -> new UserIdNotFoundException(userId));
+
+		if (!Objects.equals(user.getProfilePath(), ProfileImage.defaultImageUrl)) {
+			profileS3Service.deleteFile(user.getProfilePath());
+		}
+
+		String uploadFileUrl = profileS3Service.uploadFile(profileImageFile);
+		user.updateProfilePath(uploadFileUrl);
 	}
 
 	@Transactional(readOnly = true)
@@ -94,7 +122,7 @@ public class MyService {
 
 		Pageable pageable = PageRequest.of(page - 1, pageSize);
 
-		return consumerOrderRepository.findAllByConsumerOrderByCreatedAtDesc(user, pageable).getContent().stream()
+		return consumerOrderRepository.findAllByConsumerOrderByCreatedAtDesc(user, pageable).stream()
 			.filter(consumerOrder -> consumerOrder.getConsumer().getId() == userId)
 			.map(this::getMyOrderInfo)
 			.collect(Collectors.toUnmodifiableList());
@@ -122,10 +150,6 @@ public class MyService {
 				return MyOrderDetailResponse.from(consumerOrder, shippingAddress, payment, productOrderQty);
 			})
 			.orElseGet(() -> MyOrderDetailResponse.from(consumerOrder, null, payment, productOrderQty));
-	}
-
-	private MyProfileResponse getMyProfileWithoutReward(String profilePath, String nickname) {
-		return MyProfileResponse.of(profilePath, nickname, 0);
 	}
 
 	private MyOrderResponse getMyOrderInfo(ConsumerOrder consumerOrder) {

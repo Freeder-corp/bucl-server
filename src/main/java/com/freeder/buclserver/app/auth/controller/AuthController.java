@@ -1,5 +1,7 @@
 package com.freeder.buclserver.app.auth.controller;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.http.HttpStatus;
@@ -33,22 +35,32 @@ public class AuthController {
 	private final KakaoApiClient kakaoApiClient;
 	private final MyService myService;
 
-	// TODO: 카카오 토큰을 헤더로 받을지 DTO로 받을지 프론트와 의논 필요
+	private static final int COOKIE_MAX_AGE_ACCESS_TOKEN = 60 * 60 * 1;
+	private static final int COOKIE_MAX_AGE_REFRESH_TOKEN = 60 * 60 * 24 * 30;
+
 	@PostMapping("/login/kakao")
-	public BaseResponse kakaoLogin(@Valid @RequestBody KakaoLoginRequest request) {
+	public BaseResponse kakaoLogin(@Valid @RequestBody KakaoLoginRequest request, HttpServletResponse response) {
 		KakaoUserInfoResponse userInfo = kakaoApiClient.getUserInfo("Bearer " + request.kakaoAccessToken());
 
 		UserDto userDto = myService.findBySocialIdAndDeletedAtIsNull(userInfo.getId())
 			.orElseGet(() -> myService.join(userInfo.toUserDto()));
 
 		TokenResponse tokens = jwtTokenService.createJwtTokens(userDto.id(), userDto.role());
-		return new BaseResponse(tokens, HttpStatus.OK, "요청 성공");
+
+		response.addCookie(createCookie("access-token", tokens.accessToken(), COOKIE_MAX_AGE_ACCESS_TOKEN));
+		response.addCookie(createCookie("refresh-token", tokens.refreshToken(), COOKIE_MAX_AGE_REFRESH_TOKEN));
+
+		return new BaseResponse(null, HttpStatus.OK, "요청 성공");
 	}
 
 	@PostMapping("/renewal/tokens")
-	public BaseResponse renewTokens(@Valid @RequestBody RefreshTokenRequest request) {
+	public BaseResponse renewTokens(@Valid @RequestBody RefreshTokenRequest request, HttpServletResponse response) {
 		TokenResponse tokens = jwtTokenService.renewTokens(request.refreshToken());
-		return new BaseResponse(tokens, HttpStatus.OK, "요청 성공");
+
+		response.addCookie(createCookie("access-token", tokens.accessToken(), COOKIE_MAX_AGE_ACCESS_TOKEN));
+		response.addCookie(createCookie("refresh-token", tokens.refreshToken(), COOKIE_MAX_AGE_REFRESH_TOKEN));
+
+		return new BaseResponse(null, HttpStatus.OK, "요청 성공");
 	}
 
 	@PostMapping("/logout")
@@ -63,5 +75,14 @@ public class AuthController {
 		String userId = userDetails.getUserId();
 		myService.withdrawal(Long.valueOf(userId));
 		return new BaseResponse(userId, HttpStatus.OK, "요청 성공");
+	}
+
+	private Cookie createCookie(String cookieName, String token, int maxAge) {
+		Cookie cookie = new Cookie(cookieName, token);
+		cookie.setHttpOnly(true);
+		cookie.setSecure(true);
+		cookie.setPath("/");
+		cookie.setMaxAge(maxAge);
+		return cookie;
 	}
 }

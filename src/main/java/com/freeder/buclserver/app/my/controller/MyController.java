@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.freeder.buclserver.app.my.service.AddressService;
 import com.freeder.buclserver.app.my.service.MyService;
@@ -46,6 +48,23 @@ public class MyController {
 		Long userId = Long.valueOf(userDetails.getUserId());
 		MyProfileResponse myProfile = myService.getMyProfile(userId);
 		return new BaseResponse(myProfile, HttpStatus.OK, "요청 성공");
+	}
+
+	@PatchMapping("/profile/default-image")
+	public BaseResponse updateProfileImageAsDefault(@AuthenticationPrincipal CustomUserDetails userDetails) {
+		Long userId = Long.valueOf(userDetails.getUserId());
+		myService.updateProfileImageAsDefault(userId);
+		return new BaseResponse(null, HttpStatus.OK, "요청 성공");
+	}
+
+	@PatchMapping("/profile/image")
+	public BaseResponse updateProfileImage(
+		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@RequestPart("profileImage") MultipartFile profileImageFile
+	) {
+		Long userId = Long.valueOf(userDetails.getUserId());
+		myService.updateProfileImage(userId, profileImageFile);
+		return new BaseResponse(null, HttpStatus.OK, "요청 성공");
 	}
 
 	@GetMapping("/profile/orders")

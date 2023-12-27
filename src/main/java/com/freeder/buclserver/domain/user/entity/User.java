@@ -20,6 +20,7 @@ import com.freeder.buclserver.domain.productreview.entity.ProductReview;
 import com.freeder.buclserver.domain.reward.entity.Reward;
 import com.freeder.buclserver.domain.rewardwithdrawal.entity.RewardWithdrawal;
 import com.freeder.buclserver.domain.shippingaddress.entity.ShippingAddress;
+import com.freeder.buclserver.domain.user.util.ProfileImage;
 import com.freeder.buclserver.domain.user.vo.Gender;
 import com.freeder.buclserver.domain.user.vo.JoinType;
 import com.freeder.buclserver.domain.user.vo.Role;
@@ -138,5 +139,13 @@ public class User extends TimestampMixin {
 		this.deleteRefreshToken();
 		this.userState = UserState.DELETED;
 		this.deletedAt = LocalDateTime.now();
+	}
+
+	public void updateProfilePathAsDefault() {
+		this.profilePath = ProfileImage.defaultImageUrl;
+	}
+
+	public void updateProfilePath(String uploadFileUrl) {
+		this.profilePath = uploadFileUrl;
 	}
 }

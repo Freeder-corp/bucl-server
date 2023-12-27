@@ -12,8 +12,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import com.freeder.buclserver.domain.user.vo.Role;
+import com.freeder.buclserver.global.exception.auth.JwtTokenExpiredException;
+import com.freeder.buclserver.global.exception.auth.JwtTokenValidException;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -24,8 +27,8 @@ import lombok.RequiredArgsConstructor;
 @Component
 public class JwtTokenProvider {
 
-	private static final Long ACCESS_TOKEN_EXPIRED_TIME = 1000L * 60 * 60 * 1; // 1시간
-	private static final Long REFRESH_TOKEN_EXPIRED_TIME = 1000L * 60 * 60 * 24 * 30; // 30일
+	private static final long ACCESS_TOKEN_EXPIRED_TIME = 1000L * 60 * 60 * 1;
+	private static final long REFRESH_TOKEN_EXPIRED_TIME = 1000L * 60 * 60 * 24 * 30;
 
 	@Value("${jwt.secret-key}")
 	private String secretKey;
@@ -36,7 +39,6 @@ public class JwtTokenProvider {
 		encodeKey = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
 	}
 
-	// TODO: 토큰을 cookie에 넣어서 보내줘야 하는지에 대해 프론트와 의논 필요
 	public String createAccessToken(Long memberId, Role role) {
 		return createToken(memberId, role, ACCESS_TOKEN_EXPIRED_TIME);
 	}
@@ -51,17 +53,23 @@ public class JwtTokenProvider {
 	}
 
 	public void validateToken(String token) {
-		Jwts.parserBuilder()
-			.setSigningKey(encodeKey)
-			.build()
-			.parseClaimsJws(token);
+		try {
+			Jwts.parserBuilder()
+				.setSigningKey(encodeKey)
+				.build()
+				.parseClaimsJws(token);
+		} catch (ExpiredJwtException ex) {
+			throw new JwtTokenExpiredException();
+		} catch (Exception ex) {
+			throw new JwtTokenValidException();
+		}
 	}
 
 	public String getUserRole(String token) {
 		return getClaims(token).get("role").toString();
 	}
 
-	private String createToken(Long memberId, Role role, Long tokenExpiredTime) {
+	private String createToken(Long memberId, Role role, long tokenExpiredTime) {
 		Date now = new Date();
 		return Jwts.builder()
 			.setHeaderParam(Header.TYPE, Header.JWT_TYPE)
