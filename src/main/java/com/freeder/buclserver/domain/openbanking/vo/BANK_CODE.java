@@ -1,4 +1,4 @@
-package com.freeder.buclserver.domain.openapi.vo;
+package com.freeder.buclserver.domain.openbanking.vo;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

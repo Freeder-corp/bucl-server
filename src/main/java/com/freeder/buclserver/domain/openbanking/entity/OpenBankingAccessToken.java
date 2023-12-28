@@ -1,4 +1,4 @@
-package com.freeder.buclserver.domain.openapi.entity;
+package com.freeder.buclserver.domain.openbanking.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,11 +8,15 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Builder
+@Getter
+@Setter
 @Table(name = "openapi")
-public class OpenApiAccessToken {
+public class OpenBankingAccessToken {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "seq", nullable = false)
@@ -33,7 +37,7 @@ public class OpenApiAccessToken {
 	@Column(nullable = false)
 	private String clientUseCode;
 
-	public OpenApiAccessToken(Long seq, String accessToken, String tokenType, String expireDate, String scope,
+	public OpenBankingAccessToken(Long seq, String accessToken, String tokenType, String expireDate, String scope,
 		String clientUseCode) {
 		this.seq = seq;
 		this.accessToken = accessToken;
@@ -43,7 +47,7 @@ public class OpenApiAccessToken {
 		this.clientUseCode = clientUseCode;
 	}
 
-	public OpenApiAccessToken() {
+	public OpenBankingAccessToken() {
 
 	}
 }

@@ -14,9 +14,13 @@ spring:
         - local-config
         - cloud
 
-openapi:
-  client_id: 1da2592c-35cc-45d9-8f12-b1b90c939c25
-  client_secret: 80914203-c42c-4971-a654-a62483c58ed9
+openbanking:
+  client_id: 3d6b00d9-cac5-4d7f-8f2a-22adf8791a2d
+  client_secret: 531865df-1f25-4464-92fa-ec3231a6dfd2
+  redirect:
+    uri: https://localhost:8080/api/v1/openapi/usercertification
+  api:
+    base-url: https://testapi.openbanking.or.kr
 
 
 bucl_system:
