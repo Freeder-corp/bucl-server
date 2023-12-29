@@ -4,7 +4,6 @@ import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Collections;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -90,9 +89,9 @@ public class OpenBankingService {
 
 			String now = LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString();
 
-			Optional<OpenBankingAccessToken> existingToken = accessTokenRepository.findFirstByExpireDateAfter(now);
-			if (existingToken.isPresent()) {
-				return mapToDto(existingToken.get());
+			OpenBankingAccessToken existingToken = accessTokenRepository.findFirstByExpireDateAfter(now);
+			if (existingToken != null) {
+				return mapToDto(existingToken);
 			} else {
 				OpenBankingAccessTokenDto newAccessTokenRes;
 				try {
@@ -102,6 +101,7 @@ public class OpenBankingService {
 						OpenBankingAccessTokenDto.class
 					);
 				} catch (Exception e) {
+					log.error("Error during token retrieval", e);
 					throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, e.getMessage());
 				}
 				accessTokenRepository.save(newAccessTokenRes.toEntity());

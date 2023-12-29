@@ -30,4 +30,7 @@ public class OpenBankingAccessTokenDto {
 			.clientUseCode(client_use_code)
 			.build();
 	}
+
+	public OpenBankingAccessTokenDto() {
+	}
 }

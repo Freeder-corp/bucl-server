@@ -15,7 +15,7 @@ import lombok.Setter;
 @Builder
 @Getter
 @Setter
-@Table(name = "openapi")
+@Table(name = "openbanking")
 public class OpenBankingAccessToken {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
