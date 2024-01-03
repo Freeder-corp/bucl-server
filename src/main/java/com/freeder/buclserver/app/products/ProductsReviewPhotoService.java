@@ -40,6 +40,7 @@ public class ProductsReviewPhotoService {
 					pageable)
 				.orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND, 404, "해당 리뷰사진을 찾을 수 없음"));
 
+			System.out.println(reviewPage.getContent());
 			List<List<ReviewPhotoDTO>> reviewPhotosList = reviewPage.getContent().stream()
 				.map(this::convertToPhotoDTO)
 				.toList();

@@ -3,7 +3,6 @@ package com.freeder.buclserver.app.products;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
@@ -23,6 +22,7 @@ import com.freeder.buclserver.domain.productoption.entity.ProductOption;
 import com.freeder.buclserver.domain.productoption.repository.ProductOptionRepository;
 import com.freeder.buclserver.domain.productreview.dto.ReviewPreviewDTO;
 import com.freeder.buclserver.domain.productreview.entity.ProductReview;
+import com.freeder.buclserver.domain.productreview.repository.ProductReviewRepository;
 import com.freeder.buclserver.domain.wish.repository.WishRepository;
 import com.freeder.buclserver.global.exception.BaseException;
 import com.freeder.buclserver.global.util.ImageParsing;
@@ -37,6 +37,7 @@ public class ProductsService {
 
 	private final ProductsCategoryService productsCategoryService;
 	private final ProductRepository productRepository;
+	private final ProductReviewRepository productReviewRepository;
 	private final ProductOptionRepository productOptionRepository;
 	private final WishRepository wishRepository;
 	private final ImageParsing imageParsing;

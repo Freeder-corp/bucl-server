@@ -116,10 +116,11 @@ public class ProductsController {
 	public BaseResponse<String> createOrUpdateReview(
 		@PathVariable(name = "product_code", required = true) Long productCode,
 		@RequestPart("reviewRequest") ReviewRequestDTO reviewRequestDTO,
-		@RequestPart("images") List<MultipartFile> images
+		@RequestPart(value = "reviewImages", required = false) List<MultipartFile> images
 	) {
-		Long userId = 1L;
+		Long userId = 2L;
 		List<String> s3ImageUrls = new ArrayList<>();
+		images = (images == null) ? new ArrayList<>() : images;
 		for (int i = 0; i < images.size(); i++) {
 			s3ImageUrls.add("assets/images/reviews/" + UUID.randomUUID() + ".png");
 		}

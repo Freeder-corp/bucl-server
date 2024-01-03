@@ -37,7 +37,9 @@ public interface ProductReviewRepository extends JpaRepository<ProductReview, Lo
 
 	@Query("SELECT pr FROM ProductReview pr "
 		+ "WHERE pr.user.id = :userId "
-		+ "AND pr.product.productCode = :productCode")
+		+ "AND pr.deletedAt IS NULL "
+		+ "AND pr.product.productCode = :productCode "
+	)
 	Optional<ProductReview> findFirstByUserIdAndProductCode(
 		@Param("userId") Long userId,
 		@Param("productCode") Long productCode

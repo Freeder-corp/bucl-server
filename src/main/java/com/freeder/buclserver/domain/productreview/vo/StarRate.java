@@ -22,6 +22,16 @@ public enum StarRate {
 	public float getValue() {
 		return value;
 	}
+
+	public static StarRate findByValue(Float value) {
+		for (StarRate starRate : values()) {
+			if (starRate.value == (value)) {
+				return starRate;
+			}
+		}
+
+		throw new IllegalArgumentException("별점 범위를 벗어났습니다: " + value);
+	}
 }
 
 

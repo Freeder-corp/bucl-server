@@ -23,6 +23,7 @@ import com.freeder.buclserver.domain.productreview.dto.ReviewDTO;
 import com.freeder.buclserver.domain.productreview.dto.ReviewRequestDTO;
 import com.freeder.buclserver.domain.productreview.entity.ProductReview;
 import com.freeder.buclserver.domain.productreview.repository.ProductReviewRepository;
+import com.freeder.buclserver.domain.productreview.vo.StarRate;
 import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.domain.user.repository.UserRepository;
 import com.freeder.buclserver.global.exception.BaseException;
@@ -41,6 +42,10 @@ public class ProductsReviewService {
 
 	@Value("${cloud.aws.s3.bucket}")
 	private String bucket;
+
+	@Value("${bucl.services.storage.url}")
+	private String storageUrl;
+
 	private final ProductReviewRepository productReviewRepository;
 	private final UserRepository userRepository;
 	private final ProductRepository productRepository;
@@ -142,11 +147,12 @@ public class ProductsReviewService {
 				userId,
 				productCode
 			);
+			s3ImageUrls = s3ImageUrls.stream().map(element -> storageUrl + element).collect(Collectors.toList());
 
 			if (existingReviewOptional.isPresent()) {
 				ProductReview existingReview = existingReviewOptional.get();
 				existingReview.setContent(reviewRequestDTO.getReviewContent());
-				existingReview.setStarRate(reviewRequestDTO.getStarRate());
+				existingReview.setStarRate(StarRate.findByValue(reviewRequestDTO.getStarRate()));
 				existingReview.setUpdatedAt(LocalDateTime.now());
 				List<String> prevS3Urls = imageParsing.getImageList(existingReview.getImagePath());
 
@@ -172,7 +178,7 @@ public class ProductsReviewService {
 				newReview.setUser(user);
 				newReview.setProduct(product);
 				newReview.setContent(reviewRequestDTO.getReviewContent());
-				newReview.setStarRate(reviewRequestDTO.getStarRate());
+				newReview.setStarRate(StarRate.findByValue(reviewRequestDTO.getStarRate()));
 				newReview.setCreatedAt(LocalDateTime.now());
 				newReview.setImagePath(String.join(" ", s3ImageUrls));
 				newReview.setProductCode(productCode);

@@ -19,6 +19,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Where;
 
 import com.freeder.buclserver.domain.product.vo.ProductStatus;
 import com.freeder.buclserver.domain.product.vo.TaxStatus;
@@ -53,6 +54,7 @@ public class Product extends TimestampMixin implements Serializable {
 	private List<ProductOption> productOptions = new ArrayList<>();
 
 	@OneToMany(mappedBy = "product")
+	@Where(clause = "deleted_at IS NULL")
 	private List<ProductReview> productReviews = new ArrayList<>();
 
 	private String name;
