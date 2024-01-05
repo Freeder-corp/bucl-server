@@ -192,14 +192,17 @@ public class ProductsReviewService {
 		}
 	}
 
-	@Transactional
+	@Transactional(rollbackFor = Exception.class)
 	public List<String> deleteReview(Long productCode, Long reviewId, Long userId) {
 		try {
-			ProductReview reviewToDelete = productReviewRepository.findByIdAndProduct_ProductCodeAndUser_Id(reviewId,
-					productCode, userId)
-				.orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND, 404, "해당 리뷰를 찾을 수 없음"));
+			Optional<ProductReview> existingReviewOptional = productReviewRepository.findByIdAndProduct_ProductCodeAndUser_Id(
+				reviewId, productCode, userId);
+			if (existingReviewOptional.isEmpty()) {
+				throw new BaseException(HttpStatus.NOT_FOUND, 404, "해당 리뷰를 찾을 수 없음");
+			}
 
-			if (!reviewToDelete.getUser().getId().equals(userId)) {
+			ProductReview reviewToDelete = existingReviewOptional.get();
+			if (reviewToDelete.getUser() == null || !userId.equals(reviewToDelete.getUser().getId())) {
 				throw new BaseException(HttpStatus.FORBIDDEN, 403, "해당 리뷰를 삭제할 권한이 없음");
 			}
 
@@ -252,7 +255,7 @@ public class ProductsReviewService {
 
 	}
 
-	private void uploadImageToS3(MultipartFile image, String s3ImageUrl) throws IOException {
+	public void uploadImageToS3(MultipartFile image, String s3ImageUrl) throws IOException {
 		try {
 			PutObjectRequest putObjectRequest = PutObjectRequest.builder()
 				.bucket(bucket)
@@ -289,7 +292,7 @@ public class ProductsReviewService {
 
 	}
 
-	private void deleteImageToS3(String s3ImageUrl) {
+	public void deleteImageToS3(String s3ImageUrl) {
 		try {
 			DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
 				.bucket(bucket)

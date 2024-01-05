@@ -1,5 +1,7 @@
 package com.freeder.buclserver.domain.openbanking.entity;
 
+import java.time.LocalDateTime;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -49,5 +51,14 @@ public class OpenBankingAccessToken {
 
 	public OpenBankingAccessToken() {
 
+	}
+
+	public void updateAccessToken(String newAccessToken) {
+		this.accessToken = newAccessToken;
+	}
+
+	public void updateExpireDate(String expiresIn) {
+		LocalDateTime newExpireDate = LocalDateTime.now().plusSeconds(Long.parseLong(expiresIn));
+		this.expireDate = newExpireDate.toString();
 	}
 }
