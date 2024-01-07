@@ -12,13 +12,13 @@ import com.freeder.buclserver.domain.user.repository.UserRepository;
 import com.freeder.buclserver.domain.usershippingaddress.dto.UserShippingAddressDto;
 import com.freeder.buclserver.domain.usershippingaddress.dto.request.AddressCreateRequest;
 import com.freeder.buclserver.domain.usershippingaddress.dto.request.AddressUpdateRequest;
-import com.freeder.buclserver.domain.usershippingaddress.dto.response.AddressCreateResponse;
 import com.freeder.buclserver.domain.usershippingaddress.entity.UserShippingAddress;
 import com.freeder.buclserver.domain.usershippingaddress.repository.UserShippingAddressRepository;
 import com.freeder.buclserver.global.exception.BaseException;
 import com.freeder.buclserver.global.exception.user.UserIdNotFoundException;
 import com.freeder.buclserver.global.exception.usershippingaddress.AddressIdNotFoundException;
 import com.freeder.buclserver.global.exception.usershippingaddress.AddressUserNotMatchException;
+import com.freeder.buclserver.global.exception.usershippingaddress.AlreadyDefaultAddressException;
 import com.freeder.buclserver.global.exception.usershippingaddress.DefaultAddressNotFoundException;
 import com.freeder.buclserver.global.exception.usershippingaddress.SingleAddressDefaultRegisterException;
 
@@ -35,7 +35,7 @@ public class AddressService {
 	private final UserShippingAddressRepository userShippingAddressRepository;
 
 	@Transactional
-	public AddressCreateResponse createMyAddress(Long userId, AddressCreateRequest request) {
+	public UserShippingAddressDto createMyAddress(Long userId, AddressCreateRequest request) {
 		try {
 			User user = userRepository.findByIdAndDeletedAtIsNull(userId)
 				.orElseThrow(() -> new UserIdNotFoundException(userId));
@@ -52,7 +52,7 @@ public class AddressService {
 			}
 
 			UserShippingAddress savedUserShippingAddress = userShippingAddressRepository.save(userShippingAddress);
-			return AddressCreateResponse.from(savedUserShippingAddress);
+			return UserShippingAddressDto.from(savedUserShippingAddress);
 		} catch (BaseException e) {
 			throw e;
 		} catch (Exception e) {
@@ -120,7 +120,6 @@ public class AddressService {
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR.value(),
 				e.getMessage());
 		}
-
 	}
 
 	@Transactional
@@ -179,6 +178,10 @@ public class AddressService {
 
 			UserShippingAddress userAddress = userShippingAddressRepository.findById(addressId)
 				.orElseThrow(() -> new AddressIdNotFoundException(addressId));
+
+			if (userAddress.isDefaultAddress()) {
+				throw new AlreadyDefaultAddressException();
+			}
 
 			if (userAddress.getUser().getId() != userId) {
 				throw new AddressUserNotMatchException();
