@@ -17,6 +17,7 @@ import javax.persistence.Table;
 
 import com.freeder.buclserver.domain.rewardwithdrawal.vo.WithdrawalStatus;
 import com.freeder.buclserver.domain.user.entity.User;
+import com.freeder.buclserver.global.mixin.TimestampMixin;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,7 +30,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "reward_withdrawal")
-public class RewardWithdrawal {
+public class RewardWithdrawal extends TimestampMixin {
 	@Id
 	@Column(name = "reward_withdrawal_id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

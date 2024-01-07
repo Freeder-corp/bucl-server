@@ -82,7 +82,6 @@ public class RewardsWithdrawalService {
 			Reward newReward = Reward.builder()
 				.user(reward.getUser())
 				.previousRewardSum(reward.getRewardSum())
-				.receivedRewardAmount(-1 * withdrawalAmount)
 				.rewardSum(reward.getRewardSum() - withdrawalAmount)
 				.rewardType(RewardType.WITHDRAWAL)
 				.spentRewardAmount(withdrawalAmount)
