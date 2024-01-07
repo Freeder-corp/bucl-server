@@ -28,7 +28,6 @@ import com.freeder.buclserver.domain.user.dto.response.MyProfileResponse;
 import com.freeder.buclserver.domain.usershippingaddress.dto.UserShippingAddressDto;
 import com.freeder.buclserver.domain.usershippingaddress.dto.request.AddressCreateRequest;
 import com.freeder.buclserver.domain.usershippingaddress.dto.request.AddressUpdateRequest;
-import com.freeder.buclserver.domain.usershippingaddress.dto.response.AddressCreateResponse;
 import com.freeder.buclserver.global.response.BaseResponse;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -94,7 +93,7 @@ public class MyController {
 		@Valid @RequestBody AddressCreateRequest addressCreateRequest
 	) {
 		Long userId = Long.valueOf(userDetails.getUserId());
-		AddressCreateResponse addressCreateResponse = addressService.createMyAddress(userId, addressCreateRequest);
+		UserShippingAddressDto addressCreateResponse = addressService.createMyAddress(userId, addressCreateRequest);
 		return new BaseResponse(addressCreateResponse, HttpStatus.OK, "요청 성공");
 	}
 
