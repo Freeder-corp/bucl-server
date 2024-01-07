@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.freeder.buclserver.app.orders.dto.ConsumerOrderDto;
+import com.freeder.buclserver.app.orders.dto.PurchaseOrderDto;
 import com.freeder.buclserver.domain.consumerorder.entity.ConsumerOrder;
 import com.freeder.buclserver.domain.consumerorder.repository.ConsumerOrderRepository;
 import com.freeder.buclserver.domain.consumerorder.vo.OrderStatus;
@@ -55,31 +56,31 @@ public class OrdersService {
 		return new BaseResponse<>(orderDtos, HttpStatus.OK, "요청 성공");
 	}
 
-	// @Transactional
-	// public BaseResponse<String> updateOrderPurchase(List<PurchaseOrderDto> purchaseOrderDtos, Long userId) {
-	// 	if (!userRepository.existsByIdAndRole(userId, Role.ROLE_ADMIN)) {
-	// 		throw new BaseException(HttpStatus.UNAUTHORIZED, HttpStatus.UNAUTHORIZED.value(), "권한이 없습니다.");
-	// 	}
-	// 	for (PurchaseOrderDto purchaseOrderDto : purchaseOrderDtos) {
-	// 		ConsumerOrder consumerOrder = consumerOrderRepository.findByOrderCode(purchaseOrderDto.getOrderCode())
-	// 			.orElseThrow(() ->
-	// 				new BaseException(HttpStatus.BAD_REQUEST, 400, "잘못된필드")
-	// 			);
-	//
-	// 		// Shipping shipping = consumerOrder.getShippings().stream()
-	// 		// 	.filter(Shipping::isActive)
-	// 		// 	.findFirst()
-	// 		// 	.orElseThrow(() ->
-	// 		// 		new BaseException(HttpStatus.BAD_REQUEST, 400, "활성화된 배송정보가 없습니다.")
-	// 		// 	);
-	// 		//
-	// 		// shipping.setShippingStatus(ShippingStatus.PROCESSING);
-	//
-	// 		consumerOrder.setOrderStatus(OrderStatus.ORDERED_PROCESSING);
-	// 	}
-	// 	return new BaseResponse<>("해당 주문 리스트 발주 넣었습니다.", HttpStatus.OK, "요청 성공");
-	// }
-	//
+	@Transactional
+	public BaseResponse<String> updateOrderPurchase(List<PurchaseOrderDto> purchaseOrderDtos, Long userId) {
+		if (!userRepository.existsByIdAndRole(userId, Role.ROLE_ADMIN)) {
+			throw new BaseException(HttpStatus.UNAUTHORIZED, HttpStatus.UNAUTHORIZED.value(), "권한이 없습니다.");
+		}
+		for (PurchaseOrderDto purchaseOrderDto : purchaseOrderDtos) {
+			ConsumerOrder consumerOrder = consumerOrderRepository.findByOrderCode(purchaseOrderDto.getOrderCode())
+				.orElseThrow(() ->
+					new BaseException(HttpStatus.BAD_REQUEST, 400, "잘못된필드")
+				);
+
+			// Shipping shipping = consumerOrder.getShippings().stream()
+			// 	.filter(Shipping::isActive)
+			// 	.findFirst()
+			// 	.orElseThrow(() ->
+			// 		new BaseException(HttpStatus.BAD_REQUEST, 400, "활성화된 배송정보가 없습니다.")
+			// 	);
+			//
+			// shipping.setShippingStatus(ShippingStatus.PROCESSING);
+
+			consumerOrder.setOrderStatus(OrderStatus.ORDERED_PROCESSING);
+		}
+		return new BaseResponse<>("해당 주문 리스트 발주 넣었습니다.", HttpStatus.OK, "요청 성공");
+	}
+
 	// @Transactional
 	// public BaseResponse<String> updateTrackingNum(List<TrackingNumDto> trackingNumDtos, Long userId) {
 	// 	if (!userRepository.existsByIdAndRole(userId, Role.ROLE_ADMIN)) {
