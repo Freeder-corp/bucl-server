@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.freeder.buclserver.app.orders.dto.ConsumerOrderDto;
 import com.freeder.buclserver.app.orders.dto.PurchaseOrderDto;
+import com.freeder.buclserver.app.orders.dto.TrackingNumDto;
 import com.freeder.buclserver.domain.consumerorder.entity.ConsumerOrder;
 import com.freeder.buclserver.domain.consumerorder.repository.ConsumerOrderRepository;
 import com.freeder.buclserver.domain.consumerorder.vo.OrderStatus;
@@ -81,39 +82,39 @@ public class OrdersService {
 		return new BaseResponse<>("해당 주문 리스트 발주 넣었습니다.", HttpStatus.OK, "요청 성공");
 	}
 
-	// @Transactional
-	// public BaseResponse<String> updateTrackingNum(List<TrackingNumDto> trackingNumDtos, Long userId) {
-	// 	if (!userRepository.existsByIdAndRole(userId, Role.ROLE_ADMIN)) {
-	// 		throw new BaseException(HttpStatus.UNAUTHORIZED, HttpStatus.UNAUTHORIZED.value(), "권한이 없습니다.");
-	// 	}
-	//
-	// 	for (TrackingNumDto trackingNumDto : trackingNumDtos) {
-	// 		ConsumerOrder consumerOrder = consumerOrderRepository.findByOrderCode(
-	// 				trackingNumDto.getOrderCode())
-	// 			.orElseThrow(() ->
-	// 				new BaseException(HttpStatus.BAD_REQUEST, 400,
-	// 					"주문번호: " + trackingNumDto.getOrderCode() + " 는 존재하지 않습니다.")
-	// 			);
-	// 		if (consumerOrder.getOrderStatus() != OrderStatus.ORDERED_PROCESSING) {
-	// 			throw new BaseException(HttpStatus.BAD_REQUEST, 400,
-	// 				"주문번호: " + trackingNumDto.getOrderCode() + " 는 발주 상태가 아닙니다.");
-	// 		}
-	//
-	// 		Shipping shipping = consumerOrder.getShippings().stream()
-	// 			.filter(Shipping::isActive)
-	// 			.findFirst()
-	// 			.orElseThrow(() ->
-	// 				new BaseException(HttpStatus.BAD_REQUEST, 400, "활성화된 배송정보가 없습니다.")
-	// 			);
-	//
-	// 		consumerOrder.setOrderStatus(OrderStatus.ORDERED_DELIVERED);
-	// 		// shipping.setShippingStatus(ShippingStatus.IN_DELIVERY);
-	// 		System.out.println(trackingNumDto.getTrackingNum());
-	// 		shipping.setTrackingNum(trackingNumDto.getTrackingNum());
-	// 		shipping.setShippingCoName(trackingNumDto.getShippingCoName());
-	// 	}
-	// 	return new BaseResponse<>("해당 주문 리스트에 대한 운송장 번호를 입력했습니다.", HttpStatus.OK, "요청 성공");
-	// }
+	@Transactional
+	public BaseResponse<String> updateTrackingNum(List<TrackingNumDto> trackingNumDtos, Long userId) {
+		if (!userRepository.existsByIdAndRole(userId, Role.ROLE_ADMIN)) {
+			throw new BaseException(HttpStatus.UNAUTHORIZED, HttpStatus.UNAUTHORIZED.value(), "권한이 없습니다.");
+		}
+
+		for (TrackingNumDto trackingNumDto : trackingNumDtos) {
+			ConsumerOrder consumerOrder = consumerOrderRepository.findByOrderCode(
+					trackingNumDto.getOrderCode())
+				.orElseThrow(() ->
+					new BaseException(HttpStatus.BAD_REQUEST, 400,
+						"주문번호: " + trackingNumDto.getOrderCode() + " 는 존재하지 않습니다.")
+				);
+			if (consumerOrder.getOrderStatus() != OrderStatus.ORDERED_PROCESSING) {
+				throw new BaseException(HttpStatus.BAD_REQUEST, 400,
+					"주문번호: " + trackingNumDto.getOrderCode() + " 는 발주 상태가 아닙니다.");
+			}
+
+			Shipping shipping = consumerOrder.getShippings().stream()
+				.filter(Shipping::isActive)
+				.findFirst()
+				.orElseThrow(() ->
+					new BaseException(HttpStatus.BAD_REQUEST, 400, "활성화된 배송정보가 없습니다.")
+				);
+
+			consumerOrder.setOrderStatus(OrderStatus.ORDERED_DELIVERED);
+			// shipping.setShippingStatus(ShippingStatus.IN_DELIVERY);
+			System.out.println(trackingNumDto.getTrackingNum());
+			shipping.setTrackingNum(trackingNumDto.getTrackingNum());
+			shipping.setShippingCoName(trackingNumDto.getShippingCoName());
+		}
+		return new BaseResponse<>("해당 주문 리스트에 대한 운송장 번호를 입력했습니다.", HttpStatus.OK, "요청 성공");
+	}
 
 	//private 영역//
 

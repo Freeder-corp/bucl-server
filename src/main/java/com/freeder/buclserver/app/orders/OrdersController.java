@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.freeder.buclserver.app.orders.dto.ConsumerOrderDto;
 import com.freeder.buclserver.app.orders.dto.PurchaseOrderDto;
+import com.freeder.buclserver.app.orders.dto.TrackingNumDto;
 import com.freeder.buclserver.global.response.BaseResponse;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -39,9 +40,9 @@ public class OrdersController {
 		return service.updateOrderPurchase(purchaseOrderDtos, userId);
 	}
 
-	// @PutMapping("/tracking-number")
-	// public BaseResponse<String> updateTrackingNum(@Valid @RequestBody List<TrackingNumDto> trackingNumDtos) {
-	// 	return service.updateTrackingNum(trackingNumDtos, userId);
-	// }
+	@PutMapping("/tracking-number")
+	public BaseResponse<String> updateTrackingNum(@Valid @RequestBody List<TrackingNumDto> trackingNumDtos) {
+		return service.updateTrackingNum(trackingNumDtos, userId);
+	}
 
 }
