@@ -104,5 +104,12 @@ public class User extends TimestampMixin {
 
 	@Column(name = "refresh_token")
 	private String refreshToken; // refresh_token
-	
+
+	public User(Long userId) {
+		this.id = userId;
+	}
+
+	public User() {
+		
+	}
 }
