@@ -2,7 +2,6 @@ package com.freeder.buclserver.app.my.service;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
@@ -21,7 +20,6 @@ import com.freeder.buclserver.domain.reward.repository.RewardRepository;
 import com.freeder.buclserver.domain.shipping.repository.ShippingRepository;
 import com.freeder.buclserver.domain.shippingaddress.entity.ShippingAddress;
 import com.freeder.buclserver.domain.shippingaddress.repository.ShippingAddressRepository;
-import com.freeder.buclserver.domain.user.dto.UserDto;
 import com.freeder.buclserver.domain.user.dto.response.MyOrderDetailResponse;
 import com.freeder.buclserver.domain.user.dto.response.MyOrderResponse;
 import com.freeder.buclserver.domain.user.dto.response.MyProfileResponse;
@@ -29,7 +27,6 @@ import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.domain.user.repository.UserRepository;
 import com.freeder.buclserver.domain.user.util.ProfileImage;
 import com.freeder.buclserver.global.exception.BaseException;
-import com.freeder.buclserver.global.exception.auth.LogoutUserWithdrawalException;
 import com.freeder.buclserver.global.exception.consumerorder.ConsumerUserNotMatchException;
 import com.freeder.buclserver.global.exception.consumerorder.OrderIdNotFoundException;
 import com.freeder.buclserver.global.exception.user.UserIdNotFoundException;
@@ -51,38 +48,6 @@ public class MyService {
 	private final ShippingAddressRepository shippingAddressRepository;
 	private final ConsumerPaymentRepository consumerPaymentRepository;
 	private final ProfileS3Service profileS3Service;
-
-	@Transactional(readOnly = true)
-	public Optional<UserDto> findBySocialIdAndDeletedAtIsNull(String socialUid) {
-		return userRepository.findBySocialIdAndDeletedAtIsNull(socialUid)
-			.map(UserDto::from);
-	}
-
-	@Transactional
-	public UserDto join(UserDto userDto) {
-		User user = userRepository.save(userDto.toEntity());
-		return UserDto.from(user);
-	}
-
-	@Transactional
-	public void deleteRefreshToken(Long userId) {
-		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new UserIdNotFoundException(userId));
-
-		user.deleteRefreshToken();
-	}
-
-	@Transactional
-	public void withdrawal(Long userId) {
-		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new UserIdNotFoundException(userId));
-
-		if (user.getRefreshToken() == null) {
-			throw new LogoutUserWithdrawalException();
-		}
-
-		user.withdrawal();
-	}
 
 	@Transactional(readOnly = true)
 	public MyProfileResponse getMyProfile(Long userId) {
