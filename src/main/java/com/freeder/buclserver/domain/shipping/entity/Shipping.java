@@ -13,10 +13,14 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.DynamicUpdate;
 
 import com.freeder.buclserver.domain.consumerorder.entity.ConsumerOrder;
 import com.freeder.buclserver.domain.shipping.vo.ShippingStatus;
+import com.freeder.buclserver.domain.shippingaddress.entity.ShippingAddress;
 import com.freeder.buclserver.domain.shippinginfo.entity.ShippingInfo;
 import com.freeder.buclserver.global.mixin.TimestampMixin;
 
@@ -26,6 +30,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
+@DynamicUpdate
 @Table(name = "shipping")
 public class Shipping extends TimestampMixin {
 	@Id
@@ -41,10 +46,16 @@ public class Shipping extends TimestampMixin {
 	@JoinColumn(name = "shipping_info_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private ShippingInfo shippingInfo;
 
+	@OneToOne(mappedBy = "shipping")
+	private ShippingAddress shippingAddress;
+
+	@Column(name = "shipping_co_name")
+	private String shippingCoName;
+
 	@Column(name = "shipping_num", unique = true)
 	private String shippingNum;
 
-	@Column(name = "tracking_num", nullable = false)
+	@Column(name = "tracking_num")
 	private String trackingNum;
 
 	@Column(name = "shipping_status")
