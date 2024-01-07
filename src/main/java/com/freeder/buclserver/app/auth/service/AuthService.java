@@ -1,13 +1,17 @@
 package com.freeder.buclserver.app.auth.service;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.freeder.buclserver.app.auth.dto.response.TokenResponse;
 import com.freeder.buclserver.core.security.JwtTokenProvider;
+import com.freeder.buclserver.domain.user.dto.UserDto;
 import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.domain.user.repository.UserRepository;
 import com.freeder.buclserver.domain.user.vo.Role;
+import com.freeder.buclserver.global.exception.auth.LogoutUserWithdrawalException;
 import com.freeder.buclserver.global.exception.auth.RefreshTokenNotFoundException;
 import com.freeder.buclserver.global.exception.user.UserIdNotFoundException;
 
@@ -16,14 +20,26 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
-public class JwtTokenService {
+public class AuthService {
 
 	private final JwtTokenProvider jwtTokenProvider;
 	private final UserRepository userRepository;
 
+	@Transactional(readOnly = true)
+	public Optional<UserDto> findBySocialIdAndDeletedAtIsNull(String socialUid) {
+		return userRepository.findBySocialIdAndDeletedAtIsNull(socialUid)
+			.map(UserDto::from);
+	}
+
+	@Transactional
+	public UserDto join(UserDto userDto) {
+		User user = userRepository.save(userDto.toEntity());
+		return UserDto.from(user);
+	}
+
 	@Transactional
 	public TokenResponse createJwtTokens(Long userId, Role role) {
-		User user = userRepository.findById(userId)
+		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
 			.orElseThrow(() -> new UserIdNotFoundException(userId));
 
 		String accessToken = jwtTokenProvider.createAccessToken(userId, role);
@@ -47,5 +63,25 @@ public class JwtTokenService {
 			user.getId(),
 			Role.valueOf(jwtTokenProvider.getUserRole(refreshToken))
 		);
+	}
+
+	@Transactional
+	public void deleteRefreshToken(Long userId) {
+		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
+			.orElseThrow(() -> new UserIdNotFoundException(userId));
+
+		user.deleteRefreshToken();
+	}
+
+	@Transactional
+	public void withdrawal(Long userId) {
+		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
+			.orElseThrow(() -> new UserIdNotFoundException(userId));
+
+		if (user.getRefreshToken() == null) {
+			throw new LogoutUserWithdrawalException();
+		}
+
+		user.withdrawal();
 	}
 }
