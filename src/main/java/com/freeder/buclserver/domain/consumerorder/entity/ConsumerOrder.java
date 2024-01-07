@@ -39,7 +39,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @AllArgsConstructor
 @RequiredArgsConstructor
-@Builder
 public class ConsumerOrder extends TimestampMixin {
 	@Id
 	@Column(name = "consumer_order_id")
@@ -104,6 +103,28 @@ public class ConsumerOrder extends TimestampMixin {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "cs_status")
 	private CsStatus csStatus;
+
+	@Builder
+	private ConsumerOrder(
+		User consumer, User business, Product product, GroupOrder groupOrder, String orderCode, int orderNum,
+		int shippingFee, int totalOrderAmount, int rewardUseAmount, int spentAmount, boolean isRewarded,
+		boolean isConfirmed, OrderStatus orderStatus, CsStatus csStatus
+	) {
+		this.consumer = consumer;
+		this.business = business;
+		this.product = product;
+		this.groupOrder = groupOrder;
+		this.orderCode = orderCode;
+		this.orderNum = orderNum;
+		this.shippingFee = shippingFee;
+		this.totalOrderAmount = totalOrderAmount;
+		this.rewardUseAmount = rewardUseAmount;
+		this.spentAmount = spentAmount;
+		this.isRewarded = isRewarded;
+		this.isConfirmed = isConfirmed;
+		this.orderStatus = orderStatus;
+		this.csStatus = csStatus;
+	}
 
 	public void setCsStatus(CsStatus csStatus) {
 		this.csStatus = csStatus;

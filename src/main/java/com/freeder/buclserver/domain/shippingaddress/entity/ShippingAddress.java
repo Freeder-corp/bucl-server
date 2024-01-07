@@ -16,12 +16,16 @@ import com.freeder.buclserver.domain.shipping.entity.Shipping;
 import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.global.mixin.TimestampMixin;
 
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "shipping_address")
 public class ShippingAddress extends TimestampMixin {
 	@Id
@@ -53,4 +57,19 @@ public class ShippingAddress extends TimestampMixin {
 
 	@Column(name = "memo_content")
 	private String memoContent;
+
+	@Builder
+	private ShippingAddress(
+		User user, Shipping shipping, String recipientName, String zipCode, String address,
+		String addressDetail, String contactNumber, String memoContent
+	) {
+		this.user = user;
+		this.shipping = shipping;
+		this.recipientName = recipientName;
+		this.zipCode = zipCode;
+		this.address = address;
+		this.addressDetail = addressDetail;
+		this.contactNumber = contactNumber;
+		this.memoContent = memoContent;
+	}
 }
