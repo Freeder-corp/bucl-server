@@ -21,12 +21,16 @@ import com.freeder.buclserver.domain.consumerpayment.vo.PaymentStatus;
 import com.freeder.buclserver.domain.consumerpayment.vo.PgProvider;
 import com.freeder.buclserver.global.mixin.TimestampMixin;
 
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "CONSUMER_PAYMENT")
 public class ConsumerPayment extends TimestampMixin {
 	@Id
@@ -70,4 +74,23 @@ public class ConsumerPayment extends TimestampMixin {
 
 	@Column(name = "paid_at")
 	private LocalDateTime paidAt;
+
+	@Builder
+	private ConsumerPayment(
+		ConsumerOrder consumerOrder, String pgTid, PgProvider pgProvider, String paymentCode, int paymentAmount,
+		String consumerName, String consumerEmail, String consumerAddress, PaymentStatus paymentStatus,
+		PaymentMethod paymentMethod, LocalDateTime paidAt
+	) {
+		this.consumerOrder = consumerOrder;
+		this.pgTid = pgTid;
+		this.pgProvider = pgProvider;
+		this.paymentCode = paymentCode;
+		this.paymentAmount = paymentAmount;
+		this.consumerName = consumerName;
+		this.consumerEmail = consumerEmail;
+		this.consumerAddress = consumerAddress;
+		this.paymentStatus = paymentStatus;
+		this.paymentMethod = paymentMethod;
+		this.paidAt = paidAt;
+	}
 }
