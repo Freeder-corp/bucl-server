@@ -3,12 +3,14 @@ package com.freeder.buclserver.app.rewards;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.freeder.buclserver.domain.openbanking.dto.OpenBankingAccessTokenDto;
+import com.freeder.buclserver.domain.rewardwithdrawalaccount.dto.WithdrawalAccountResponseDto;
 import com.freeder.buclserver.global.exception.BaseException;
 import com.freeder.buclserver.global.response.BaseResponse;
 
@@ -52,6 +54,23 @@ public class RewardsAccountController {
 			return new BaseResponse<>(result, HttpStatus.OK, "Success");
 		} catch (Exception e) {
 			e.printStackTrace();
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, e.getMessage());
+		}
+	}
+
+	@GetMapping("/account")
+	public BaseResponse<WithdrawalAccountResponseDto> responseWithdrawalAccount() {
+		try {
+			Long userId = 11L;
+			WithdrawalAccountResponseDto responseDto = rewardsWithdrawalAccountService.getWithdrawalAccountByUserId(
+				userId);
+
+			if (responseDto != null) {
+				return new BaseResponse<>(responseDto, HttpStatus.OK, "Success");
+			} else {
+				return new BaseResponse<>(null, HttpStatus.BAD_REQUEST, "에러가 발생했습니다.");
+			}
+		} catch (Exception e) {
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, e.getMessage());
 		}
 	}

@@ -69,7 +69,11 @@ public class ProductsCategoryService {
 		try {
 			List<ProductReview> reviews = product.getReviews();
 			int reviewCount = reviews.size();
+
+			float consumerRewardRate = product.getConsumerRewardRate() != null ? product.getConsumerRewardRate() : 0.0f;
+			float discountRate = product.getDiscountRate() != null ? product.getDiscountRate() : 0.0f;
 			float averageRating = calculateAverageRating(reviews);
+
 			String thumbnailUrl = imageParsing.getThumbnailUrl(product.getImagePath());
 			averageRating = Math.round(averageRating * 10.0f) / 10.0f;
 
@@ -84,8 +88,8 @@ public class ProductsCategoryService {
 				thumbnailUrl,
 				product.getSalePrice(),
 				product.getConsumerPrice(),
-				Math.round(product.getConsumerPrice() * product.getConsumerRewardRate()),
-				product.getDiscountRate(),
+				Math.round(product.getConsumerPrice() * consumerRewardRate),
+				discountRate,
 				reviewCount,
 				averageRating,
 				wished

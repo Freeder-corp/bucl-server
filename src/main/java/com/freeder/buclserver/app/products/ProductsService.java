@@ -1,9 +1,9 @@
 package com.freeder.buclserver.app.products;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
@@ -45,19 +45,22 @@ public class ProductsService {
 	public List<ProductDTO> getProducts(Long categoryId, int page, int pageSize, Long userId) {
 		try {
 			Pageable pageable = PageRequest.of(page, pageSize);
-			Page<Product> productsPage = productRepository.findProductsByConditions(categoryId, pageable)
-				.orElseThrow(() -> {
-					log.error("해당 상품을 찾을 수 없음");
-					return new BaseException(HttpStatus.NOT_FOUND, 404, "해당 상품을 찾을 수 없음");
-				});
+			Optional<Page<Product>> productsPageOptional = productRepository.findProductsByConditions(categoryId,
+				pageable);
+
+			Page<Product> productsPage = productsPageOptional.orElseThrow(() -> {
+				log.error("해당 상품을 찾을 수 없음");
+				return new BaseException(HttpStatus.NOT_FOUND, 404, "해당 상품을 찾을 수 없음");
+			});
 
 			List<ProductDTO> products = productsPage.getContent().stream()
 				.map(product -> convertToDTO(product, userId))
 				.collect(Collectors.toList());
+
 			log.info("상품 목록 조회 성공 - categoryId: {}, page: {}, pageSize: {}", categoryId, page, pageSize);
 			return products;
 		} catch (BaseException e) {
-			throw new BaseException(e.getHttpStatus(), e.getErrorCode(), e.getErrorMessage());
+			throw e;
 		} catch (NullPointerException e) {
 			log.error("Null Point Access 에러 발생", e);
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "Null Point Access 에러 발생");
@@ -182,7 +185,8 @@ public class ProductsService {
 	private ProductDTO convertToDTO(Product product, Long userId) {
 		try {
 			String thumbnailUrl = imageParsing.getThumbnailUrl(product.getImagePath());
-			float calculatedReward = (product.getSalePrice() * product.getConsumerRewardRate());
+			Float consumerRewardRate = product.getConsumerRewardRate();
+			float calculatedReward = (product.getSalePrice() * (consumerRewardRate != null ? consumerRewardRate : 0));
 			float roundedReward = Math.round(calculatedReward);
 
 			boolean wished = false;
