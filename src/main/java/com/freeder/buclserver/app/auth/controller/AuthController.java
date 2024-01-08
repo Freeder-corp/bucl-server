@@ -9,15 +9,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.freeder.buclserver.app.auth.dto.request.KakaoLoginRequest;
-import com.freeder.buclserver.app.auth.dto.request.RefreshTokenRequest;
 import com.freeder.buclserver.app.auth.dto.response.KakaoUserInfoResponse;
 import com.freeder.buclserver.app.auth.dto.response.TokenResponse;
 import com.freeder.buclserver.app.auth.service.AuthService;
-import com.freeder.buclserver.app.my.service.MyService;
 import com.freeder.buclserver.core.security.CustomUserDetails;
 import com.freeder.buclserver.domain.user.dto.UserDto;
 import com.freeder.buclserver.global.openfeign.kakao.KakaoApiClient;
@@ -34,7 +33,6 @@ public class AuthController {
 
 	private final AuthService authService;
 	private final KakaoApiClient kakaoApiClient;
-	private final MyService myService;
 
 	@Value("${bucl.service.auth.COOKIE-MAX-AGE-ACCESS-TOKEN}")
 	private int COOKIE_MAX_AGE_ACCESS_TOKEN;
@@ -51,20 +49,18 @@ public class AuthController {
 
 		TokenResponse tokens = authService.createJwtTokens(userDto.id(), userDto.role());
 
-		response.addCookie(createCookie("access-token", tokens.accessToken(), COOKIE_MAX_AGE_ACCESS_TOKEN));
 		response.addCookie(createCookie("refresh-token", tokens.refreshToken(), COOKIE_MAX_AGE_REFRESH_TOKEN));
 
-		return new BaseResponse(null, HttpStatus.OK, "요청 성공");
+		return new BaseResponse(tokens.accessToken(), HttpStatus.OK, "요청 성공");
 	}
 
 	@PostMapping("/renewal/tokens")
-	public BaseResponse renewTokens(@Valid @RequestBody RefreshTokenRequest request, HttpServletResponse response) {
-		TokenResponse tokens = authService.renewTokens(request.refreshToken());
+	public BaseResponse renewTokens(@RequestHeader("refresh-token") String refreshToken, HttpServletResponse response) {
+		TokenResponse tokens = authService.renewTokens(refreshToken);
 
-		response.addCookie(createCookie("access-token", tokens.accessToken(), COOKIE_MAX_AGE_ACCESS_TOKEN));
 		response.addCookie(createCookie("refresh-token", tokens.refreshToken(), COOKIE_MAX_AGE_REFRESH_TOKEN));
 
-		return new BaseResponse(null, HttpStatus.OK, "요청 성공");
+		return new BaseResponse(tokens.accessToken(), HttpStatus.OK, "요청 성공");
 	}
 
 	@PostMapping("/logout")
