@@ -46,7 +46,7 @@ public class ProductsCategoryService {
 				throw new BaseException(HttpStatus.NOT_FOUND, 404, "카테고리 목록이 존재하지 않습니다.");
 			}
 			List<ProductCategoryDTO> categoryProducts = categoryProductsPage.getContent().stream()
-				.map(product -> convertToCategoryDTO(product, userId))
+				.map(product -> convertToCategoryDTO(product, userId, product.getProductReviews()))
 				.collect(Collectors.toList());
 
 			log.info("카테고리 제품 조회 성공 - categoryId: {}, page: {}, pageSize: {}", categoryId, page, pageSize);
@@ -65,9 +65,8 @@ public class ProductsCategoryService {
 		}
 	}
 
-	public ProductCategoryDTO convertToCategoryDTO(Product product, Long userId) {
+	public ProductCategoryDTO convertToCategoryDTO(Product product, Long userId, List<ProductReview> reviews) {
 		try {
-			List<ProductReview> reviews = product.getReviews();
 			int reviewCount = reviews.size();
 
 			float consumerRewardRate = product.getConsumerRewardRate() != null ? product.getConsumerRewardRate() : 0.0f;

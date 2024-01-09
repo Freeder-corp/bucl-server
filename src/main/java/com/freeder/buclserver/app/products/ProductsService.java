@@ -79,7 +79,7 @@ public class ProductsService {
 			Product product = productRepository.findAvailableProductByCode(productCode)
 				.orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND, 404, "해당 상품을 찾을 수 없음"));
 
-			List<ProductReview> reviews = product.getReviews().stream()
+			List<ProductReview> reviews = productRepository.findReviewsByProductCode(productCode).stream()
 				.limit(3)
 				.collect(Collectors.toList());
 
