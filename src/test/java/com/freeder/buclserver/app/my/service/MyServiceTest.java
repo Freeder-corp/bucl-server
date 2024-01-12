@@ -30,7 +30,9 @@ import com.freeder.buclserver.domain.consumerpayment.vo.PaymentStatus;
 import com.freeder.buclserver.domain.consumerpayment.vo.PgProvider;
 import com.freeder.buclserver.domain.consumerpurchaseorder.repository.ConsumerPurchaseOrderRepository;
 import com.freeder.buclserver.domain.product.entity.Product;
+import com.freeder.buclserver.domain.reward.entity.Reward;
 import com.freeder.buclserver.domain.reward.repository.RewardRepository;
+import com.freeder.buclserver.domain.reward.vo.RewardType;
 import com.freeder.buclserver.domain.shipping.entity.Shipping;
 import com.freeder.buclserver.domain.shipping.repository.ShippingRepository;
 import com.freeder.buclserver.domain.shipping.vo.ShippingStatus;
@@ -84,8 +86,9 @@ class MyServiceTest {
 		Long userId = 1L;
 		Integer rewardSum = 5000;
 		User user = UserTestUtils.createUser();
+		Reward reward = createReward(user, rewardSum);
 		given(userRepository.findByIdAndDeletedAtIsNull(userId)).willReturn(Optional.of(user));
-		given(rewardRepository.findUserRewardSum(userId, PageRequest.of(0, 1))).willReturn(List.of(rewardSum));
+		given(rewardRepository.findFirstByUserOrderByCreatedAtDesc(user)).willReturn(Optional.of(reward));
 
 		// when
 		MyProfileResponse myProfile = myService.getMyProfile(userId);
@@ -102,7 +105,7 @@ class MyServiceTest {
 		Long userId = 1L;
 		User user = UserTestUtils.createUser();
 		given(userRepository.findByIdAndDeletedAtIsNull(userId)).willReturn(Optional.of(user));
-		given(rewardRepository.findUserRewardSum(userId, PageRequest.of(0, 1))).willReturn(List.of());
+		given(rewardRepository.findFirstByUserOrderByCreatedAtDesc(user)).willReturn(Optional.empty());
 
 		// when
 		MyProfileResponse myProfile = myService.getMyProfile(userId);
@@ -236,6 +239,18 @@ class MyServiceTest {
 
 		// then
 		assertThat(throwable).isInstanceOf(ConsumerUserNotMatchException.class);
+	}
+
+	private static Reward createReward(User user, int rewardSum) {
+		return Reward.builder()
+			.user(user)
+			.productName("productName")
+			.rewardType(RewardType.CONSUMER)
+			.receivedRewardAmount(500)
+			.spentRewardAmount(300)
+			.previousRewardSum(5500)
+			.rewardSum(rewardSum)
+			.build();
 	}
 
 	private static ConsumerOrder createConsumerOrder(User consumer) {

@@ -30,7 +30,6 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "reward")
 @Getter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Reward extends TimestampMixin {
@@ -82,4 +81,23 @@ public class Reward extends TimestampMixin {
 	@Column(name = "reward_sum")
 	private int rewardSum;
 
+	@Builder
+	private Reward(
+		User user, Product product, ConsumerOrder consumerOrder, OrderRefund orderRefund,
+		RewardWithdrawalAccount rewardWithdrawalAccount, String productName, String productBrandName,
+		RewardType rewardType, int receivedRewardAmount, int spentRewardAmount, int previousRewardSum, int rewardSum
+	) {
+		this.user = user;
+		this.product = product;
+		this.consumerOrder = consumerOrder;
+		this.orderRefund = orderRefund;
+		this.rewardWithdrawalAccount = rewardWithdrawalAccount;
+		this.productName = productName;
+		this.productBrandName = productBrandName;
+		this.rewardType = rewardType;
+		this.receivedRewardAmount = receivedRewardAmount;
+		this.spentRewardAmount = spentRewardAmount;
+		this.previousRewardSum = previousRewardSum;
+		this.rewardSum = rewardSum;
+	}
 }
