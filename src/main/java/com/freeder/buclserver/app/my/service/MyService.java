@@ -2,6 +2,7 @@ package com.freeder.buclserver.app.my.service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +17,7 @@ import com.freeder.buclserver.domain.consumerorder.repository.ConsumerOrderRepos
 import com.freeder.buclserver.domain.consumerpayment.entity.ConsumerPayment;
 import com.freeder.buclserver.domain.consumerpayment.repository.ConsumerPaymentRepository;
 import com.freeder.buclserver.domain.consumerpurchaseorder.repository.ConsumerPurchaseOrderRepository;
+import com.freeder.buclserver.domain.reward.entity.Reward;
 import com.freeder.buclserver.domain.reward.repository.RewardRepository;
 import com.freeder.buclserver.domain.shipping.repository.ShippingRepository;
 import com.freeder.buclserver.domain.shippingaddress.entity.ShippingAddress;
@@ -55,10 +57,10 @@ public class MyService {
 			.orElseThrow(() -> new UserIdNotFoundException(userId));
 
 		try {
-			List<Integer> rewardSum = rewardRepository.findUserRewardSum(userId, PageRequest.of(0, 1));
+			Optional<Reward> rewardSum = rewardRepository.findFirstByUserOrderByCreatedAtDesc(user);
 			return rewardSum.isEmpty()
 				? MyProfileResponse.of(user.getProfilePath(), user.getNickname(), 0)
-				: MyProfileResponse.of(user.getProfilePath(), user.getNickname(), rewardSum.get(0));
+				: MyProfileResponse.of(user.getProfilePath(), user.getNickname(), rewardSum.get().getRewardSum());
 		} catch (Exception e) {
 			log.error(String.format("{ \"type\": \"error\", \"msg\": %s }", e.getMessage()));
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR.value(), "");
