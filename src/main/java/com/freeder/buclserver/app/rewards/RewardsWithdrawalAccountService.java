@@ -53,7 +53,7 @@ public class RewardsWithdrawalAccountService {
 
 		RestTemplate rest = new RestTemplate();
 		URI uri = URI.create(openBankingApiBaseUrl + "/v2.0/inquiry/real_name");
-
+		System.out.println("uri = " + uri);
 		HttpHeaders headers = new HttpHeaders();
 		String accessToken = accessTokenRepository.findFirstByExpireDateAfter(
 				LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString())
@@ -81,7 +81,9 @@ public class RewardsWithdrawalAccountService {
 		try {
 			realNameDto = rest.postForObject(uri, new HttpEntity<>(param.toJSONString(), headers),
 				WithdrawalAccountDto.class);
+
 		} catch (Exception e) {
+			log.error("Error during RestTemplate call: ", e);
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "서버 오류입니다: " + e.getMessage());
 		}
 
@@ -101,6 +103,7 @@ public class RewardsWithdrawalAccountService {
 			throw new BaseException(HttpStatus.BAD_REQUEST, 400, "계좌 오류: 생년월일이 일치하지 않습니다.");
 		}
 
+		System.out.println("userId = " + userId);
 		RewardWithdrawalAccount withdrawalAccount = rewardWithdrawalAccountRepository.findByUser_Id(userId)
 			.orElse(new RewardWithdrawalAccount());
 		withdrawalAccount.setUser(new User(userId));
