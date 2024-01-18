@@ -9,7 +9,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class WithdrawalHistoryDto {
+public class WithdrawalDto {
 	private Integer rewardWithdrawalAmount;
 	private WithdrawalStatus withdrawalStatus;
 	private LocalDateTime lastUsedDate;

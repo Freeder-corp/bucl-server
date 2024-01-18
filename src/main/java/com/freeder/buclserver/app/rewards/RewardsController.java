@@ -14,11 +14,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.freeder.buclserver.core.security.CustomUserDetails;
 import com.freeder.buclserver.domain.reward.dto.RewardDto;
-import com.freeder.buclserver.domain.rewardwithdrawal.dto.WithdrawalHistoryDto;
+import com.freeder.buclserver.domain.rewardwithdrawal.dto.WithdrawalDto;
 import com.freeder.buclserver.domain.rewardwithdrawal.dto.WithdrawalRequestDto;
 import com.freeder.buclserver.global.response.BaseResponse;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -67,13 +69,13 @@ public class RewardsController {
 
 	@PostMapping("/withdrawals")
 	@Transactional
-	public BaseResponse<String> withdrawReward(
+	public BaseResponse<WithdrawalDto> withdrawReward(
 		// @AuthenticationPrincipal CustomUserDetails userDetails,
 		@RequestBody WithdrawalRequestDto withdrawalRequestDto
 	) {
 		// Long userId = getUserIdFromUserDetails(userDetails);
 		Long userId = 1L;
-		rewardsWithdrawalService.withdrawReward(
+		WithdrawalDto withdrawalDto = rewardsWithdrawalService.withdrawReward(
 			userId,
 			withdrawalRequestDto.getBankCodeStd(),
 			withdrawalRequestDto.getBankName(),
@@ -82,21 +84,42 @@ public class RewardsController {
 			withdrawalRequestDto.getAccountHolderName()
 		);
 
-		return new BaseResponse<>("Success", HttpStatus.OK, "리워드 인출 성공");
+		return new BaseResponse<>(withdrawalDto, HttpStatus.OK, "리워드 인출 성공");
 	}
 
 	@GetMapping("/withdrawals")
 	@Transactional(readOnly = true)
-	public BaseResponse<List<WithdrawalHistoryDto>> getWithdrawalHistory(
+	public BaseResponse<List<WithdrawalDto>> getWithdrawalHistory(
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "10") int pageSize
 		// @AuthenticationPrincipal CustomUserDetails userDetails,
 	) {
 		// Long userId = getUserIdFromUserDetails(userDetails);
 		Long userId = 1L;
-		List<WithdrawalHistoryDto> withdrawalHistory = rewardsWithdrawalService.getWithdrawalHistory(userId, page,
+		List<WithdrawalDto> withdrawalHistory = rewardsWithdrawalService.getWithdrawalHistory(userId, page,
 			pageSize);
 
 		return new BaseResponse<>(withdrawalHistory, HttpStatus.OK, "인출내역 조회 성공");
+	}
+
+	@GetMapping("/account")
+	public BaseResponse<WithdrawalAccountResponseDto> testResponseWithdrawalAccount() {
+		WithdrawalAccountResponseDto test = new WithdrawalAccountResponseDto();
+		test.setAccountNum("5560910215263");
+		test.setBankName("농협");
+		test.setBankCode("09");
+		test.setAccountHolderName("김창민");
+
+		return new BaseResponse<>(test, HttpStatus.OK, "인출계좌 조회 성공");
+	}
+
+	@Getter
+	@Setter
+	public class WithdrawalAccountResponseDto {
+		private String bankName;
+		private String bankCode;
+		private String accountNum;
+		private String accountHolderName;
+
 	}
 }

@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.freeder.buclserver.domain.reward.entity.Reward;
 import com.freeder.buclserver.domain.reward.repository.RewardRepository;
 import com.freeder.buclserver.domain.reward.vo.RewardType;
-import com.freeder.buclserver.domain.rewardwithdrawal.dto.WithdrawalHistoryDto;
+import com.freeder.buclserver.domain.rewardwithdrawal.dto.WithdrawalDto;
 import com.freeder.buclserver.domain.rewardwithdrawal.entity.RewardWithdrawal;
 import com.freeder.buclserver.domain.rewardwithdrawal.repository.RewardWithdrawalRepository;
 import com.freeder.buclserver.domain.rewardwithdrawal.vo.WithdrawalStatus;
@@ -41,7 +41,7 @@ public class RewardsWithdrawalService {
 	}
 
 	@Transactional
-	public void withdrawReward(Long userId, String bankCodeStd, String bankName, Integer withdrawalAmount,
+	public WithdrawalDto withdrawReward(Long userId, String bankCodeStd, String bankName, Integer withdrawalAmount,
 		String accountNum, String accountHolderName) {
 		try {
 			// 현재 리워드 정보 조회
@@ -88,9 +88,15 @@ public class RewardsWithdrawalService {
 				.rewardWithdrawal(newRewardWithdrawal)
 				.build();
 
-			rewardRepository.save(newReward);
+			newReward = rewardRepository.save(newReward);
+
+			WithdrawalDto withdrawalDto = new WithdrawalDto();
+			withdrawalDto.setWithdrawalStatus(WithdrawalStatus.WTHDR_WTNG);
+			withdrawalDto.setLastUsedDate(newReward.getCreatedAt());
+			withdrawalDto.setRewardWithdrawalAmount(newReward.getSpentRewardAmount());
 
 			log.info("리워드 인출 성공 - userId: {}, withdrawalAmount: {}", userId, withdrawalAmount);
+			return withdrawalDto;
 		} catch (BaseException e) {
 			throw e;
 		} catch (IllegalArgumentException e) {
@@ -103,14 +109,14 @@ public class RewardsWithdrawalService {
 		}
 	}
 
-	public List<WithdrawalHistoryDto> getWithdrawalHistory(Long userId, int page, int pageSize) {
+	public List<WithdrawalDto> getWithdrawalHistory(Long userId, int page, int pageSize) {
 		try {
 			PageRequest pageRequest = PageRequest.of(page, pageSize);
 			List<RewardWithdrawal> withdrawalList = rewardWithdrawalRepository.findByUserIdOrderByLastUsedDateDesc(
 				userId, pageRequest);
 
 			if (withdrawalList != null) {
-				List<WithdrawalHistoryDto> withdrawalHistory = withdrawalList
+				List<WithdrawalDto> withdrawalHistory = withdrawalList
 					.stream()
 					.map(this::convertToDto)
 					.collect(Collectors.toList());
@@ -134,9 +140,9 @@ public class RewardsWithdrawalService {
 		}
 	}
 
-	private WithdrawalHistoryDto convertToDto(RewardWithdrawal rewardWithdrawal) {
+	private WithdrawalDto convertToDto(RewardWithdrawal rewardWithdrawal) {
 		try {
-			WithdrawalHistoryDto dto = new WithdrawalHistoryDto();
+			WithdrawalDto dto = new WithdrawalDto();
 			dto.setRewardWithdrawalAmount(rewardWithdrawal.getRewardWithdrawalAmount());
 			dto.setWithdrawalStatus(rewardWithdrawal.getWithdrawalStatus());
 			dto.setLastUsedDate(rewardWithdrawal.getLastUsedDate());
