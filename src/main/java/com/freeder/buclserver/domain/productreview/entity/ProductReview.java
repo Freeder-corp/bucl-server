@@ -58,7 +58,4 @@ public class ProductReview extends TimestampMixin {
 		return product;
 	}
 
-	public Long getProductCode() {
-		return product.getProductCode();
-	}
 }

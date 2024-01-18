@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -20,6 +21,7 @@ import com.freeder.buclserver.domain.openbanking.entity.OpenBankingAccessToken;
 import com.freeder.buclserver.domain.openbanking.repository.AccessTokenRepository;
 import com.freeder.buclserver.domain.openbanking.vo.BANK_CODE;
 import com.freeder.buclserver.domain.rewardwithdrawalaccount.dto.WithdrawalAccountDto;
+import com.freeder.buclserver.domain.rewardwithdrawalaccount.dto.WithdrawalAccountResponseDto;
 import com.freeder.buclserver.domain.rewardwithdrawalaccount.entity.RewardWithdrawalAccount;
 import com.freeder.buclserver.domain.rewardwithdrawalaccount.repository.RewardWithdrawalAccountRepository;
 import com.freeder.buclserver.domain.user.entity.User;
@@ -51,7 +53,7 @@ public class RewardsWithdrawalAccountService {
 
 		RestTemplate rest = new RestTemplate();
 		URI uri = URI.create(openBankingApiBaseUrl + "/v2.0/inquiry/real_name");
-
+		System.out.println("uri = " + uri);
 		HttpHeaders headers = new HttpHeaders();
 		String accessToken = accessTokenRepository.findFirstByExpireDateAfter(
 				LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString())
@@ -79,7 +81,9 @@ public class RewardsWithdrawalAccountService {
 		try {
 			realNameDto = rest.postForObject(uri, new HttpEntity<>(param.toJSONString(), headers),
 				WithdrawalAccountDto.class);
+
 		} catch (Exception e) {
+			log.error("Error during RestTemplate call: ", e);
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "서버 오류입니다: " + e.getMessage());
 		}
 
@@ -99,6 +103,7 @@ public class RewardsWithdrawalAccountService {
 			throw new BaseException(HttpStatus.BAD_REQUEST, 400, "계좌 오류: 생년월일이 일치하지 않습니다.");
 		}
 
+		System.out.println("userId = " + userId);
 		RewardWithdrawalAccount withdrawalAccount = rewardWithdrawalAccountRepository.findByUser_Id(userId)
 			.orElse(new RewardWithdrawalAccount());
 		withdrawalAccount.setUser(new User(userId));
@@ -111,6 +116,22 @@ public class RewardsWithdrawalAccountService {
 
 		rewardWithdrawalAccountRepository.save(withdrawalAccount);
 		return true;
+	}
+
+	@Transactional
+	public WithdrawalAccountResponseDto getWithdrawalAccountByUserId(Long userId) {
+		Optional<RewardWithdrawalAccount> withdrawalAccountOptional = rewardWithdrawalAccountRepository.findByUser_Id(
+			userId);
+
+		if (withdrawalAccountOptional.isPresent()) {
+			RewardWithdrawalAccount withdrawalAccount = withdrawalAccountOptional.get();
+			WithdrawalAccountResponseDto responseDto = new WithdrawalAccountResponseDto();
+			responseDto.setBank_name(withdrawalAccount.getBankName());
+			responseDto.setAccount_num(withdrawalAccount.getAccountNum());
+			return responseDto;
+		} else {
+			throw new BaseException(HttpStatus.NOT_FOUND, 404, "등록된 계좌가 없습니다: " + userId);
+		}
 	}
 
 }

@@ -121,8 +121,4 @@ public class Product extends TimestampMixin implements Serializable {
 	@Column(name = "sale_alternatives")
 	private String saleAlternatives;
 
-	public List<ProductReview> getReviews() {
-		return productReviews;
-	}
-
 }
