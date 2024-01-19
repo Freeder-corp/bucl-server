@@ -7,4 +7,4 @@ spring:
       local:
         - local-config
         - cloud
-        - discord
+        - webhook

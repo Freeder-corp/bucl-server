@@ -16,6 +16,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import com.freeder.buclserver.global.exception.util.DiscordAlarmUtil;
+import com.freeder.buclserver.global.exception.util.SlackAlarmUtil;
 import com.freeder.buclserver.global.response.ErrorResponse;
 
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		log.error("[Base_Exception]: {}", stackTrace);
 
 		if (ex.getHttpStatus() == HttpStatus.INTERNAL_SERVER_ERROR) {
+			SlackAlarmUtil.send(ex, ex.getErrorMessage(), stackTrace);
 			DiscordAlarmUtil.send(ex, ex.getErrorMessage(), stackTrace);
 		}
 
@@ -66,6 +68,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		log.error("[Spring_MVC_Standard_Exception]: {}", stackTrace);
 
 		if (status == HttpStatus.INTERNAL_SERVER_ERROR) {
+			SlackAlarmUtil.send(ex, ex.getMessage(), stackTrace);
 			DiscordAlarmUtil.send(ex, ex.getMessage(), stackTrace);
 		}
 
@@ -79,6 +82,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		String stackTrace = convertExceptionStackTraceToString(ex);
 		log.error("[Exception]: {}", stackTrace);
 
+		SlackAlarmUtil.send(ex, ex.getMessage(), stackTrace);
 		DiscordAlarmUtil.send(ex, ex.getMessage(), stackTrace);
 
 		return ResponseEntity

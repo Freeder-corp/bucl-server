@@ -19,7 +19,7 @@ public class DiscordAlarmUtil {
 
 	private static String webhookUrl;
 
-	@Value("${discord.webhook.url}")
+	@Value("${webhook.url.discord}")
 	private void setWebhookUrl(String url) {
 		webhookUrl = url;
 	}
@@ -40,7 +40,7 @@ public class DiscordAlarmUtil {
 		}
 	}
 
-	public static String createMessage(Exception ex, String errorMessage, String stackTrace) {
+	private static String createMessage(Exception ex, String errorMessage, String stackTrace) {
 		JSONObject jsonMessage = new JSONObject();
 		String errorLocation = stackTrace.split("\\n")[1].trim();
 

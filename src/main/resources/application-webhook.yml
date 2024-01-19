@@ -1,0 +1,4 @@
+webhook:
+  url:
+    discord: ${DISCORD_WEBHOOK_URL}
+    slack: ${SLACK_WEBHOOK_URL}
