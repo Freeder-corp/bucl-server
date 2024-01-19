@@ -1,0 +1,37 @@
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testDB
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+bucl:
+  service:
+    auth:
+      COOKIE-MAX-AGE-REFRESH_TOKEN: 2592000 # 60 * 60 * 24 * 30
+      JWT-SECRET-KEY: testSecretKeytestSecretKeytestSecretKeytestSecretKeytestSecretKeytestSecretKeytestSecretKey
+
+cloud:
+  aws:
+    credentials:
+      access-key: AKIAYTADQLZOOXGEK4GP
+      secret-key: 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
+    region:
+      auto: false
+      static: ap-northeast-2
+    stack:
+      auto: false
+    s3:
+      bucket: test-sujeong
