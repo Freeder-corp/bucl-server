@@ -66,6 +66,9 @@ dependencies {
     // Openfeign
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
     implementation platform("org.springframework.cloud:spring-cloud-dependencies:2021.0.5")
+
+    // H2
+    runtimeOnly 'com.h2database:h2'
 }
 
 tasks.named('test') {
