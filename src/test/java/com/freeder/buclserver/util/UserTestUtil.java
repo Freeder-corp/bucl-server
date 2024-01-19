@@ -1,4 +1,4 @@
-package com.freeder.buclserver.app.utils;
+package com.freeder.buclserver.util;
 
 import java.time.LocalDateTime;
 
@@ -9,9 +9,9 @@ import com.freeder.buclserver.domain.user.vo.Role;
 import com.freeder.buclserver.domain.user.vo.UserGrade;
 import com.freeder.buclserver.domain.user.vo.UserState;
 
-public class UserTestUtils {
+public class UserTestUtil {
 
-	public static User createUser() {
+	public static User create() {
 		return User.builder()
 			.email("email@gmail.com")
 			.nickname("nickname")

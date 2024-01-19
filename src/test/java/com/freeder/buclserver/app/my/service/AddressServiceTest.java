@@ -13,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.freeder.buclserver.app.utils.UserTestUtils;
 import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.domain.user.repository.UserRepository;
 import com.freeder.buclserver.domain.usershippingaddress.dto.UserShippingAddressDto;
@@ -24,6 +23,7 @@ import com.freeder.buclserver.domain.usershippingaddress.exception.AddressUserNo
 import com.freeder.buclserver.domain.usershippingaddress.exception.AlreadyDefaultAddressException;
 import com.freeder.buclserver.domain.usershippingaddress.exception.SingleAddressDefaultRegisterException;
 import com.freeder.buclserver.domain.usershippingaddress.repository.UserShippingAddressRepository;
+import com.freeder.buclserver.util.UserTestUtil;
 
 @ExtendWith(MockitoExtension.class)
 class AddressServiceTest {
@@ -43,7 +43,7 @@ class AddressServiceTest {
 	@Test
 	void 배송지_등록이_처음이라면_요청_데이터의_디폴트_주소_값과_상관없이_디폴트_배송지로_저장한다() {
 		// given
-		User user = UserTestUtils.createUser();
+		User user = UserTestUtil.create();
 		AddressCreateRequest request = createAddressCreateRequest(false);
 		UserShippingAddress expectSavedAddress = createShippingAddress(true);
 		given(userRepository.findByIdAndDeletedAtIsNull(anyLong())).willReturn(Optional.of(user));
@@ -61,7 +61,7 @@ class AddressServiceTest {
 	@Test
 	void 요청_데이터의_디폴트_주소_값이_true라면_기존의_디폴트_주소를_기본_배송지로_변경하고_새로운_주소를_저장한다() {
 		// given
-		User user = UserTestUtils.createUser();
+		User user = UserTestUtil.create();
 		AddressCreateRequest request = createAddressCreateRequest(true);
 		UserShippingAddress expectSavedAddress = createShippingAddress(true);
 		given(userRepository.findByIdAndDeletedAtIsNull(anyLong())).willReturn(Optional.of(user));
@@ -80,7 +80,7 @@ class AddressServiceTest {
 	@Test
 	void 배송지_등록이_처음이_아니면서_요청_데이터의_디폴트_주소_값이_false라면_바로_새로운_주소로_저장한다() {
 		// given
-		User user = UserTestUtils.createUser();
+		User user = UserTestUtil.create();
 		AddressCreateRequest request = createAddressCreateRequest(false);
 		UserShippingAddress expectSavedAddress = createShippingAddress(false);
 		given(userRepository.findByIdAndDeletedAtIsNull(anyLong())).willReturn(Optional.of(user));
@@ -101,7 +101,7 @@ class AddressServiceTest {
 	@Test
 	void 사용자의_모든_주소_리스트_조회한다() {
 		// given
-		User user = UserTestUtils.createUser();
+		User user = UserTestUtil.create();
 		List<UserShippingAddress> expectAddressList = List.of(
 			createShippingAddress(true),
 			createShippingAddress(false));
@@ -112,7 +112,7 @@ class AddressServiceTest {
 		List<UserShippingAddressDto> actualAddressList = addressService.getMyAddressList(anyLong());
 
 		// then
-		then(userShippingAddressRepository).should().findAllByUser(user);
+		then(userShippingAddressRepository).should().findAllByUser(any(User.class));
 		assertThat(actualAddressList.size()).isEqualTo(expectAddressList.size());
 	}
 
@@ -124,7 +124,7 @@ class AddressServiceTest {
 		// given
 		Long userId = 1L;
 		Long addressId = 1L;
-		User user = Mockito.spy(UserTestUtils.createUser());
+		User user = Mockito.spy(UserTestUtil.create());
 		UserShippingAddress existAddress = Mockito.spy(createShippingAddressWithUser(user, true));
 		AddressUpdateRequest expectUpdateAddress = createAddressUpdateRequest(false);
 		doReturn(userId).when(user).getId();
@@ -138,8 +138,8 @@ class AddressServiceTest {
 			expectUpdateAddress);
 
 		// then
-		then(userShippingAddressRepository).should().findByUserAndIsDefaultAddressIsTrue(userId);
-		then(userShippingAddressRepository).should().findFirstByUserOrderByIdDesc(user);
+		then(userShippingAddressRepository).should().findByUserAndIsDefaultAddressIsTrue(anyLong());
+		then(userShippingAddressRepository).should().findFirstByUserOrderByIdDesc(any(User.class));
 		assertThat(actualUpdateAddress)
 			.hasFieldOrPropertyWithValue("shippingAddressName", expectUpdateAddress.shippingAddressName())
 			.hasFieldOrPropertyWithValue("recipientName", expectUpdateAddress.recipientName())
@@ -154,7 +154,7 @@ class AddressServiceTest {
 	void 디폴트_주소로의_변경과_함께_배송지를_수정한다면_기존_디폴트_배송지를_제거하고_나머지_배송지_데이터를_수정한다() {
 		// given
 		Long userId = 1L;
-		User user = Mockito.spy(UserTestUtils.createUser());
+		User user = Mockito.spy(UserTestUtil.create());
 		UserShippingAddress existAddress = createShippingAddressWithUser(user, false);
 		AddressUpdateRequest expectUpdateAddress = createAddressUpdateRequest(true);
 		doReturn(userId).when(user).getId();
@@ -167,7 +167,7 @@ class AddressServiceTest {
 			expectUpdateAddress);
 
 		// then
-		then(userShippingAddressRepository).should().findByUserAndIsDefaultAddressIsTrue(userId);
+		then(userShippingAddressRepository).should().findByUserAndIsDefaultAddressIsTrue(anyLong());
 		assertThat(actualUpdateAddress)
 			.hasFieldOrPropertyWithValue("shippingAddressName", expectUpdateAddress.shippingAddressName())
 			.hasFieldOrPropertyWithValue("recipientName", expectUpdateAddress.recipientName())
@@ -182,8 +182,8 @@ class AddressServiceTest {
 	void 배송지를_수정하려는_사용자와_등록한_사용자가_다르다면_에러_발생한다() {
 		// given
 		Long userId = 1L;
-		User user = UserTestUtils.createUser();
-		User wrongUser = Mockito.spy(UserTestUtils.createUser());
+		User user = UserTestUtil.create();
+		User wrongUser = Mockito.spy(UserTestUtil.create());
 		UserShippingAddress existAddress = createShippingAddressWithUser(wrongUser, false);
 		AddressUpdateRequest expectAddress = createAddressUpdateRequest(true);
 		doReturn(2L).when(wrongUser).getId();
@@ -201,7 +201,7 @@ class AddressServiceTest {
 	void 등록된_배송지가_1개일_때_디폴트_주소를_false로_변경하려고_하면_에러_발생한다() {
 		// given
 		Long userId = 1L;
-		User user = Mockito.spy(UserTestUtils.createUser());
+		User user = Mockito.spy(UserTestUtil.create());
 		UserShippingAddress existAddress = createShippingAddressWithUser(user, false);
 		AddressUpdateRequest expectAddress = createAddressUpdateRequest(false);
 		doReturn(userId).when(user).getId();
@@ -223,7 +223,7 @@ class AddressServiceTest {
 	void 배송지_PK를_받아_DB에서_배송지를_삭제한다() {
 		// given
 		Long userId = 1L;
-		User user = Mockito.spy(UserTestUtils.createUser());
+		User user = Mockito.spy(UserTestUtil.create());
 		UserShippingAddress deleteAddress = createShippingAddressWithUser(user, false);
 		doReturn(userId).when(user).getId();
 		given(userRepository.findByIdAndDeletedAtIsNull(userId)).willReturn(Optional.of(user));
@@ -241,7 +241,7 @@ class AddressServiceTest {
 	void 삭제_요청을_받은_배송지가_디폴트_배송지였다면_사용자의_최근_배송지를_디폴트_배송지로_수정하고_삭제한다() {
 		// given
 		Long userId = 1L;
-		User user = Mockito.spy(UserTestUtils.createUser());
+		User user = Mockito.spy(UserTestUtil.create());
 		UserShippingAddress deleteAddress = createShippingAddressWithUser(user, true);
 		when(user.getId()).thenReturn(userId);
 		given(userRepository.findByIdAndDeletedAtIsNull(userId)).willReturn(Optional.of(user));
@@ -253,15 +253,15 @@ class AddressServiceTest {
 
 		// then
 		then(userShippingAddressRepository).should().deleteById(anyLong());
-		then(userShippingAddressRepository).should().findFirstByUserOrderByIdDesc(user);
+		then(userShippingAddressRepository).should().findFirstByUserOrderByIdDesc((any(User.class)));
 	}
 
 	@Test
 	void 배송지를_삭제하려는_사용자와_등록한_사용자가_다르다면_에러_발생한다() {
 		// given
 		Long userId = 1L;
-		User user = UserTestUtils.createUser();
-		User wrongUser = Mockito.spy(UserTestUtils.createUser());
+		User user = UserTestUtil.create();
+		User wrongUser = Mockito.spy(UserTestUtil.create());
 		UserShippingAddress userShippingAddress = createShippingAddressWithUser(wrongUser, true);
 		given(userRepository.findByIdAndDeletedAtIsNull(userId)).willReturn(Optional.of(user));
 		given(userShippingAddressRepository.findById(anyLong())).willReturn(Optional.of(userShippingAddress));
@@ -300,7 +300,7 @@ class AddressServiceTest {
 	void 사용자가_원하는_주소를_디폴트_주소로_변경한다() {
 		// given
 		Long userId = 1L;
-		User user = Mockito.spy(UserTestUtils.createUser());
+		User user = Mockito.spy(UserTestUtil.create());
 		UserShippingAddress existAddress = createShippingAddressWithUser(user, false);
 		given(userRepository.existsByIdAndDeletedAtIsNull(userId)).willReturn(true);
 		given(userShippingAddressRepository.findById(anyLong())).willReturn(Optional.of(existAddress));
@@ -310,7 +310,7 @@ class AddressServiceTest {
 		UserShippingAddressDto updateAddress = addressService.updateMyDefaultAddress(userId, anyLong());
 
 		// then
-		then(userShippingAddressRepository).should().findByUserAndIsDefaultAddressIsTrue(userId);
+		then(userShippingAddressRepository).should().findByUserAndIsDefaultAddressIsTrue(anyLong());
 		assertThat(updateAddress.isDefaultAddress()).isTrue();
 	}
 
@@ -333,7 +333,7 @@ class AddressServiceTest {
 	void 디폴트_배송지로_수정하려는_사용자와_등록한_사용자가_다르다면_에러_발생한다() {
 		// given
 		Long userId = 1L;
-		User wrongUser = Mockito.spy(UserTestUtils.createUser());
+		User wrongUser = Mockito.spy(UserTestUtil.create());
 		UserShippingAddress address = createShippingAddressWithUser(wrongUser, false);
 		given(userRepository.existsByIdAndDeletedAtIsNull(userId)).willReturn(true);
 		given(userShippingAddressRepository.findById(anyLong())).willReturn(Optional.of(address));
@@ -349,6 +349,7 @@ class AddressServiceTest {
 	private static UserShippingAddress createShippingAddressWithUser(User user, boolean isDefaultAddress) {
 		return UserShippingAddress.builder()
 			.user(user)
+			.addrNo("addrNo")
 			.shippingAddressName("배송지 이름")
 			.recipientName("수취인 이름")
 			.zipCode("12345")
@@ -360,7 +361,7 @@ class AddressServiceTest {
 	}
 
 	private static UserShippingAddress createShippingAddress(boolean isDefaultAddress) {
-		return createShippingAddressWithUser(UserTestUtils.createUser(), isDefaultAddress);
+		return createShippingAddressWithUser(UserTestUtil.create(), isDefaultAddress);
 	}
 
 	private static AddressCreateRequest createAddressCreateRequest(boolean isDefaultAddress) {

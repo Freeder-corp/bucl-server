@@ -58,10 +58,11 @@ public class UserShippingAddress {
 
 	@Builder
 	private UserShippingAddress(
-		User user, String shippingAddressName, String recipientName, String zipCode,
+		User user, String addrNo, String shippingAddressName, String recipientName, String zipCode,
 		String address, String addressDetail, String contactNumber, boolean isDefaultAddress
 	) {
 		this.user = user;
+		this.addrNo = addrNo;
 		this.shippingAddressName = shippingAddressName;
 		this.recipientName = recipientName;
 		this.zipCode = zipCode;
