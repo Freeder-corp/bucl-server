@@ -18,7 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 
-import com.freeder.buclserver.app.utils.UserTestUtils;
 import com.freeder.buclserver.domain.consumerorder.entity.ConsumerOrder;
 import com.freeder.buclserver.domain.consumerorder.exception.ConsumerUserNotMatchException;
 import com.freeder.buclserver.domain.consumerorder.repository.ConsumerOrderRepository;
@@ -46,6 +45,7 @@ import com.freeder.buclserver.domain.user.dto.response.MyProfileResponse;
 import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.domain.user.repository.UserRepository;
 import com.freeder.buclserver.domain.user.util.ProfileImage;
+import com.freeder.buclserver.util.UserTestUtil;
 
 @ExtendWith(MockitoExtension.class)
 class MyServiceTest {
@@ -85,7 +85,7 @@ class MyServiceTest {
 		// given
 		Long userId = 1L;
 		Integer rewardSum = 5000;
-		User user = UserTestUtils.createUser();
+		User user = UserTestUtil.create();
 		Reward reward = createReward(user, rewardSum);
 		given(userRepository.findByIdAndDeletedAtIsNull(userId)).willReturn(Optional.of(user));
 		given(rewardRepository.findFirstByUserOrderByCreatedAtDesc(user)).willReturn(Optional.of(reward));
@@ -103,7 +103,7 @@ class MyServiceTest {
 	void 사용자_프로필_조회할_때_받은_리워드가_없다면_0으로_프로필을_반환한다() {
 		// given
 		Long userId = 1L;
-		User user = UserTestUtils.createUser();
+		User user = UserTestUtil.create();
 		given(userRepository.findByIdAndDeletedAtIsNull(userId)).willReturn(Optional.of(user));
 		given(rewardRepository.findFirstByUserOrderByCreatedAtDesc(user)).willReturn(Optional.empty());
 
@@ -122,7 +122,7 @@ class MyServiceTest {
 	@Test
 	void 사용자의_기존_프로필_사진을_S3에서_삭제하고_디폴트_이미지로_변경한다() {
 		// given
-		User user = UserTestUtils.createUser();
+		User user = UserTestUtil.create();
 		given(userRepository.findByIdAndDeletedAtIsNull(anyLong())).willReturn(Optional.of(user));
 		willDoNothing().given(profileS3Service).deleteFile(anyString());
 
@@ -139,7 +139,7 @@ class MyServiceTest {
 	@Test
 	void 사용자의_기존_프로필_사진을_S3에서_삭제하고_요청받은_사진을_S3에_저장하고_데이터를_수정한다() {
 		// given
-		User user = UserTestUtils.createUser();
+		User user = UserTestUtil.create();
 		MockMultipartFile profileImage = new MockMultipartFile(
 			"image", "image.jpg", MediaType.IMAGE_PNG_VALUE, "image-jpg".getBytes());
 		String expectUploadFileUrl = "https://buclbucket.s3.ap-northeast-2.amazonaws.com/assets/images/profiles/image.png";
@@ -161,7 +161,7 @@ class MyServiceTest {
 	void 사용자가_주문한_내역들을_리스트로_반환한다() {
 		// given
 		Long userId = 1L;
-		User user = Mockito.spy(UserTestUtils.createUser());
+		User user = Mockito.spy(UserTestUtil.create());
 		Pageable pageable = PageRequest.of(0, 10);
 		ConsumerOrder consumerOrder1 = Mockito.spy(createConsumerOrder(user));
 		ConsumerOrder consumerOrder2 = Mockito.spy(createConsumerOrder(user));
@@ -200,7 +200,7 @@ class MyServiceTest {
 		Long userId = 1L;
 		Long consumerOrderId = 1L;
 		int productOrderQty = 3;
-		User consumer = Mockito.spy(UserTestUtils.createUser());
+		User consumer = Mockito.spy(UserTestUtil.create());
 		ConsumerOrder consumerOrder = Mockito.spy(createConsumerOrder(consumer));
 		ConsumerPayment consumerPayment = createConsumerPayment(consumerOrder);
 		Shipping shipping = createShipping(consumerOrder, "12121", "23232", ShippingStatus.IN_DELIVERY, true);
@@ -228,7 +228,7 @@ class MyServiceTest {
 	void 상품을_주문한_사용자와_조회하는_사용자가_다르면_에러가_발생한다() {
 		// given
 		Long userId = 1L;
-		User wrongConsumer = Mockito.spy(UserTestUtils.createUser());
+		User wrongConsumer = Mockito.spy(UserTestUtil.create());
 		ConsumerOrder consumerOrder = createConsumerOrder(wrongConsumer);
 		doReturn(2L).when(wrongConsumer).getId();
 		given(userRepository.existsByIdAndDeletedAtIsNull(userId)).willReturn(true);

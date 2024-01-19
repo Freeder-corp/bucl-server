@@ -14,13 +14,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.freeder.buclserver.app.auth.dto.response.TokenResponse;
 import com.freeder.buclserver.app.auth.exception.LogoutUserWithdrawalException;
-import com.freeder.buclserver.app.utils.UserTestUtils;
 import com.freeder.buclserver.core.security.JwtTokenProvider;
 import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.domain.user.repository.UserRepository;
 import com.freeder.buclserver.domain.user.vo.Role;
 import com.freeder.buclserver.domain.user.vo.UserGrade;
 import com.freeder.buclserver.domain.user.vo.UserState;
+import com.freeder.buclserver.util.UserTestUtil;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
@@ -38,7 +38,7 @@ class AuthServiceTest {
 	void 탈퇴한_회원이_로그인을_시도한다면_재가입_로직을_실행한다() {
 		// given
 		Long userId = 1L;
-		User user = UserTestUtils.createWthdrawalUser();
+		User user = UserTestUtil.createWthdrawalUser();
 		given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
 		// when
@@ -56,7 +56,7 @@ class AuthServiceTest {
 		Role role = Role.ROLE_USER;
 		String expectAccessToken = "testAccessToken";
 		String expectRefreshToken = "testRefreshToken";
-		User user = UserTestUtils.createUser();
+		User user = UserTestUtil.create();
 		given(userRepository.findByIdAndDeletedAtIsNull(userId)).willReturn(Optional.of(user));
 		given(jwtTokenProvider.createAccessToken(userId, role)).willReturn(expectAccessToken);
 		given(jwtTokenProvider.createRefreshToken(userId, role)).willReturn(expectRefreshToken);
@@ -75,7 +75,7 @@ class AuthServiceTest {
 	@Test
 	void 회원의_PK를_받아_리프레시_토큰을_삭제해_로그아웃을_진행한다() {
 		// given
-		User user = UserTestUtils.createUser();
+		User user = UserTestUtil.create();
 		given(userRepository.findByIdAndDeletedAtIsNull(anyLong())).willReturn(Optional.of(user));
 
 		// when
@@ -88,7 +88,7 @@ class AuthServiceTest {
 	@Test
 	void 회원의_PK를_받아_회원탈퇴를_진행한다() {
 		// given
-		User user = UserTestUtils.createUser();
+		User user = UserTestUtil.create();
 		given(userRepository.findByIdAndDeletedAtIsNull(anyLong())).willReturn(Optional.of(user));
 
 		// when
@@ -103,7 +103,7 @@ class AuthServiceTest {
 	@Test
 	void 로그아웃한_사용자가_회원탈퇴를_요청하면_에러가_발생한다() {
 		// given
-		User user = UserTestUtils.createLogoutUser();
+		User user = UserTestUtil.createLogoutUser();
 		given(userRepository.findByIdAndDeletedAtIsNull(anyLong())).willReturn(Optional.of(user));
 
 		// when
