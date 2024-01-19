@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.freeder.buclserver.global.exception.s3.FileDeleteException;
-import com.freeder.buclserver.global.exception.s3.FileExtensionNotSupportException;
-import com.freeder.buclserver.global.exception.s3.FileUploadException;
+import com.freeder.buclserver.global.s3.exception.FileDeleteException;
+import com.freeder.buclserver.global.s3.exception.FileExtensionNotSupportException;
+import com.freeder.buclserver.global.s3.exception.FileUploadException;
 
 import lombok.RequiredArgsConstructor;
 import software.amazon.awssdk.core.sync.RequestBody;

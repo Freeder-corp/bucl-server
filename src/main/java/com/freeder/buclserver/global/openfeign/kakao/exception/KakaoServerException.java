@@ -1,4 +1,4 @@
-package com.freeder.buclserver.global.exception.kakao;
+package com.freeder.buclserver.global.openfeign.kakao.exception;
 
 import static org.springframework.http.HttpStatus.*;
 

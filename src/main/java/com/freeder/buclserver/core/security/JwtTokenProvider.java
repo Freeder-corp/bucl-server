@@ -11,9 +11,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import com.freeder.buclserver.core.security.exception.JwtTokenExpiredException;
+import com.freeder.buclserver.core.security.exception.JwtTokenValidException;
 import com.freeder.buclserver.domain.user.vo.Role;
-import com.freeder.buclserver.global.exception.auth.JwtTokenExpiredException;
-import com.freeder.buclserver.global.exception.auth.JwtTokenValidException;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;

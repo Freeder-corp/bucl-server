@@ -1,4 +1,4 @@
-package com.freeder.buclserver.global.exception.s3;
+package com.freeder.buclserver.global.s3.exception;
 
 import static org.springframework.http.HttpStatus.*;
 

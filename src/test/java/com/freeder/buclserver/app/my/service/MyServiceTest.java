@@ -20,6 +20,7 @@ import org.springframework.mock.web.MockMultipartFile;
 
 import com.freeder.buclserver.app.utils.UserTestUtils;
 import com.freeder.buclserver.domain.consumerorder.entity.ConsumerOrder;
+import com.freeder.buclserver.domain.consumerorder.exception.ConsumerUserNotMatchException;
 import com.freeder.buclserver.domain.consumerorder.repository.ConsumerOrderRepository;
 import com.freeder.buclserver.domain.consumerorder.vo.CsStatus;
 import com.freeder.buclserver.domain.consumerorder.vo.OrderStatus;
@@ -45,7 +46,6 @@ import com.freeder.buclserver.domain.user.dto.response.MyProfileResponse;
 import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.domain.user.repository.UserRepository;
 import com.freeder.buclserver.domain.user.util.ProfileImage;
-import com.freeder.buclserver.global.exception.consumerorder.ConsumerUserNotMatchException;
 
 @ExtendWith(MockitoExtension.class)
 class MyServiceTest {

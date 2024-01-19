@@ -1,4 +1,4 @@
-package com.freeder.buclserver.global.exception.auth;
+package com.freeder.buclserver.app.auth.exception;
 
 import static org.springframework.http.HttpStatus.*;
 
