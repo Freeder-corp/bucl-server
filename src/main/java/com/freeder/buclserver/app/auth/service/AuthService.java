@@ -26,8 +26,8 @@ public class AuthService {
 	private final UserRepository userRepository;
 
 	@Transactional(readOnly = true)
-	public Optional<UserDto> findBySocialIdAndDeletedAtIsNull(String socialUid) {
-		return userRepository.findBySocialIdAndDeletedAtIsNull(socialUid)
+	public Optional<UserDto> findBySocialId(String socialUid) {
+		return userRepository.findBySocialId(socialUid)
 			.map(UserDto::from);
 	}
 
@@ -35,6 +35,14 @@ public class AuthService {
 	public UserDto join(UserDto userDto) {
 		User user = userRepository.save(userDto.toEntity());
 		return UserDto.from(user);
+	}
+
+	@Transactional
+	public void rejoin(Long userId) {
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new UserIdNotFoundException(userId));
+
+		user.rejoin();
 	}
 
 	@Transactional

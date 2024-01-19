@@ -8,7 +8,7 @@ import com.freeder.buclserver.domain.user.entity.User;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-	Optional<User> findBySocialIdAndDeletedAtIsNull(String socialId);
+	Optional<User> findBySocialId(String socialId);
 
 	Optional<User> findByRefreshToken(String refreshToken);
 
