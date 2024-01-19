@@ -1,4 +1,4 @@
-package com.freeder.buclserver.global.exception.consumerorder;
+package com.freeder.buclserver.domain.consumerorder.exception;
 
 import static org.springframework.http.HttpStatus.*;
 

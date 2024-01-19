@@ -1,7 +1,7 @@
 package com.freeder.buclserver.global.openfeign.kakao;
 
-import com.freeder.buclserver.global.exception.kakao.KakaoServerException;
-import com.freeder.buclserver.global.exception.kakao.KakaoTokenValidException;
+import com.freeder.buclserver.global.openfeign.kakao.exception.KakaoServerException;
+import com.freeder.buclserver.global.openfeign.kakao.exception.KakaoTokenValidException;
 
 import feign.Response;
 import feign.codec.ErrorDecoder;

@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.freeder.buclserver.domain.consumerorder.entity.ConsumerOrder;
+import com.freeder.buclserver.domain.consumerorder.exception.ConsumerUserNotMatchException;
+import com.freeder.buclserver.domain.consumerorder.exception.OrderIdNotFoundException;
 import com.freeder.buclserver.domain.consumerorder.repository.ConsumerOrderRepository;
 import com.freeder.buclserver.domain.consumerpayment.entity.ConsumerPayment;
 import com.freeder.buclserver.domain.consumerpayment.repository.ConsumerPaymentRepository;
@@ -26,12 +28,10 @@ import com.freeder.buclserver.domain.user.dto.response.MyOrderDetailResponse;
 import com.freeder.buclserver.domain.user.dto.response.MyOrderResponse;
 import com.freeder.buclserver.domain.user.dto.response.MyProfileResponse;
 import com.freeder.buclserver.domain.user.entity.User;
+import com.freeder.buclserver.domain.user.exception.UserIdNotFoundException;
 import com.freeder.buclserver.domain.user.repository.UserRepository;
 import com.freeder.buclserver.domain.user.util.ProfileImage;
 import com.freeder.buclserver.global.exception.BaseException;
-import com.freeder.buclserver.global.exception.consumerorder.ConsumerUserNotMatchException;
-import com.freeder.buclserver.global.exception.consumerorder.OrderIdNotFoundException;
-import com.freeder.buclserver.global.exception.user.UserIdNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

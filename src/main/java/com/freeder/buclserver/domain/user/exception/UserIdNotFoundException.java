@@ -1,4 +1,4 @@
-package com.freeder.buclserver.global.exception.user;
+package com.freeder.buclserver.domain.user.exception;
 
 import static org.springframework.http.HttpStatus.*;
 

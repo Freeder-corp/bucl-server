@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.freeder.buclserver.global.exception.auth.JwtTokenExpiredException;
-import com.freeder.buclserver.global.exception.auth.JwtTokenValidException;
+import com.freeder.buclserver.core.security.exception.JwtTokenExpiredException;
+import com.freeder.buclserver.core.security.exception.JwtTokenValidException;
 import com.freeder.buclserver.global.response.ErrorResponse;
 
 import lombok.extern.slf4j.Slf4j;

@@ -6,14 +6,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.freeder.buclserver.app.auth.dto.response.TokenResponse;
+import com.freeder.buclserver.app.auth.exception.LogoutUserWithdrawalException;
+import com.freeder.buclserver.app.auth.exception.RefreshTokenNotFoundException;
 import com.freeder.buclserver.core.security.JwtTokenProvider;
 import com.freeder.buclserver.domain.user.dto.UserDto;
 import com.freeder.buclserver.domain.user.entity.User;
+import com.freeder.buclserver.domain.user.exception.UserIdNotFoundException;
 import com.freeder.buclserver.domain.user.repository.UserRepository;
 import com.freeder.buclserver.domain.user.vo.Role;
-import com.freeder.buclserver.global.exception.auth.LogoutUserWithdrawalException;
-import com.freeder.buclserver.global.exception.auth.RefreshTokenNotFoundException;
-import com.freeder.buclserver.global.exception.user.UserIdNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 

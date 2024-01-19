@@ -8,19 +8,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.freeder.buclserver.domain.user.entity.User;
+import com.freeder.buclserver.domain.user.exception.UserIdNotFoundException;
 import com.freeder.buclserver.domain.user.repository.UserRepository;
 import com.freeder.buclserver.domain.usershippingaddress.dto.UserShippingAddressDto;
 import com.freeder.buclserver.domain.usershippingaddress.dto.request.AddressCreateRequest;
 import com.freeder.buclserver.domain.usershippingaddress.dto.request.AddressUpdateRequest;
 import com.freeder.buclserver.domain.usershippingaddress.entity.UserShippingAddress;
+import com.freeder.buclserver.domain.usershippingaddress.exception.AddressIdNotFoundException;
+import com.freeder.buclserver.domain.usershippingaddress.exception.AddressUserNotMatchException;
+import com.freeder.buclserver.domain.usershippingaddress.exception.AlreadyDefaultAddressException;
+import com.freeder.buclserver.domain.usershippingaddress.exception.DefaultAddressNotFoundException;
+import com.freeder.buclserver.domain.usershippingaddress.exception.SingleAddressDefaultRegisterException;
 import com.freeder.buclserver.domain.usershippingaddress.repository.UserShippingAddressRepository;
 import com.freeder.buclserver.global.exception.BaseException;
-import com.freeder.buclserver.global.exception.user.UserIdNotFoundException;
-import com.freeder.buclserver.global.exception.usershippingaddress.AddressIdNotFoundException;
-import com.freeder.buclserver.global.exception.usershippingaddress.AddressUserNotMatchException;
-import com.freeder.buclserver.global.exception.usershippingaddress.AlreadyDefaultAddressException;
-import com.freeder.buclserver.global.exception.usershippingaddress.DefaultAddressNotFoundException;
-import com.freeder.buclserver.global.exception.usershippingaddress.SingleAddressDefaultRegisterException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
