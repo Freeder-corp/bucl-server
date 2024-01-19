@@ -1,4 +1,4 @@
-package com.freeder.buclserver.global.exception.usershippingaddress;
+package com.freeder.buclserver.domain.usershippingaddress.exception;
 
 import static org.springframework.http.HttpStatus.*;
 

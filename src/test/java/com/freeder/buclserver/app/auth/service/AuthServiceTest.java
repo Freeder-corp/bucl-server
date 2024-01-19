@@ -13,13 +13,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.freeder.buclserver.app.auth.dto.response.TokenResponse;
+import com.freeder.buclserver.app.auth.exception.LogoutUserWithdrawalException;
 import com.freeder.buclserver.app.utils.UserTestUtils;
 import com.freeder.buclserver.core.security.JwtTokenProvider;
 import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.domain.user.repository.UserRepository;
 import com.freeder.buclserver.domain.user.vo.Role;
 import com.freeder.buclserver.domain.user.vo.UserState;
-import com.freeder.buclserver.global.exception.auth.LogoutUserWithdrawalException;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {

@@ -20,10 +20,10 @@ import com.freeder.buclserver.domain.usershippingaddress.dto.UserShippingAddress
 import com.freeder.buclserver.domain.usershippingaddress.dto.request.AddressCreateRequest;
 import com.freeder.buclserver.domain.usershippingaddress.dto.request.AddressUpdateRequest;
 import com.freeder.buclserver.domain.usershippingaddress.entity.UserShippingAddress;
+import com.freeder.buclserver.domain.usershippingaddress.exception.AddressUserNotMatchException;
+import com.freeder.buclserver.domain.usershippingaddress.exception.AlreadyDefaultAddressException;
+import com.freeder.buclserver.domain.usershippingaddress.exception.SingleAddressDefaultRegisterException;
 import com.freeder.buclserver.domain.usershippingaddress.repository.UserShippingAddressRepository;
-import com.freeder.buclserver.global.exception.usershippingaddress.AddressUserNotMatchException;
-import com.freeder.buclserver.global.exception.usershippingaddress.AlreadyDefaultAddressException;
-import com.freeder.buclserver.global.exception.usershippingaddress.SingleAddressDefaultRegisterException;
 
 @ExtendWith(MockitoExtension.class)
 class AddressServiceTest {
