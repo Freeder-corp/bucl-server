@@ -34,9 +34,6 @@ public class AuthController {
 	private final AuthService authService;
 	private final KakaoApiClient kakaoApiClient;
 
-	@Value("${bucl.service.auth.COOKIE-MAX-AGE-ACCESS-TOKEN}")
-	private int COOKIE_MAX_AGE_ACCESS_TOKEN;
-
 	@Value("${bucl.service.auth.COOKIE-MAX-AGE-REFRESH_TOKEN}")
 	private int COOKIE_MAX_AGE_REFRESH_TOKEN;
 
@@ -44,8 +41,12 @@ public class AuthController {
 	public BaseResponse kakaoLogin(@Valid @RequestBody KakaoLoginRequest request, HttpServletResponse response) {
 		KakaoUserInfoResponse userInfo = kakaoApiClient.getUserInfo("Bearer " + request.kakaoAccessToken());
 
-		UserDto userDto = authService.findBySocialIdAndDeletedAtIsNull(userInfo.getId())
+		UserDto userDto = authService.findBySocialId(userInfo.getId())
 			.orElseGet(() -> authService.join(userInfo.toUserDto()));
+
+		if (userDto.deletedAt() != null) {
+			authService.rejoin(userDto.id());
+		}
 
 		TokenResponse tokens = authService.createJwtTokens(userDto.id(), userDto.role());
 

@@ -30,7 +30,7 @@ public class JwtTokenProvider {
 	private static final long ACCESS_TOKEN_EXPIRED_TIME = 1000L * 60 * 60 * 1;
 	private static final long REFRESH_TOKEN_EXPIRED_TIME = 1000L * 60 * 60 * 24 * 30;
 
-	@Value("${jwt.secret-key}")
+	@Value("${bucl.service.auth.JWT-SECRET-KEY}")
 	private String secretKey;
 	private Key encodeKey;
 

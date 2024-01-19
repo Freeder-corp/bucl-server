@@ -135,6 +135,12 @@ public class User extends TimestampMixin {
 		this.refreshToken = null;
 	}
 
+	public void rejoin() {
+		this.deletedAt = null;
+		this.userState = UserState.ACTIVE;
+		this.userGrade = UserGrade.BASIC;
+	}
+
 	public void withdrawal() {
 		this.deleteRefreshToken();
 		this.userState = UserState.DELETED;

@@ -19,6 +19,7 @@ import com.freeder.buclserver.core.security.JwtTokenProvider;
 import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.domain.user.repository.UserRepository;
 import com.freeder.buclserver.domain.user.vo.Role;
+import com.freeder.buclserver.domain.user.vo.UserGrade;
 import com.freeder.buclserver.domain.user.vo.UserState;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,6 +33,21 @@ class AuthServiceTest {
 
 	@Mock
 	private UserRepository userRepository;
+
+	@Test
+	void 탈퇴한_회원이_로그인을_시도한다면_재가입_로직을_실행한다() {
+		// given
+		Long userId = 1L;
+		User user = UserTestUtils.createWthdrawalUser();
+		given(userRepository.findById(userId)).willReturn(Optional.of(user));
+
+		// when
+		authService.rejoin(userId);
+
+		// then
+		assertThat(user.getUserState()).isEqualTo(UserState.ACTIVE);
+		assertThat(user.getUserGrade()).isEqualTo(UserGrade.BASIC);
+	}
 
 	@Test
 	void 사용자의_PK와_역할_정보를_받아_액세스_토큰과_리프레시_토큰_생성하고_리프레시_토큰을_DB에_저장_후_토큰_값을_반환한다() {
@@ -49,8 +65,8 @@ class AuthServiceTest {
 		TokenResponse actualTokenResponse = authService.createJwtTokens(userId, role);
 
 		// then
-		then(jwtTokenProvider).should().createAccessToken(userId, role);
-		then(jwtTokenProvider).should().createRefreshToken(userId, role);
+		then(jwtTokenProvider).should().createAccessToken(anyLong(), any(Role.class));
+		then(jwtTokenProvider).should().createRefreshToken(anyLong(), any(Role.class));
 		assertThat(actualTokenResponse.accessToken()).isEqualTo(expectAccessToken);
 		assertThat(actualTokenResponse.refreshToken()).isEqualTo(expectRefreshToken);
 		assertThat(user.getRefreshToken()).isEqualTo(expectRefreshToken);

@@ -46,4 +46,22 @@ public class UserTestUtils {
 			.refreshToken(null)
 			.build();
 	}
+
+	public static User createWthdrawalUser() {
+		return User.builder()
+			.email("email@gmail.com")
+			.nickname("nickname")
+			.profilePath("profile.png")
+			.isAlarmed(Boolean.TRUE)
+			.cellPhone("010-1234-5678")
+			.role(Role.ROLE_USER)
+			.joinType(JoinType.KAKAO)
+			.userState(UserState.DELETED)
+			.userGrade(UserGrade.BRONZE)
+			.gender(Gender.FEMALE)
+			.birthDate(LocalDateTime.now())
+			.socialId("1234567890")
+			.refreshToken(null)
+			.build();
+	}
 }
