@@ -11,8 +11,7 @@ import com.freeder.buclserver.domain.usershippingaddress.entity.UserShippingAddr
 
 public interface UserShippingAddressRepository extends JpaRepository<UserShippingAddress, Long> {
 
-	@Query("SELECT usa FROM UserShippingAddress usa WHERE usa.user.id = :userId "
-		+ "AND usa.isDefaultAddress IS TRUE ORDER BY usa.id DESC")
+	@Query("SELECT usa FROM UserShippingAddress usa WHERE usa.user.id = :userId AND usa.isDefaultAddress IS TRUE")
 	Optional<UserShippingAddress> findByUserAndIsDefaultAddressIsTrue(Long userId);
 
 	List<UserShippingAddress> findAllByUser(User user);
