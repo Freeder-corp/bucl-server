@@ -43,7 +43,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'org.springframework.kafka:spring-kafka'
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
-    implementation 'org.springdoc:springdoc-openapi-ui:1.7.0'
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
     implementation platform('software.amazon.awssdk:bom:2.20.56')
     implementation 'software.amazon.awssdk:s3'
@@ -69,6 +68,10 @@ dependencies {
 
     // H2
     runtimeOnly 'com.h2database:h2'
+
+    // Swagger
+    implementation 'org.springdoc:springdoc-openapi-ui:1.7.0'
+    implementation 'org.springdoc:springdoc-openapi-security:1.7.0'
 }
 
 tasks.named('test') {
