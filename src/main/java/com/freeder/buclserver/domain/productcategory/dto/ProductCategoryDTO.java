@@ -16,4 +16,5 @@ public class ProductCategoryDTO {
 	private int totalReviewCount;
 	private float averageRating;
 	private boolean wished;
+	private int totalConsumerOrder;
 }

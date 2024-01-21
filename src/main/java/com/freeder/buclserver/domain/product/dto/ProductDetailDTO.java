@@ -24,4 +24,5 @@ public class ProductDetailDTO {
 	private List<String> detailImagePaths;
 	private List<ReviewPreviewDTO> reviewPreviews;
 	private boolean wished;
+	private int totalConsumerOrder;
 }

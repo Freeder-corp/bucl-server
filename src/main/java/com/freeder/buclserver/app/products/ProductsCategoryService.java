@@ -1,6 +1,7 @@
 package com.freeder.buclserver.app.products;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -10,6 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.freeder.buclserver.domain.consumerorder.repository.ConsumerOrderRepository;
+import com.freeder.buclserver.domain.grouporder.entity.GroupOrder;
+import com.freeder.buclserver.domain.grouporder.repository.GroupOrderRepository;
 import com.freeder.buclserver.domain.product.entity.Product;
 import com.freeder.buclserver.domain.productcategory.dto.ProductCategoryDTO;
 import com.freeder.buclserver.domain.productcategory.repository.ProductCategoryRepository;
@@ -18,21 +22,18 @@ import com.freeder.buclserver.domain.wish.repository.WishRepository;
 import com.freeder.buclserver.global.exception.BaseException;
 import com.freeder.buclserver.global.util.ImageParsing;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ProductsCategoryService {
 	private final ProductCategoryRepository productCategoryRepository;
+	private final GroupOrderRepository groupOrderRepository;
+	private final ConsumerOrderRepository consumerOrderRepository;
 	private final WishRepository wishRepository;
 	private final ImageParsing imageParsing;
-
-	public ProductsCategoryService(ProductCategoryRepository productCategoryRepository, WishRepository wishRepository,
-		ImageParsing imageParsing) {
-		this.productCategoryRepository = productCategoryRepository;
-		this.wishRepository = wishRepository;
-		this.imageParsing = imageParsing;
-	}
 
 	@Transactional(readOnly = true)
 	public List<ProductCategoryDTO> getCategoryProducts(Long categoryId, int page, int pageSize, Long userId) {
@@ -78,6 +79,13 @@ public class ProductsCategoryService {
 
 			boolean wished = false;
 
+			Optional<GroupOrder> optionalGroupOrder = groupOrderRepository.findByProductIdAndIsEndedFalse(
+				product.getId());
+
+			int totalConsumerOrder = optionalGroupOrder
+				.map(groupOrder -> consumerOrderRepository.countByGroupOrderId(groupOrder.getId()))
+				.orElse(0);
+
 			if (userId != null) {
 				wished = wishRepository.existsByUser_IdAndProduct_IdAndDeletedAtIsNull(userId, product.getId());
 			}
@@ -91,7 +99,8 @@ public class ProductsCategoryService {
 				discountRate,
 				reviewCount,
 				averageRating,
-				wished
+				wished,
+				totalConsumerOrder
 			);
 		} catch (Exception e) {
 			log.error("카테고리 DTO 변환 실패", e);

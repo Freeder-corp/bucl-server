@@ -14,6 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.freeder.buclserver.domain.consumerorder.repository.ConsumerOrderRepository;
+import com.freeder.buclserver.domain.grouporder.entity.GroupOrder;
+import com.freeder.buclserver.domain.grouporder.repository.GroupOrderRepository;
 import com.freeder.buclserver.domain.product.dto.ProductDTO;
 import com.freeder.buclserver.domain.product.dto.ProductDetailDTO;
 import com.freeder.buclserver.domain.product.entity.Product;
@@ -40,6 +43,8 @@ public class ProductsService {
 	private final ProductRepository productRepository;
 	private final ProductReviewRepository productReviewRepository;
 	private final ProductOptionRepository productOptionRepository;
+	private final GroupOrderRepository groupOrderRepository;
+	private final ConsumerOrderRepository consumerOrderRepository;
 	private final WishRepository wishRepository;
 	private final ImageParsing imageParsing;
 
@@ -97,6 +102,14 @@ public class ProductsService {
 			List<String> detailImages = imageParsing.getImageList(product.getDetailImagePath());
 			boolean wished = false;
 
+			Optional<GroupOrder> optionalGroupOrder = groupOrderRepository.findByProductIdAndIsEndedFalse(
+				product.getId());
+
+			// GroupOrder와 연관된 ConsumerOrder의 수 계산
+			int totalConsumerOrder = optionalGroupOrder
+				.map(groupOrder -> consumerOrderRepository.countByGroupOrderId(groupOrder.getId()))
+				.orElse(0);
+
 			if (userId != null) {
 				wished = wishRepository.existsByUser_IdAndProduct_IdAndDeletedAtIsNull(userId, product.getId());
 			}
@@ -115,7 +128,8 @@ public class ProductsService {
 				firstFiveImages,
 				detailImages,
 				reviewPreviews,
-				wished
+				wished,
+				totalConsumerOrder
 			);
 		} catch (BaseException e) {
 			throw new BaseException(e.getHttpStatus(), e.getErrorCode(), e.getErrorMessage());
@@ -193,6 +207,13 @@ public class ProductsService {
 
 			boolean wished = false;
 
+			Optional<GroupOrder> optionalGroupOrder = groupOrderRepository.findByProductIdAndIsEndedFalse(
+				product.getId());
+
+			int totalConsumerOrder = optionalGroupOrder
+				.map(groupOrder -> consumerOrderRepository.countByGroupOrderId(groupOrder.getId()))
+				.orElse(0);
+
 			if (userId != null) {
 				wished = wishRepository.existsByUser_IdAndProduct_IdAndDeletedAtIsNull(userId, product.getId());
 			}
@@ -204,7 +225,8 @@ public class ProductsService {
 				product.getSalePrice(),
 				product.getConsumerPrice(),
 				roundedReward,
-				wished
+				wished,
+				totalConsumerOrder
 			);
 		} catch (IllegalArgumentException e) {
 			log.error("DTO 변환 중 잘못된 인자가 전달되었습니다.", e);
