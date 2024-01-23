@@ -36,7 +36,7 @@ public class SecurityConfig {
 			.authorizeHttpRequests(authorize -> authorize
 				.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
 				.antMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-				.antMatchers(HttpMethod.POST, "/api/v1/auth/login/kakao").permitAll()
+				.antMatchers(HttpMethod.POST, "/api/v1/auth/login/**").permitAll()
 				.antMatchers(HttpMethod.POST, "/api/v1/auth/renewal/tokens").permitAll()
 				.anyRequest().authenticated()
 			)
