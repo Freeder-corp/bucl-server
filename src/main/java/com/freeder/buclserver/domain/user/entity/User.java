@@ -38,7 +38,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @Table(name = "user")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-// TODO: 필수 값 여부 확인
 public class User extends TimestampMixin {
 	@Id
 	@Column(name = "user_id")

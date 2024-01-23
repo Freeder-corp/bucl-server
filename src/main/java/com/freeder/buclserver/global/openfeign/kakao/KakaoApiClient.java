@@ -5,7 +5,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 
-import com.freeder.buclserver.app.auth.dto.response.KakaoUserInfoResponse;
+import com.freeder.buclserver.app.auth.dto.response.KakaoUserInfo;
 
 @FeignClient(
 	name = "kakaouserinfo",
@@ -15,5 +15,5 @@ import com.freeder.buclserver.app.auth.dto.response.KakaoUserInfoResponse;
 public interface KakaoApiClient {
 
 	@GetMapping("/v2/user/me")
-	KakaoUserInfoResponse getUserInfo(@RequestHeader(HttpHeaders.AUTHORIZATION) String accessToken);
+	KakaoUserInfo getUserInfo(@RequestHeader(HttpHeaders.AUTHORIZATION) String accessToken);
 }

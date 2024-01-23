@@ -83,11 +83,9 @@ public class AddressService {
 	@Transactional
 	public UserShippingAddressDto updateMyAddress(Long userId, Long addressId, AddressUpdateRequest request) {
 		try {
-			System.out.println("야만1");
 			User user = userRepository.findByIdAndDeletedAtIsNull(userId)
 				.orElseThrow(() -> new UserIdNotFoundException(userId));
 
-			System.out.println("야만");
 			UserShippingAddress userAddress = userShippingAddressRepository.findById(addressId)
 				.orElseThrow(() -> new AddressIdNotFoundException(addressId));
 

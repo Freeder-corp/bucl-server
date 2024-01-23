@@ -25,7 +25,6 @@ public class AuthService {
 	private final JwtTokenProvider jwtTokenProvider;
 	private final UserRepository userRepository;
 
-	@Transactional(readOnly = true)
 	public Optional<UserDto> findBySocialId(String socialUid) {
 		return userRepository.findBySocialId(socialUid)
 			.map(UserDto::from);
