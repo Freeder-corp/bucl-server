@@ -51,7 +51,6 @@ public class MyService {
 	private final ConsumerPaymentRepository consumerPaymentRepository;
 	private final ProfileS3Service profileS3Service;
 
-	@Transactional(readOnly = true)
 	public MyProfileResponse getMyProfile(Long userId) {
 		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
 			.orElseThrow(() -> new UserIdNotFoundException(userId));
@@ -106,7 +105,6 @@ public class MyService {
 		}
 	}
 
-	@Transactional(readOnly = true)
 	public List<MyOrderResponse> getMyOrders(Long userId, int page, int pageSize) {
 		try {
 			User user = userRepository.findByIdAndDeletedAtIsNull(userId)
@@ -127,7 +125,6 @@ public class MyService {
 		}
 	}
 
-	@Transactional(readOnly = true)
 	public MyOrderDetailResponse getMyOrderDetail(Long userId, Long consumerOrderId) {
 		try {
 			if (!userRepository.existsByIdAndDeletedAtIsNull(userId)) {

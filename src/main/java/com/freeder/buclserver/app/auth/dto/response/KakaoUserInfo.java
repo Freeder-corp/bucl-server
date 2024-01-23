@@ -17,7 +17,7 @@ import lombok.Getter;
 // TODO: 회원 가입 시 받아올 회원 정보 추가
 @Getter
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class KakaoUserInfoResponse {
+public class KakaoUserInfo {
 
 	private String id;
 	private LocalDateTime connectedAt;
@@ -25,7 +25,6 @@ public class KakaoUserInfoResponse {
 
 	@Getter
 	static class KakaoAccount {
-
 		private Profile profile;
 		private String email;
 		private String gender;

@@ -1,11 +1,8 @@
 package com.freeder.buclserver.app.my.service;
 
 import java.io.InputStream;
-import java.net.URL;
 import java.util.List;
 import java.util.UUID;
-
-import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -37,12 +34,7 @@ public class ProfileS3Service {
 
 	private static final String S3_BUCKET_DIR_PATH = "assets/images/profiles/";
 
-	private String S3_BUCKET_BASE_URL;
-
-	@PostConstruct
-	protected void init() {
-		S3_BUCKET_BASE_URL = "https://" + bucketName + ".s3." + region + ".amazonaws.com/";
-	}
+	private static final String S3_BUCKET_BASE_URL = "https://buclbucket.s3.ap-northeast-2.amazonaws.com/";
 
 	public String uploadFile(MultipartFile file) {
 		String fileName = createFileName(file.getOriginalFilename());
@@ -101,8 +93,6 @@ public class ProfileS3Service {
 			.key(key)
 			.build();
 
-		URL url = s3Utilities.getUrl(request);
-
-		return url.toString();
+		return s3Utilities.getUrl(request).toString();
 	}
 }

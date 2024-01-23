@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.freeder.buclserver.app.auth.dto.request.KakaoLoginRequest;
-import com.freeder.buclserver.app.auth.dto.response.KakaoUserInfoResponse;
+import com.freeder.buclserver.app.auth.dto.response.KakaoUserInfo;
 import com.freeder.buclserver.app.auth.dto.response.TokenResponse;
 import com.freeder.buclserver.app.auth.service.AuthService;
 import com.freeder.buclserver.core.security.CustomUserDetails;
@@ -39,7 +39,7 @@ public class AuthController {
 
 	@PostMapping("/login/kakao")
 	public BaseResponse kakaoLogin(@Valid @RequestBody KakaoLoginRequest request, HttpServletResponse response) {
-		KakaoUserInfoResponse userInfo = kakaoApiClient.getUserInfo("Bearer " + request.kakaoAccessToken());
+		KakaoUserInfo userInfo = kakaoApiClient.getUserInfo("Bearer " + request.kakaoAccessToken());
 
 		UserDto userDto = authService.findBySocialId(userInfo.getId())
 			.orElseGet(() -> authService.join(userInfo.toUserDto()));
