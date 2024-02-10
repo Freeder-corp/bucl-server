@@ -34,7 +34,7 @@ public class ProductsReviewService {
 
 	public ProductReviewResult getProductReviews(Long productCode, int page, int pageSize) {
 		try {
-			int offset = (page - 1) * pageSize;
+			int offset = (page) * pageSize;
 			Pageable pageable = PageRequest.of(offset, pageSize);
 			Page<ProductReview> reviewPage = productReviewRepository.findByProduct_productCode(
 				productCode, pageable);

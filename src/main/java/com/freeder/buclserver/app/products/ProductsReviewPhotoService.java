@@ -28,7 +28,7 @@ public class ProductsReviewPhotoService {
 
 	public List<ReviewPhotoDTO> getProductReviewPhotos(Long productCode, int page, int pageSize) {
 		try {
-			Pageable pageable = PageRequest.of(page - 1, pageSize);
+			Pageable pageable = PageRequest.of(page, pageSize);
 			Page<ProductReview> reviewPage = productReviewRepository.findByProduct_productCode(productCode, pageable);
 
 			List<ReviewPhotoDTO> reviewPhotos = reviewPage.getContent().stream()
