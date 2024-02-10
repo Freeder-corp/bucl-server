@@ -47,7 +47,7 @@ public class ProductsService {
 
 	public List<ProductDTO> getProducts(Long categoryId, int page, int pageSize) {
 		try {
-			Pageable pageable = PageRequest.of(page - 1, pageSize);
+			Pageable pageable = PageRequest.of(page, pageSize);
 			Page<Product> productsPage = productRepository.findProductsOrderByReward(categoryId, pageable);
 			List<ProductDTO> products = productsPage.getContent().stream()
 				.map(this::convertToDTO)
