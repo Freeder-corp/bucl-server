@@ -8,10 +8,13 @@ import com.freeder.buclserver.domain.consumerpayment.vo.PaymentMethod;
 import com.freeder.buclserver.domain.consumerpayment.vo.PaymentStatus;
 import com.freeder.buclserver.domain.consumerpayment.vo.PgProvider;
 import com.freeder.buclserver.domain.shippingaddress.entity.ShippingAddress;
+import com.freeder.buclserver.global.util.ImageParsing;
 
 public record MyOrderDetailResponse(
 	LocalDateTime orderDate,
 	String productName,
+	String imagePath,
+	int consumerOrder,
 	int salePrice,
 	int productOrderQty,
 	String recipientName,
@@ -34,6 +37,8 @@ public record MyOrderDetailResponse(
 		return new MyOrderDetailResponse(
 			consumerOrder.getCreatedAt(),
 			consumerOrder.getProduct().getName(),
+			ImageParsing.getThumbnailUrl(consumerOrder.getProduct().getImagePath()),
+			consumerOrder.getProduct().getConsumerPrice(),
 			consumerOrder.getProduct().getSalePrice(),
 			productOrderQty,
 			shippingAddress.getRecipientName(),
