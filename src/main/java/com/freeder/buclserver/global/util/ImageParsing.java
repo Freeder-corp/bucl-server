@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ImageParsing {
-	public String getThumbnailUrl(String imagePath) {
+	public static String getThumbnailUrl(String imagePath) {
 		List<String> imageList = getImageList(imagePath);
 		return imageList.isEmpty() ? "" : imageList.get(0);
 	}
@@ -18,7 +18,7 @@ public class ImageParsing {
 		return imageList.stream().limit(3).collect(Collectors.toList());
 	}
 
-	public List<String> getImageList(String imagePath) {
+	public static List<String> getImageList(String imagePath) {
 		if (imagePath == null || imagePath.trim().isEmpty()) {
 			return Collections.emptyList(); // 이미지 경로가 null이거나 공백이면 빈 리스트 반환
 		}
