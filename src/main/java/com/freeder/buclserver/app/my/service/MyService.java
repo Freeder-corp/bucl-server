@@ -110,7 +110,7 @@ public class MyService {
 			User user = userRepository.findByIdAndDeletedAtIsNull(userId)
 				.orElseThrow(() -> new UserIdNotFoundException(userId));
 
-			Pageable pageable = PageRequest.of(page - 1, pageSize);
+			Pageable pageable = PageRequest.of(page, pageSize);
 
 			return consumerOrderRepository.findAllByConsumerOrderByCreatedAtDesc(user, pageable).stream()
 				.filter(consumerOrder -> consumerOrder.getConsumer().getId() == userId)

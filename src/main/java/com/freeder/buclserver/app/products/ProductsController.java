@@ -45,7 +45,7 @@ public class ProductsController {
 	@GetMapping
 	public BaseResponse<List<ProductDTO>> getProducts(
 		@RequestParam(defaultValue = "1") Long categoryId,
-		@RequestParam(defaultValue = "1") int page,
+		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "10") int pageSize
 	) {
 		List<ProductDTO> products = productsService.getProducts(categoryId, page, pageSize);
@@ -55,7 +55,7 @@ public class ProductsController {
 	@GetMapping("/categories/{category_id}")
 	public BaseResponse<List<ProductCategoryDTO>> getProductsByCategory(
 		@PathVariable(name = "category_id") Long categoryId,
-		@RequestParam(defaultValue = "1") int page,
+		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "10") int pageSize
 	) {
 		List<ProductCategoryDTO> categoryProducts = productsCategoryService.getCategoryProducts(categoryId, page,
@@ -78,7 +78,7 @@ public class ProductsController {
 	@GetMapping("/{product_code}/reviews")
 	public BaseResponse<ProductsReviewService.ProductReviewResult> getProductReviews(
 		@PathVariable("product_code") Long productCode,
-		@RequestParam(defaultValue = "1") int page,
+		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "5") int pageSize
 	) {
 		ProductsReviewService.ProductReviewResult result = productsReviewService.getProductReviews(productCode, page,
@@ -89,12 +89,12 @@ public class ProductsController {
 	@GetMapping("/{product_code}/photo-reviews")
 	public BaseResponse<List<ReviewPhotoDTO>> getReviewPhotos(
 		@PathVariable("product_code") Long productCode,
-		@RequestParam(defaultValue = "1") int page,
+		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "5") int pageSize,
 		@RequestParam(defaultValue = "preview") String display
 	) {
 		int adjustedPageSize = "fullview".equals(display) ? 20 : pageSize;
-		int startItemIndex = (page - 1) * adjustedPageSize + 1;
+		int startItemIndex = (page) * adjustedPageSize + 1;
 
 		List<ReviewPhotoDTO> reviewPhotos = productsReviewPhotoService.getProductReviewPhotos(productCode,
 			startItemIndex,

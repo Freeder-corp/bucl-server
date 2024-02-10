@@ -28,7 +28,7 @@ public class ProductsCategoryService {
 
 	public List<ProductCategoryDTO> getCategoryProducts(Long categoryId, int page, int pageSize) {
 		try {
-			Pageable pageable = PageRequest.of(page - 1, pageSize);
+			Pageable pageable = PageRequest.of(page, pageSize);
 			Page<Product> categoryProductsPage = productCategoryRepository.findProductsByCategory(categoryId, pageable);
 			List<ProductCategoryDTO> categoryProducts = categoryProductsPage.getContent().stream()
 				.map(this::convertToCategoryDTO)
