@@ -62,8 +62,7 @@ public class MyController {
 		@RequestPart("profileImage") MultipartFile profileImageFile
 	) {
 		Long userId = Long.valueOf(userDetails.getUserId());
-		myService.updateProfileImage(userId, profileImageFile);
-		return new BaseResponse(null, HttpStatus.OK, "요청 성공");
+		return new BaseResponse(myService.updateProfileImage(userId, profileImageFile), HttpStatus.OK, "요청 성공");
 	}
 
 	@GetMapping("/profile/orders")
