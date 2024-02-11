@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.freeder.buclserver.core.security.CustomUserDetails;
 import com.freeder.buclserver.domain.product.dto.ProductDTO;
 import com.freeder.buclserver.domain.product.dto.ProductDetailDTO;
 import com.freeder.buclserver.domain.productoption.dto.ProductOptionDTO;
@@ -53,9 +55,10 @@ public class ProductsController {
 	public BaseResponse<List<ProductDTO>> getProducts(
 		@RequestParam(defaultValue = "1") Long categoryId,
 		@RequestParam(defaultValue = "0") int page,
-		@RequestParam(defaultValue = "10") int pageSize
+		@RequestParam(defaultValue = "10") int pageSize,
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		Long userId = 1L;
+		Long userId = (userDetails == null) ? null : Long.valueOf(userDetails.getUserId());
 		List<ProductDTO> products = productsService.getProducts(categoryId, page, pageSize, userId);
 		return new BaseResponse<>(products, HttpStatus.OK, "요청 성공");
 	}
@@ -63,9 +66,10 @@ public class ProductsController {
 	@GetMapping("/{product_code}")
 	@Transactional(readOnly = true)
 	public BaseResponse<ProductDetailDTO> getProductDetail(
-		@PathVariable(name = "product_code", required = true) Long productCode
+		@PathVariable(name = "product_code", required = true) Long productCode,
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		Long userId = 1L;
+		Long userId = (userDetails == null) ? null : Long.valueOf(userDetails.getUserId());
 		ProductDetailDTO productDetail = productsService.getProductDetail(productCode, userId);
 		return new BaseResponse<>(productDetail, HttpStatus.OK, "요청 성공");
 	}
@@ -116,9 +120,10 @@ public class ProductsController {
 	public BaseResponse<String> createOrUpdateReview(
 		@PathVariable(name = "product_code", required = true) Long productCode,
 		@RequestPart("reviewRequest") ReviewRequestDTO reviewRequestDTO,
-		@RequestPart(value = "reviewImages", required = false) List<MultipartFile> images
+		@RequestPart(value = "reviewImages", required = false) List<MultipartFile> images,
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		Long userId = 2L;
+		Long userId = Long.valueOf(userDetails.getUserId());
 		List<String> s3ImageUrls = new ArrayList<>();
 		images = (images == null) ? new ArrayList<>() : images;
 		for (int i = 0; i < images.size(); i++) {
@@ -135,9 +140,10 @@ public class ProductsController {
 	@Transactional
 	public BaseResponse<String> deleteReview(
 		@PathVariable(name = "product_code", required = true) Long productCode,
-		@RequestParam Long reviewId
+		@RequestParam Long reviewId,
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		Long userId = 1L;
+		Long userId = Long.valueOf(userDetails.getUserId());
 		List<String> deleteS3Urls = productsReviewService.deleteReview(productCode, reviewId, userId);
 		productsReviewService.deleteImagesToS3(deleteS3Urls);
 
