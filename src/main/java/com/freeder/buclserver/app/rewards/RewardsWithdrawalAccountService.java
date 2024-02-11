@@ -30,10 +30,12 @@ import com.freeder.buclserver.domain.user.repository.UserRepository;
 import com.freeder.buclserver.global.exception.BaseException;
 import com.nimbusds.jose.shaded.json.JSONObject;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class RewardsWithdrawalAccountService {
 
 	private final AccessTokenRepository accessTokenRepository;
@@ -42,13 +44,6 @@ public class RewardsWithdrawalAccountService {
 	private String openBankingApiBaseUrl;
 
 	private final UserRepository userRepository;
-
-	public RewardsWithdrawalAccountService(AccessTokenRepository accessTokenRepository,
-		RewardWithdrawalAccountRepository rewardWithdrawalAccountRepository, UserRepository userRepository) {
-		this.accessTokenRepository = accessTokenRepository;
-		this.rewardWithdrawalAccountRepository = rewardWithdrawalAccountRepository;
-		this.userRepository = userRepository;
-	}
 
 	@Transactional
 	public boolean requestMatchAccountRealName(Long userId, String bankCode, String bankAccount, String realName,

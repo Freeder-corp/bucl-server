@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,14 +17,15 @@ import com.freeder.buclserver.domain.reward.repository.RewardRepository;
 import com.freeder.buclserver.domain.reward.vo.RewardType;
 import com.freeder.buclserver.global.exception.BaseException;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class RewardsService {
 
-	@Autowired
-	private RewardRepository rewardRepository;
+	private final RewardRepository rewardRepository;
 
 	@Transactional(readOnly = true)
 	public Integer getUserRewardCrntAmount(Long userId) {

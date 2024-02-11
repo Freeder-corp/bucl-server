@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.PageRequest;
@@ -22,23 +21,18 @@ import com.freeder.buclserver.domain.rewardwithdrawal.repository.RewardWithdrawa
 import com.freeder.buclserver.domain.rewardwithdrawal.vo.WithdrawalStatus;
 import com.freeder.buclserver.global.exception.BaseException;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class RewardsWithdrawalService {
 
 	@Value("${bucl_system.reward.withdrawal.minimum_amt}")
 	private int withdrawalMinimumAmt;
 	private final RewardWithdrawalRepository rewardWithdrawalRepository;
 	private final RewardRepository rewardRepository;
-
-	@Autowired
-	public RewardsWithdrawalService(RewardWithdrawalRepository rewardWithdrawalRepository,
-		RewardRepository rewardRepository) {
-		this.rewardWithdrawalRepository = rewardWithdrawalRepository;
-		this.rewardRepository = rewardRepository;
-	}
 
 	@Transactional
 	public WithdrawalDto withdrawReward(Long userId, String bankCodeStd, String bankName, Integer withdrawalAmount,

@@ -22,10 +22,12 @@ import com.freeder.buclserver.domain.openbanking.entity.OpenBankingAccessToken;
 import com.freeder.buclserver.domain.openbanking.repository.AccessTokenRepository;
 import com.freeder.buclserver.global.exception.BaseException;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class OpenBankingService {
 
 	private final AccessTokenRepository accessTokenRepository;
@@ -38,10 +40,6 @@ public class OpenBankingService {
 
 	@Value("${openbanking.api.base-url}")
 	private String openBankingApiBaseUrl;
-
-	public OpenBankingService(AccessTokenRepository accessTokenRepository) {
-		this.accessTokenRepository = accessTokenRepository;
-	}
 
 	@Transactional
 	public OpenBankingAccessTokenDto requestOpenApiAccessToken() {

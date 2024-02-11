@@ -2,7 +2,6 @@ package com.freeder.buclserver.app.rewards;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,23 +19,19 @@ import com.freeder.buclserver.global.response.BaseResponse;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
 @RequestMapping(path = "/api/v1/rewards")
+@RequiredArgsConstructor
 @Tag(name = "rewards API", description = "적립금 관련 API")
 public class RewardsController {
 
 	private final RewardsService rewardsService;
 	private final RewardsWithdrawalService rewardsWithdrawalService;
-
-	@Autowired
-	public RewardsController(RewardsService rewardsService, RewardsWithdrawalService rewardsWithdrawalService) {
-		this.rewardsService = rewardsService;
-		this.rewardsWithdrawalService = rewardsWithdrawalService;
-	}
 
 	@GetMapping("/crnt-amt")
 	@Transactional(readOnly = true)

@@ -15,20 +15,16 @@ import com.freeder.buclserver.global.exception.BaseException;
 import com.freeder.buclserver.global.response.BaseResponse;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(path = "/api/v1/openapi")
 @Tag(name = "account API", description = "금융결제원 Open API")
 public class RewardsAccountController {
 
 	private final OpenBankingService openBankingService;
 	private final RewardsWithdrawalAccountService rewardsWithdrawalAccountService;
-
-	public RewardsAccountController(OpenBankingService openBankingService,
-		RewardsWithdrawalAccountService rewardsWithdrawalAccountService) {
-		this.openBankingService = openBankingService;
-		this.rewardsWithdrawalAccountService = rewardsWithdrawalAccountService;
-	}
 
 	@PostMapping("/token")
 	public BaseResponse<OpenBankingAccessTokenDto> requestOpenApiAccessToken() {
