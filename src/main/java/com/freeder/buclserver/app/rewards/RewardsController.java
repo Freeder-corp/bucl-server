@@ -3,6 +3,7 @@ package com.freeder.buclserver.app.rewards;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,9 +37,9 @@ public class RewardsController {
 	@GetMapping("/crnt-amt")
 	@Transactional(readOnly = true)
 	public BaseResponse<Integer> getUserRewards(
-		// @AuthenticationPrincipal CustomUserDetails userDetails
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		Long userId = 1L;
+		Long userId = getUserIdFromUserDetails(userDetails);
 		int currentRewardAmount = rewardsService.getUserRewardCrntAmount(userId);
 
 		return new BaseResponse<>(currentRewardAmount, HttpStatus.OK, "리워드 조회 성공");
@@ -48,28 +49,22 @@ public class RewardsController {
 	@Transactional(readOnly = true)
 	public BaseResponse<List<RewardDto>> getRewardHistory(
 		@RequestParam(defaultValue = "0") int page,
-		@RequestParam(defaultValue = "5") int pageSize
-		// @AuthenticationPrincipal CustomUserDetails userDetails
+		@RequestParam(defaultValue = "5") int pageSize,
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		// Long userId = getUserIdFromUserDetails(userDetails);
-		Long userId = 1L;
+		Long userId = getUserIdFromUserDetails(userDetails);
 		List<RewardDto> rewardHistory = rewardsService.getRewardHistoryPageable(userId, page, pageSize);
 
 		return new BaseResponse<>(rewardHistory, HttpStatus.OK, "적립금 내역 조회 성공");
 	}
 
-	private Long getUserIdFromUserDetails(CustomUserDetails userDetails) {
-		return Long.parseLong(userDetails.getUserId());
-	}
-
 	@PostMapping("/withdrawals")
 	@Transactional
 	public BaseResponse<WithdrawalDto> withdrawReward(
-		// @AuthenticationPrincipal CustomUserDetails userDetails,
+		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@RequestBody WithdrawalRequestDto withdrawalRequestDto
 	) {
-		// Long userId = getUserIdFromUserDetails(userDetails);
-		Long userId = 1L;
+		Long userId = getUserIdFromUserDetails(userDetails);
 		WithdrawalDto withdrawalDto = rewardsWithdrawalService.withdrawReward(
 			userId,
 			withdrawalRequestDto.getBankCodeStd(),
@@ -86,11 +81,10 @@ public class RewardsController {
 	@Transactional(readOnly = true)
 	public BaseResponse<List<WithdrawalDto>> getWithdrawalHistory(
 		@RequestParam(defaultValue = "0") int page,
-		@RequestParam(defaultValue = "10") int pageSize
-		// @AuthenticationPrincipal CustomUserDetails userDetails,
+		@RequestParam(defaultValue = "10") int pageSize,
+		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
-		// Long userId = getUserIdFromUserDetails(userDetails);
-		Long userId = 1L;
+		Long userId = getUserIdFromUserDetails(userDetails);
 		List<WithdrawalDto> withdrawalHistory = rewardsWithdrawalService.getWithdrawalHistory(userId, page,
 			pageSize);
 
@@ -116,5 +110,9 @@ public class RewardsController {
 		private String accountNum;
 		private String accountHolderName;
 
+	}
+
+	private Long getUserIdFromUserDetails(CustomUserDetails userDetails) {
+		return Long.valueOf(userDetails.getUserId());
 	}
 }
