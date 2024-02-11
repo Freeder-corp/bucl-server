@@ -52,8 +52,8 @@ public class MyController {
 	@PatchMapping("/profile/default-image")
 	public BaseResponse updateProfileImageAsDefault(@AuthenticationPrincipal CustomUserDetails userDetails) {
 		Long userId = Long.valueOf(userDetails.getUserId());
-		myService.updateProfileImageAsDefault(userId);
-		return new BaseResponse(null, HttpStatus.OK, "요청 성공");
+
+		return new BaseResponse(myService.updateProfileImageAsDefault(userId), HttpStatus.OK, "요청 성공");
 	}
 
 	@PatchMapping("/profile/image")

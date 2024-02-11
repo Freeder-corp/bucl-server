@@ -69,7 +69,7 @@ public class User extends TimestampMixin {
 	private String email; // 이메일
 	private String nickname; // 닉네임
 
-	@Column(name = "profile_path")
+	@Column(name = "profile_path", length = 5000)
 	private String profilePath; // 프로필 경로
 
 	@Column(name = "is_alarmed")
@@ -146,8 +146,9 @@ public class User extends TimestampMixin {
 		this.deletedAt = LocalDateTime.now();
 	}
 
-	public void updateProfilePathAsDefault() {
+	public String updateProfilePathAsDefault() {
 		this.profilePath = ProfileImage.defaultImageUrl;
+		return this.profilePath;
 	}
 
 	public void updateProfilePath(String uploadFileUrl) {
