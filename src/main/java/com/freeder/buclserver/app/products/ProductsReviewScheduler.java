@@ -1,7 +1,6 @@
 package com.freeder.buclserver.app.products;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -9,16 +8,14 @@ import org.springframework.stereotype.Component;
 
 import com.freeder.buclserver.global.exception.BaseException;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class ProductsReviewScheduler {
 	private final ProductsReviewService productsReviewService;
-
-	public ProductsReviewScheduler(ProductsReviewService productsReviewService) {
-		this.productsReviewService = productsReviewService;
-	}
 
 	@Scheduled(cron = "0 0 4 * * ?")
 	public void cleanupOldReviews() {

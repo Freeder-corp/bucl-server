@@ -18,19 +18,16 @@ import com.freeder.buclserver.domain.productreview.repository.ProductReviewRepos
 import com.freeder.buclserver.global.exception.BaseException;
 import com.freeder.buclserver.global.util.ImageParsing;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ProductsReviewPhotoService {
 
 	private final ProductReviewRepository productReviewRepository;
 	private final ImageParsing imageParsing;
-
-	public ProductsReviewPhotoService(ProductReviewRepository productReviewRepository, ImageParsing imageParsing) {
-		this.productReviewRepository = productReviewRepository;
-		this.imageParsing = imageParsing;
-	}
 
 	@Transactional(readOnly = true)
 	public List<ReviewPhotoDTO> getProductReviewPhotos(Long productCode, int page, int pageSize) {

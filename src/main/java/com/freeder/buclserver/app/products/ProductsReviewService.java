@@ -29,6 +29,7 @@ import com.freeder.buclserver.domain.user.repository.UserRepository;
 import com.freeder.buclserver.global.exception.BaseException;
 import com.freeder.buclserver.global.util.ImageParsing;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.core.exception.SdkException;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -38,6 +39,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ProductsReviewService {
 
 	@Value("${cloud.aws.s3.bucket}")
@@ -52,19 +54,6 @@ public class ProductsReviewService {
 	private final S3Client s3Client;
 	private final ImageParsing imageParsing;
 	private final ProductsCategoryService productsCategoryService;
-
-	public ProductsReviewService(ProductReviewRepository productReviewRepository,
-		UserRepository userRepository,
-		ProductRepository productRepository,
-		S3Client s3Client, ImageParsing imageParsing,
-		ProductsCategoryService productsCategoryService) {
-		this.productReviewRepository = productReviewRepository;
-		this.userRepository = userRepository;
-		this.productRepository = productRepository;
-		this.s3Client = s3Client;
-		this.imageParsing = imageParsing;
-		this.productsCategoryService = productsCategoryService;
-	}
 
 	@SuppressWarnings("checkstyle:AbbreviationAsWordInName")
 	@Transactional(readOnly = true)

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,10 +26,12 @@ import com.freeder.buclserver.domain.productreview.dto.ReviewRequestDTO;
 import com.freeder.buclserver.global.response.BaseResponse;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/products")
 @Tag(name = "products 관련 API", description = "상품 관련 API")
 public class ProductsController {
@@ -38,17 +39,6 @@ public class ProductsController {
 	private final ProductsService productsService;
 	private final ProductsReviewService productsReviewService;
 	private final ProductsReviewPhotoService productsReviewPhotoService;
-
-	@Autowired
-	public ProductsController(
-		ProductsService productsService,
-		ProductsReviewService productsReviewService,
-		ProductsReviewPhotoService productsReviewPhotoService
-	) {
-		this.productsService = productsService;
-		this.productsReviewService = productsReviewService;
-		this.productsReviewPhotoService = productsReviewPhotoService;
-	}
 
 	@GetMapping
 	@Transactional(readOnly = true)
