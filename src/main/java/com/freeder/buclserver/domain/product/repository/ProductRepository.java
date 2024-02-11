@@ -35,6 +35,15 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 		"WHERE pr.product.productCode = :productCode")
 	List<ProductReview> findReviewsByProductCode(@Param("productCode") Long productCode);
 
+	@Query("SELECT p FROM Product p " +
+		"WHERE p.productCategory.id = :categoryId " +
+		"ORDER BY p.consumerPrice * p.consumerRewardRate DESC, p.createdAt DESC")
+	Page<Product> findProductsOrderByReward(
+		@Param("categoryId") Long categoryId,
+		Pageable pageable
+	);
+
+	Optional<Product> findByProductCode(Long productCode);
 }
 
 

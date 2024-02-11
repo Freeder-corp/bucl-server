@@ -9,6 +9,7 @@ import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -42,11 +43,11 @@ public class Product extends TimestampMixin implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "product_category_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private ProductCategory productCategory;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "shipping_info_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private ShippingInfo shippingInfo;
 
@@ -83,9 +84,9 @@ public class Product extends TimestampMixin implements Serializable {
 	private TaxStatus taxStatus;
 
 	@Column(name = "margin_rate")
-	private Integer marginRate;
+	private Float marginRate;
 	@Column(name = "tax_rate")
-	private Integer taxRate;
+	private Float taxRate;
 	@Column(name = "discount_rate")
 	private Float discountRate;
 
@@ -105,9 +106,6 @@ public class Product extends TimestampMixin implements Serializable {
 	@Enumerated(EnumType.STRING)
 	private ProductStatus productStatus;
 
-	@Column(name = "sku_code", unique = true)
-	private String skuCode;
-
 	@Column(name = "product_priority")
 	private Integer productPriority;
 
@@ -121,4 +119,7 @@ public class Product extends TimestampMixin implements Serializable {
 	@Column(name = "sale_alternatives")
 	private String saleAlternatives;
 
+	public List<ProductReview> getReviews() {
+		return productReviews;
+	}
 }

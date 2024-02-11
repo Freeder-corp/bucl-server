@@ -20,6 +20,7 @@ import com.freeder.buclserver.domain.productreview.entity.ProductReview;
 import com.freeder.buclserver.domain.reward.entity.Reward;
 import com.freeder.buclserver.domain.rewardwithdrawal.entity.RewardWithdrawal;
 import com.freeder.buclserver.domain.shippingaddress.entity.ShippingAddress;
+import com.freeder.buclserver.domain.user.util.ProfileImage;
 import com.freeder.buclserver.domain.user.vo.Gender;
 import com.freeder.buclserver.domain.user.vo.JoinType;
 import com.freeder.buclserver.domain.user.vo.Role;
@@ -28,13 +29,15 @@ import com.freeder.buclserver.domain.user.vo.UserState;
 import com.freeder.buclserver.domain.wish.entity.Wish;
 import com.freeder.buclserver.global.mixin.TimestampMixin;
 
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Setter
 @Table(name = "user")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends TimestampMixin {
 	@Id
 	@Column(name = "user_id")
@@ -65,9 +68,6 @@ public class User extends TimestampMixin {
 	@Column(length = 320)
 	private String email; // 이메일
 	private String nickname; // 닉네임
-
-	@Column(name = "hashed_pw")
-	private String hashedPw; // 비밀번호
 
 	@Column(name = "profile_path")
 	private String profilePath; // 프로필 경로
@@ -105,11 +105,52 @@ public class User extends TimestampMixin {
 	@Column(name = "refresh_token")
 	private String refreshToken; // refresh_token
 
-	public User(Long userId) {
-		this.id = userId;
+	@Builder
+	private User(
+		String email, String nickname, String profilePath, Boolean isAlarmed, String cellPhone,
+		Role role, JoinType joinType, UserState userState, UserGrade userGrade, Gender gender, LocalDateTime birthDate,
+		String socialId, String refreshToken
+	) {
+		this.email = email;
+		this.nickname = nickname;
+		this.profilePath = profilePath;
+		this.isAlarmed = isAlarmed;
+		this.cellPhone = cellPhone;
+		this.role = role;
+		this.joinType = joinType;
+		this.userState = userState;
+		this.userGrade = userGrade;
+		this.gender = gender;
+		this.birthDate = birthDate;
+		this.socialId = socialId;
+		this.refreshToken = refreshToken;
 	}
 
-	public User() {
-		
+	public void updateRefreshToken(String refreshToken) {
+		this.refreshToken = refreshToken;
+	}
+
+	public void deleteRefreshToken() {
+		this.refreshToken = null;
+	}
+
+	public void rejoin() {
+		this.deletedAt = null;
+		this.userState = UserState.ACTIVE;
+		this.userGrade = UserGrade.BASIC;
+	}
+
+	public void withdrawal() {
+		this.deleteRefreshToken();
+		this.userState = UserState.DELETED;
+		this.deletedAt = LocalDateTime.now();
+	}
+
+	public void updateProfilePathAsDefault() {
+		this.profilePath = ProfileImage.defaultImageUrl;
+	}
+
+	public void updateProfilePath(String uploadFileUrl) {
+		this.profilePath = uploadFileUrl;
 	}
 }

@@ -27,5 +27,5 @@ public class TimestampMixin {
 	private LocalDateTime updatedAt;
 
 	@Column(name = "deleted_at")
-	private LocalDateTime deletedAt;
+	public LocalDateTime deletedAt;
 }

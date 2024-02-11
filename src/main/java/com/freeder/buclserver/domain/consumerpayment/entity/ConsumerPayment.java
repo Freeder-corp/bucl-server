@@ -1,4 +1,4 @@
-package com.freeder.buclserver.domain.payment.entity;
+package com.freeder.buclserver.domain.consumerpayment.entity;
 
 import java.time.LocalDateTime;
 
@@ -7,6 +7,7 @@ import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -16,25 +17,29 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.freeder.buclserver.domain.consumerorder.entity.ConsumerOrder;
-import com.freeder.buclserver.domain.payment.vo.PaymentMethod;
-import com.freeder.buclserver.domain.payment.vo.PaymentStatus;
-import com.freeder.buclserver.domain.payment.vo.PgProvider;
+import com.freeder.buclserver.domain.consumerpayment.vo.PaymentMethod;
+import com.freeder.buclserver.domain.consumerpayment.vo.PaymentStatus;
+import com.freeder.buclserver.domain.consumerpayment.vo.PgProvider;
 import com.freeder.buclserver.global.mixin.TimestampMixin;
 
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
-@Table(name = "PAYMENT")
-public class Payment extends TimestampMixin {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "CONSUMER_PAYMENT")
+public class ConsumerPayment extends TimestampMixin {
 	@Id
-	@Column(name = "payment_id")
+	@Column(name = "consumer_payment_id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "consumer_order_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private ConsumerOrder consumerOrder;
 
@@ -70,4 +75,23 @@ public class Payment extends TimestampMixin {
 
 	@Column(name = "paid_at")
 	private LocalDateTime paidAt;
+
+	@Builder
+	private ConsumerPayment(
+		ConsumerOrder consumerOrder, String pgTid, PgProvider pgProvider, String paymentCode, int paymentAmount,
+		String consumerName, String consumerEmail, String consumerAddress, PaymentStatus paymentStatus,
+		PaymentMethod paymentMethod, LocalDateTime paidAt
+	) {
+		this.consumerOrder = consumerOrder;
+		this.pgTid = pgTid;
+		this.pgProvider = pgProvider;
+		this.paymentCode = paymentCode;
+		this.paymentAmount = paymentAmount;
+		this.consumerName = consumerName;
+		this.consumerEmail = consumerEmail;
+		this.consumerAddress = consumerAddress;
+		this.paymentStatus = paymentStatus;
+		this.paymentMethod = paymentMethod;
+		this.paidAt = paidAt;
+	}
 }

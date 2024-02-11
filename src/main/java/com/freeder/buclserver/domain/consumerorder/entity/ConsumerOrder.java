@@ -8,6 +8,7 @@ import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -21,40 +22,43 @@ import org.hibernate.annotations.ColumnDefault;
 
 import com.freeder.buclserver.domain.consumerorder.vo.CsStatus;
 import com.freeder.buclserver.domain.consumerorder.vo.OrderStatus;
+import com.freeder.buclserver.domain.consumerpayment.entity.ConsumerPayment;
 import com.freeder.buclserver.domain.consumerpurchaseorder.entity.ConsumerPurchaseOrder;
 import com.freeder.buclserver.domain.grouporder.entity.GroupOrder;
-import com.freeder.buclserver.domain.payment.entity.Payment;
 import com.freeder.buclserver.domain.product.entity.Product;
 import com.freeder.buclserver.domain.shipping.entity.Shipping;
 import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.global.mixin.TimestampMixin;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 
 @Entity
-@Getter
-@Setter
 @Table(name = "consumer_order")
+@Getter
+@AllArgsConstructor
+@RequiredArgsConstructor
 public class ConsumerOrder extends TimestampMixin {
 	@Id
 	@Column(name = "consumer_order_id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "consumer_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private User consumer;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "business_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private User business;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "product_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private Product product;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "group_order_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private GroupOrder groupOrder;
 
@@ -62,7 +66,7 @@ public class ConsumerOrder extends TimestampMixin {
 	private List<Shipping> shippings = new ArrayList<>();
 
 	@OneToMany(mappedBy = "consumerOrder")
-	private List<Payment> payments = new ArrayList<>();
+	private List<ConsumerPayment> consumerPayments = new ArrayList<>();
 
 	@OneToMany(mappedBy = "consumerOrder")
 	private List<ConsumerPurchaseOrder> consumerPurchaseOrders = new ArrayList<>();
@@ -103,4 +107,38 @@ public class ConsumerOrder extends TimestampMixin {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "cs_status")
 	private CsStatus csStatus;
+
+	@Builder
+	private ConsumerOrder(
+		User consumer, User business, Product product, GroupOrder groupOrder, String orderCode, int orderNum,
+		int shippingFee, int totalOrderAmount, int rewardUseAmount, int spentAmount, boolean isRewarded,
+		boolean isConfirmed, OrderStatus orderStatus, CsStatus csStatus
+	) {
+		this.consumer = consumer;
+		this.business = business;
+		this.product = product;
+		this.groupOrder = groupOrder;
+		this.orderCode = orderCode;
+		this.orderNum = orderNum;
+		this.shippingFee = shippingFee;
+		this.totalOrderAmount = totalOrderAmount;
+		this.rewardUseAmount = rewardUseAmount;
+		this.spentAmount = spentAmount;
+		this.isRewarded = isRewarded;
+		this.isConfirmed = isConfirmed;
+		this.orderStatus = orderStatus;
+		this.csStatus = csStatus;
+	}
+
+	public void setCsStatus(CsStatus csStatus) {
+		this.csStatus = csStatus;
+	}
+
+	public void setOrderStatus(OrderStatus orderStatus) {
+		this.orderStatus = orderStatus;
+	}
+
+	public void setConfirmed() {
+		this.isConfirmed = true;
+	}
 }

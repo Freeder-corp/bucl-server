@@ -19,4 +19,7 @@ public interface ProductOptionRepository extends JpaRepository<ProductOption, Lo
 		"AND po.product.isExposed = true " +
 		"AND po.product.productStatus = com.freeder.buclserver.domain.product.vo.ProductStatus.ACTIVE")
 	Optional<List<ProductOption>> findByProductProductCodeWithConditions(@Param("productCode") Long productCode);
+
+	List<ProductOption> findByProduct_productCode(Long productCode);
 }
+

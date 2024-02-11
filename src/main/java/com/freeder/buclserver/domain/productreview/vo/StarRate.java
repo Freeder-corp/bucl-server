@@ -33,5 +33,3 @@ public enum StarRate {
 		throw new IllegalArgumentException("별점 범위를 벗어났습니다: " + value);
 	}
 }
-
-

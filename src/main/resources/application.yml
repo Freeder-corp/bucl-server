@@ -13,6 +13,7 @@ spring:
       local:
         - local-config
         - cloud
+        - auth
 
 openbanking:
   client_id: 3d6b00d9-cac5-4d7f-8f2a-22adf8791a2d

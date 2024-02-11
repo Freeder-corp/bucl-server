@@ -61,6 +61,11 @@ public interface ProductReviewRepository extends JpaRepository<ProductReview, Lo
 
 	// @Query("DELETE FROM ProductReview pr WHERE pr.deletedAt IS NOT NULL AND pr.deletedAt < :date")
 	// void deleteByDeletedAtBefore(@Param("date") LocalDateTime date);
+
+	@Query("SELECT COUNT(pr) FROM ProductReview pr WHERE pr.product.productCode = :productCode")
+	long countByProductCodeFk(@Param("productCode") Long productCode);
+
+	Page<ProductReview> findByProduct_productCode(Long productCode, Pageable pageable);
 }
 
 

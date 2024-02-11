@@ -3,6 +3,7 @@ package com.freeder.buclserver.domain.shippingaddress.entity;
 import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -16,12 +17,16 @@ import com.freeder.buclserver.domain.shipping.entity.Shipping;
 import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.global.mixin.TimestampMixin;
 
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "shipping_address")
 public class ShippingAddress extends TimestampMixin {
 	@Id
@@ -29,11 +34,11 @@ public class ShippingAddress extends TimestampMixin {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private User user;
 
-	@OneToOne
+	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "shipping_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private Shipping shipping;
 
@@ -53,4 +58,19 @@ public class ShippingAddress extends TimestampMixin {
 
 	@Column(name = "memo_content")
 	private String memoContent;
+
+	@Builder
+	private ShippingAddress(
+		User user, Shipping shipping, String recipientName, String zipCode, String address,
+		String addressDetail, String contactNumber, String memoContent
+	) {
+		this.user = user;
+		this.shipping = shipping;
+		this.recipientName = recipientName;
+		this.zipCode = zipCode;
+		this.address = address;
+		this.addressDetail = addressDetail;
+		this.contactNumber = contactNumber;
+		this.memoContent = memoContent;
+	}
 }

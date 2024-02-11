@@ -1,11 +1,11 @@
 package com.freeder.buclserver.domain.reward.entity;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -35,28 +35,29 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Table(name = "reward")
 public class Reward extends TimestampMixin {
+
 	@Id
 	@Column(name = "reward_id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne(cascade = CascadeType.PERSIST)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private User user;
 
-	@ManyToOne
-	@JoinColumn(name = "product_id", nullable = true, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "product_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private Product product;
 
-	@OneToOne
+	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "consumer_order_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private ConsumerOrder consumerOrder;
 
-	@OneToOne
-	@JoinColumn(name = "order_refund_id", nullable = true, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "order_refund_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private OrderRefund orderRefund;
 
-	@OneToOne
+	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "reward_withdrawal_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private RewardWithdrawal rewardWithdrawal;
 
@@ -82,4 +83,23 @@ public class Reward extends TimestampMixin {
 	@Column(name = "reward_sum")
 	private Integer rewardSum;
 
+	@Builder
+	private Reward(
+		User user, Product product, ConsumerOrder consumerOrder, OrderRefund orderRefund,
+		RewardWithdrawal rewardWithdrawal, String productName, String productBrandName,
+		RewardType rewardType, int receivedRewardAmount, int spentRewardAmount, int previousRewardSum, int rewardSum
+	) {
+		this.user = user;
+		this.product = product;
+		this.consumerOrder = consumerOrder;
+		this.orderRefund = orderRefund;
+		this.rewardWithdrawal = rewardWithdrawal;
+		this.productName = productName;
+		this.productBrandName = productBrandName;
+		this.rewardType = rewardType;
+		this.receivedRewardAmount = receivedRewardAmount;
+		this.spentRewardAmount = spentRewardAmount;
+		this.previousRewardSum = previousRewardSum;
+		this.rewardSum = rewardSum;
+	}
 }

@@ -21,6 +21,14 @@ public interface ProductCategoryRepository extends JpaRepository<Product, Long> 
 		@Param("categoryId") Long categoryId,
 		Pageable pageable
 	);
+
+	// @Query("SELECT p FROM Product p " +
+	// 	"WHERE p.productCategory.id = :categoryId " +
+	// 	"ORDER BY p.consumerPrice * p.consumerRewardRate DESC, p.createdAt DESC")
+	// Page<Product> findProductsByCategory(
+	// 	@Param("categoryId") Long categoryId,
+	// 	Pageable pageable
+	// );
 }
 
 

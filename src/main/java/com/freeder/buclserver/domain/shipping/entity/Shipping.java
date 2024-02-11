@@ -7,6 +7,7 @@ import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -20,12 +21,14 @@ import com.freeder.buclserver.domain.shipping.vo.ShippingStatus;
 import com.freeder.buclserver.domain.shippinginfo.entity.ShippingInfo;
 import com.freeder.buclserver.global.mixin.TimestampMixin;
 
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Getter
-@Setter
 @Table(name = "shipping")
 public class Shipping extends TimestampMixin {
 	@Id
@@ -33,11 +36,11 @@ public class Shipping extends TimestampMixin {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "consumser_order_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private ConsumerOrder consumerOrder;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "shipping_info_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private ShippingInfo shippingInfo;
 
@@ -62,4 +65,21 @@ public class Shipping extends TimestampMixin {
 
 	@Column(name = "shipped_date")
 	private LocalDateTime shippedDate;
+
+	@Builder
+	private Shipping(
+		ConsumerOrder consumerOrder, ShippingInfo shippingInfo, String shippingNum, String trackingNum,
+		ShippingStatus shippingStatus, boolean isActive, LocalDateTime purchaseOrderInputDate,
+		LocalDateTime trackingNumInputDate, LocalDateTime shippedDate
+	) {
+		this.consumerOrder = consumerOrder;
+		this.shippingInfo = shippingInfo;
+		this.shippingNum = shippingNum;
+		this.trackingNum = trackingNum;
+		this.shippingStatus = shippingStatus;
+		this.isActive = isActive;
+		this.purchaseOrderInputDate = purchaseOrderInputDate;
+		this.trackingNumInputDate = trackingNumInputDate;
+		this.shippedDate = shippedDate;
+	}
 }
