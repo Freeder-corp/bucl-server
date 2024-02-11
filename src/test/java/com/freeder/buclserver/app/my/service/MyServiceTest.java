@@ -181,7 +181,7 @@ class MyServiceTest {
 			.willReturn(Optional.of(shipping2));
 
 		// when
-		List<MyOrderResponse> myOrders = myService.getMyOrders(userId, 1, 10);
+		List<MyOrderResponse> myOrders = myService.getMyOrders(userId, 0, 10);
 
 		// then
 		assertThat(myOrders.size()).isEqualTo(2);
