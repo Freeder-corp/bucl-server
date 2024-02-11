@@ -25,6 +25,8 @@ import com.freeder.buclserver.domain.rewardwithdrawalaccount.dto.WithdrawalAccou
 import com.freeder.buclserver.domain.rewardwithdrawalaccount.entity.RewardWithdrawalAccount;
 import com.freeder.buclserver.domain.rewardwithdrawalaccount.repository.RewardWithdrawalAccountRepository;
 import com.freeder.buclserver.domain.user.entity.User;
+import com.freeder.buclserver.domain.user.exception.UserIdNotFoundException;
+import com.freeder.buclserver.domain.user.repository.UserRepository;
 import com.freeder.buclserver.global.exception.BaseException;
 import com.nimbusds.jose.shaded.json.JSONObject;
 
@@ -39,15 +41,21 @@ public class RewardsWithdrawalAccountService {
 	@Value("${openbanking.api.base-url}")
 	private String openBankingApiBaseUrl;
 
+	private final UserRepository userRepository;
+
 	public RewardsWithdrawalAccountService(AccessTokenRepository accessTokenRepository,
-		RewardWithdrawalAccountRepository rewardWithdrawalAccountRepository) {
+		RewardWithdrawalAccountRepository rewardWithdrawalAccountRepository, UserRepository userRepository) {
 		this.accessTokenRepository = accessTokenRepository;
 		this.rewardWithdrawalAccountRepository = rewardWithdrawalAccountRepository;
+		this.userRepository = userRepository;
 	}
 
 	@Transactional
 	public boolean requestMatchAccountRealName(Long userId, String bankCode, String bankAccount, String realName,
 		String birthday) {
+		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
+			.orElseThrow(() -> new UserIdNotFoundException(userId));
+
 		if (birthday.length() != 6 || bankAccount.length() > 16)
 			return false;
 
@@ -106,7 +114,7 @@ public class RewardsWithdrawalAccountService {
 		System.out.println("userId = " + userId);
 		RewardWithdrawalAccount withdrawalAccount = rewardWithdrawalAccountRepository.findByUser_Id(userId)
 			.orElse(new RewardWithdrawalAccount());
-		withdrawalAccount.setUser(new User(userId));
+		withdrawalAccount.setUser(user);
 		withdrawalAccount.setBankCodeStd(realNameDto.getBank_code_std());
 		withdrawalAccount.setBankName(realNameDto.getBank_name());
 		withdrawalAccount.setAccountNum(realNameDto.getAccount_num());
