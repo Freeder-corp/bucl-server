@@ -8,3 +8,4 @@ spring:
         - local-config
         - cloud
         - payment
+        - tracking

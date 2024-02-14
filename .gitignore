@@ -42,3 +42,4 @@ out/
 ### SECRET ###
 src/main/resources/application-cloud.yml
 src/main/resources/application-payment.yml
+src/main/resources/application-tracking.yml
