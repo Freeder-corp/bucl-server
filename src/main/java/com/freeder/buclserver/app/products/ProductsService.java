@@ -1,17 +1,22 @@
 package com.freeder.buclserver.app.products;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.freeder.buclserver.domain.consumerorder.repository.ConsumerOrderRepository;
+import com.freeder.buclserver.domain.grouporder.entity.GroupOrder;
+import com.freeder.buclserver.domain.grouporder.repository.GroupOrderRepository;
 import com.freeder.buclserver.domain.product.dto.ProductDTO;
 import com.freeder.buclserver.domain.product.dto.ProductDetailDTO;
 import com.freeder.buclserver.domain.product.entity.Product;
@@ -21,50 +26,67 @@ import com.freeder.buclserver.domain.productoption.entity.ProductOption;
 import com.freeder.buclserver.domain.productoption.repository.ProductOptionRepository;
 import com.freeder.buclserver.domain.productreview.dto.ReviewPreviewDTO;
 import com.freeder.buclserver.domain.productreview.entity.ProductReview;
+import com.freeder.buclserver.domain.productreview.repository.ProductReviewRepository;
+import com.freeder.buclserver.domain.wish.repository.WishRepository;
 import com.freeder.buclserver.global.exception.BaseException;
 import com.freeder.buclserver.global.util.ImageParsing;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class ProductsService {
 
 	private final ProductsCategoryService productsCategoryService;
 	private final ProductRepository productRepository;
+	private final ProductReviewRepository productReviewRepository;
 	private final ProductOptionRepository productOptionRepository;
+	private final GroupOrderRepository groupOrderRepository;
+	private final ConsumerOrderRepository consumerOrderRepository;
+	private final WishRepository wishRepository;
 	private final ImageParsing imageParsing;
 
-	@Autowired
-	public ProductsService(
-		ProductsCategoryService productsCategoryService,
-		ProductRepository productRepository,
-		ProductOptionRepository productOptionRepository,
-		ImageParsing imageParsing
-	) {
-		this.productsCategoryService = productsCategoryService;
-		this.productRepository = productRepository;
-		this.productOptionRepository = productOptionRepository;
-		this.imageParsing = imageParsing;
-	}
-
-	public List<ProductDTO> getProducts(Long categoryId, int page, int pageSize) {
+	@Transactional(readOnly = true)
+	public List<ProductDTO> getProducts(Long categoryId, int page, int pageSize, Long userId) {
 		try {
 			Pageable pageable = PageRequest.of(page, pageSize);
-			Page<Product> productsPage = productRepository.findProductsOrderByReward(categoryId, pageable);
+			Optional<Page<Product>> productsPageOptional = productRepository.findProductsByConditions(categoryId,
+				pageable);
+
+			Page<Product> productsPage = productsPageOptional.orElseThrow(() -> {
+				log.error("해당 상품을 찾을 수 없음");
+				return new BaseException(HttpStatus.NOT_FOUND, 404, "해당 상품을 찾을 수 없음");
+			});
+
 			List<ProductDTO> products = productsPage.getContent().stream()
-				.map(this::convertToDTO)
+				.map(product -> convertToDTO(product, userId))
 				.collect(Collectors.toList());
+
+			log.info("상품 목록 조회 성공 - categoryId: {}, page: {}, pageSize: {}", categoryId, page, pageSize);
 			return products;
+		} catch (BaseException e) {
+			throw e;
+		} catch (NullPointerException e) {
+			log.error("Null Point Access 에러 발생", e);
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "Null Point Access 에러 발생");
+		} catch (DataAccessException e) {
+			log.error("데이터 액세스 오류 발생", e);
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "데이터 액세스 오류");
 		} catch (Exception e) {
+			log.error("상품 목록 조회 실패 - categoryId: {}, page: {}, pageSize: {}", categoryId, page, pageSize, e);
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 목록 조회 - 서버 에러");
 		}
 	}
 
-	public ProductDetailDTO getProductDetail(Long productCode) {
+	@Transactional(readOnly = true)
+	public ProductDetailDTO getProductDetail(Long productCode, Long userId) {
 		try {
-			Product product = productRepository.findByProductCode(productCode)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-					"Product not found with code: " + productCode));
+			Product product = productRepository.findAvailableProductByCode(productCode)
+				.orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND, 404, "해당 상품을 찾을 수 없음"));
 
-			List<ProductReview> reviews = product.getReviews().stream()
+			List<ProductReview> reviews = productRepository.findReviewsByProductCode(productCode).stream()
 				.limit(3)
 				.collect(Collectors.toList());
 
@@ -77,7 +99,22 @@ public class ProductsService {
 
 			List<String> imageUrls = imageParsing.getImageList(product.getImagePath());
 			List<String> firstFiveImages = imageUrls.stream().limit(5).collect(Collectors.toList());
+			List<String> detailImages = imageParsing.getImageList(product.getDetailImagePath());
+			boolean wished = false;
 
+			Optional<GroupOrder> optionalGroupOrder = groupOrderRepository.findByProductIdAndIsEndedFalse(
+				product.getId());
+
+			// GroupOrder와 연관된 ConsumerOrder의 수 계산
+			int totalConsumerOrder = optionalGroupOrder
+				.map(groupOrder -> consumerOrderRepository.countByGroupOrderId(groupOrder.getId()))
+				.orElse(0);
+
+			if (userId != null) {
+				wished = wishRepository.existsByUser_IdAndProduct_IdAndDeletedAtIsNull(userId, product.getId());
+			}
+
+			log.info("상품 상세 정보 조회 성공 - productCode: {}", productCode);
 			return new ProductDetailDTO(
 				product.getProductCode(),
 				product.getName(),
@@ -89,9 +126,24 @@ public class ProductsService {
 				product.getCreatedAt(),
 				reviewCount,
 				firstFiveImages,
-				reviewPreviews
+				detailImages,
+				reviewPreviews,
+				wished,
+				totalConsumerOrder
 			);
+		} catch (BaseException e) {
+			throw new BaseException(e.getHttpStatus(), e.getErrorCode(), e.getErrorMessage());
+		} catch (NullPointerException e) {
+			log.error("Null Point Access 에러 발생", e);
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "Null Point Access 에러 발생");
+		} catch (IllegalArgumentException e) {
+			log.error("IllegalArgumentException", e);
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "IllegalArgumentException 에러 발생");
+		} catch (DataAccessException e) {
+			log.error("데이터 액세스 오류 발생", e);
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "데이터 액세스 오류");
 		} catch (Exception e) {
+			log.error("상품 상세 정보 조회 실패 - productCode: {}", productCode, e);
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 상세 정보 조회 - 서버 에러");
 		}
 	}
@@ -105,35 +157,66 @@ public class ProductsService {
 				review.getCreatedAt(),
 				review.getProduct().getName(),
 				review.getContent(),
+				review.getStarRate().getValue(),
 				thumbnailUrl
 			);
 		} catch (Exception e) {
+			log.error("상품 리뷰 미리보기 변환 실패", e);
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 리뷰 미리보기 변환 - 서버 에러");
 		}
 	}
 
+	@Transactional(readOnly = true)
 	public List<ProductOptionDTO> getProductOptions(Long productCode) {
 		try {
-			List<ProductOption> productOptions = productOptionRepository.findByProduct_productCode(productCode);
+			List<ProductOption> productOptions = productOptionRepository.findByProductProductCodeWithConditions(
+					productCode)
+				.orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND, 404, "해당 옵션을 찾을 수 없음"));
+
+			log.info("상품 옵션 조회 성공 - productCode: {}", productCode);
 			return productOptions.stream()
 				.map(this::convertToDTO)
 				.collect(Collectors.toList());
+		} catch (BaseException e) {
+			throw new BaseException(e.getHttpStatus(), e.getErrorCode(), e.getErrorMessage());
+		} catch (EmptyResultDataAccessException e) {
+			log.error("상품 옵션 조회 실패 - productCode: {}", productCode, e);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "상품 옵션을 찾을 수 없습니다.");
 		} catch (Exception e) {
+			// 그 외 예외 처리
+			log.error("상품 옵션 조회 실패 - productCode: {}", productCode, e);
 			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 옵션 조회 - 서버 에러");
 		}
 	}
 
-	private ProductOptionDTO convertToDTO(ProductOption productOption) {
-		String[] values = productOption.getOptionValue().split(",");
-		return new ProductOptionDTO(Arrays.asList(values), productOption.getOptionExtraAmount());
+	public ProductOptionDTO convertToDTO(ProductOption productOption) {
+		try {
+			return new ProductOptionDTO(productOption.getOptionValue(), productOption.getOptionExtraAmount());
+		} catch (Exception e) {
+			log.error("상품 옵션 DTO 변환 실패", e);
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 옵션 DTO 변환 실패");
+		}
 	}
 
-	private ProductDTO convertToDTO(Product product) {
+	private ProductDTO convertToDTO(Product product, Long userId) {
 		try {
 			String thumbnailUrl = imageParsing.getThumbnailUrl(product.getImagePath());
-			float calculatedReward = product.getSalePrice() * product.getConsumerRewardRate();
-			float roundedReward = Math.round(calculatedReward * 100.0f) / 100.0f;
+			Float consumerRewardRate = product.getConsumerRewardRate();
+			float calculatedReward = (product.getSalePrice() * (consumerRewardRate != null ? consumerRewardRate : 0));
+			float roundedReward = Math.round(calculatedReward);
 
+			boolean wished = false;
+
+			Optional<GroupOrder> optionalGroupOrder = groupOrderRepository.findByProductIdAndIsEndedFalse(
+				product.getId());
+
+			int totalConsumerOrder = optionalGroupOrder
+				.map(groupOrder -> consumerOrderRepository.countByGroupOrderId(groupOrder.getId()))
+				.orElse(0);
+
+			if (userId != null) {
+				wished = wishRepository.existsByUser_IdAndProduct_IdAndDeletedAtIsNull(userId, product.getId());
+			}
 			return new ProductDTO(
 				product.getProductCode(),
 				product.getName(),
@@ -141,10 +224,16 @@ public class ProductsService {
 				thumbnailUrl,
 				product.getSalePrice(),
 				product.getConsumerPrice(),
-				roundedReward
+				roundedReward,
+				wished,
+				totalConsumerOrder
 			);
+		} catch (IllegalArgumentException e) {
+			log.error("DTO 변환 중 잘못된 인자가 전달되었습니다.", e);
+			throw new BaseException(HttpStatus.BAD_REQUEST, 400, "DTO 변환 중 잘못된 인자가 전달되었습니다.");
 		} catch (Exception e) {
-			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 정보 변환 - 서버 에러");
+			log.error("상품 정보 DTO 변환 실패", e);
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, 500, "상품 정보 DTO 변환 - 서버 에러");
 		}
 	}
 }

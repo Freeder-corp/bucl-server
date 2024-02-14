@@ -21,5 +21,8 @@ public class ProductDetailDTO {
 	private LocalDateTime createdAt;
 	private int totalReviewCount;
 	private List<String> imagePaths;
+	private List<String> detailImagePaths;
 	private List<ReviewPreviewDTO> reviewPreviews;
+	private boolean wished;
+	private int totalConsumerOrder;
 }

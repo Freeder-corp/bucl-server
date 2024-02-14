@@ -13,5 +13,6 @@ public class ReviewPreviewDTO {
 	private LocalDateTime reviewDate;
 	private String productName;
 	private String content;
+	private float starRate; // doublce
 	private String reviewImage;
 }

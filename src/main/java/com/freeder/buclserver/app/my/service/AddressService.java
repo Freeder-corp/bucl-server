@@ -129,6 +129,10 @@ public class AddressService {
 			UserShippingAddress deleteUserAddress = userShippingAddressRepository.findById(addressId)
 				.orElseThrow(() -> new AddressIdNotFoundException(addressId));
 
+			if (deleteUserAddress.isDefaultAddress()) {
+				throw new BaseException(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value(), "현재 배송지는 삭제 할 수 없습니다.");
+			}
+
 			if (deleteUserAddress.getUser().getId() != userId) {
 				throw new AddressUserNotMatchException();
 			}

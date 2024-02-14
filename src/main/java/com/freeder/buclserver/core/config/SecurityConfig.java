@@ -35,9 +35,20 @@ public class SecurityConfig {
 			.and()
 			.authorizeHttpRequests(authorize -> authorize
 				.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+
+				// Swagger
 				.antMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+
+				// Auth
 				.antMatchers(HttpMethod.POST, "/api/v1/auth/login/**").permitAll()
 				.antMatchers(HttpMethod.POST, "/api/v1/auth/renewal/tokens").permitAll()
+				// Product
+				.antMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
+				// Category
+				.antMatchers(HttpMethod.GET, "/api/v1/categories/{category_id}").permitAll()
+
+				// Reward
+				.antMatchers(HttpMethod.GET, "/api/v1/rewards/bank-list").permitAll()
 				.anyRequest().authenticated()
 			)
 			.exceptionHandling(exception -> exception

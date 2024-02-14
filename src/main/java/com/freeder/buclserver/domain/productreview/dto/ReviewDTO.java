@@ -12,7 +12,7 @@ public class ReviewDTO {
 	private String profilePath;
 	private String nickname;
 	private LocalDateTime createdAt;
-	private double starRate;
+	private float starRate;
 	private String selectedOption;
 	private List<String> reviewImages;
 	private String reviewText;

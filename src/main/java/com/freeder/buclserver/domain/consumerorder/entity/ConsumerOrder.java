@@ -74,6 +74,9 @@ public class ConsumerOrder extends TimestampMixin {
 	@Column(name = "order_code", unique = true)
 	private String orderCode;
 
+	@Column(name = "product_amount")
+	private Integer productAmount;
+
 	@Column(name = "order_num")
 	private int orderNum;
 

@@ -19,7 +19,7 @@ import com.freeder.buclserver.domain.consumerorder.entity.ConsumerOrder;
 import com.freeder.buclserver.domain.orderrefund.entity.OrderRefund;
 import com.freeder.buclserver.domain.product.entity.Product;
 import com.freeder.buclserver.domain.reward.vo.RewardType;
-import com.freeder.buclserver.domain.rewardwithdrawalaccount.entity.RewardWithdrawalAccount;
+import com.freeder.buclserver.domain.rewardwithdrawal.entity.RewardWithdrawal;
 import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.global.mixin.TimestampMixin;
 
@@ -29,10 +29,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "reward")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "reward")
 public class Reward extends TimestampMixin {
 
 	@Id
@@ -56,9 +56,9 @@ public class Reward extends TimestampMixin {
 	@JoinColumn(name = "order_refund_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private OrderRefund orderRefund;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "reward_withdrawal_account", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-	private RewardWithdrawalAccount rewardWithdrawalAccount;
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "reward_withdrawal_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+	private RewardWithdrawal rewardWithdrawal;
 
 	@Column(name = "product_name")
 	private String productName;
@@ -71,28 +71,28 @@ public class Reward extends TimestampMixin {
 	private RewardType rewardType;
 
 	@Column(name = "received_reward_amount")
-	private int receivedRewardAmount;
+	private Integer receivedRewardAmount;
 
 	@Column(name = "spent_reward_amount")
-	private int spentRewardAmount;
+	private Integer spentRewardAmount;
 
 	@Column(name = "previous_reward_sum")
-	private int previousRewardSum;
+	private Integer previousRewardSum;
 
 	@Column(name = "reward_sum")
-	private int rewardSum;
+	private Integer rewardSum;
 
 	@Builder
 	private Reward(
 		User user, Product product, ConsumerOrder consumerOrder, OrderRefund orderRefund,
-		RewardWithdrawalAccount rewardWithdrawalAccount, String productName, String productBrandName,
+		RewardWithdrawal rewardWithdrawal, String productName, String productBrandName,
 		RewardType rewardType, int receivedRewardAmount, int spentRewardAmount, int previousRewardSum, int rewardSum
 	) {
 		this.user = user;
 		this.product = product;
 		this.consumerOrder = consumerOrder;
 		this.orderRefund = orderRefund;
-		this.rewardWithdrawalAccount = rewardWithdrawalAccount;
+		this.rewardWithdrawal = rewardWithdrawal;
 		this.productName = productName;
 		this.productBrandName = productBrandName;
 		this.rewardType = rewardType;

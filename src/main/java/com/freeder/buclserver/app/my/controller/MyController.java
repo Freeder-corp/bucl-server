@@ -25,6 +25,7 @@ import com.freeder.buclserver.core.security.CustomUserDetails;
 import com.freeder.buclserver.domain.user.dto.response.MyOrderDetailResponse;
 import com.freeder.buclserver.domain.user.dto.response.MyOrderResponse;
 import com.freeder.buclserver.domain.user.dto.response.MyProfileResponse;
+import com.freeder.buclserver.domain.user.dto.response.PatchMyProfileResponse;
 import com.freeder.buclserver.domain.usershippingaddress.dto.UserShippingAddressDto;
 import com.freeder.buclserver.domain.usershippingaddress.dto.request.AddressCreateRequest;
 import com.freeder.buclserver.domain.usershippingaddress.dto.request.AddressUpdateRequest;
@@ -43,102 +44,104 @@ public class MyController {
 	private final AddressService addressService;
 
 	@GetMapping("/profile")
-	public BaseResponse getMyProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
+	public BaseResponse<MyProfileResponse> getMyProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
 		Long userId = Long.valueOf(userDetails.getUserId());
 		MyProfileResponse myProfile = myService.getMyProfile(userId);
-		return new BaseResponse(myProfile, HttpStatus.OK, "요청 성공");
+		return new BaseResponse<>(myProfile, HttpStatus.OK, "요청 성공");
 	}
 
 	@PatchMapping("/profile/default-image")
-	public BaseResponse updateProfileImageAsDefault(@AuthenticationPrincipal CustomUserDetails userDetails) {
+	public BaseResponse<PatchMyProfileResponse> updateProfileImageAsDefault(
+		@AuthenticationPrincipal CustomUserDetails userDetails) {
 		Long userId = Long.valueOf(userDetails.getUserId());
-		myService.updateProfileImageAsDefault(userId);
-		return new BaseResponse(null, HttpStatus.OK, "요청 성공");
+
+		return new BaseResponse<>(myService.updateProfileImageAsDefault(userId), HttpStatus.OK, "요청 성공");
 	}
 
 	@PatchMapping("/profile/image")
-	public BaseResponse updateProfileImage(
+	public BaseResponse<PatchMyProfileResponse> updateProfileImage(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@RequestPart("profileImage") MultipartFile profileImageFile
 	) {
 		Long userId = Long.valueOf(userDetails.getUserId());
-		myService.updateProfileImage(userId, profileImageFile);
-		return new BaseResponse(null, HttpStatus.OK, "요청 성공");
+		return new BaseResponse<>(myService.updateProfileImage(userId, profileImageFile), HttpStatus.OK, "요청 성공");
 	}
 
 	@GetMapping("/profile/orders")
-	public BaseResponse getMyOrders(
+	public BaseResponse<List<MyOrderResponse>> getMyOrders(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@RequestParam(defaultValue = "1") int page,
 		@RequestParam(defaultValue = "10") int pageSize
 	) {
 		Long userId = Long.valueOf(userDetails.getUserId());
 		List<MyOrderResponse> myOrderList = myService.getMyOrders(userId, page, pageSize);
-		return new BaseResponse(myOrderList, HttpStatus.OK, "요청 성공");
+		return new BaseResponse<>(myOrderList, HttpStatus.OK, "요청 성공");
 	}
 
 	@GetMapping("/profile/orders/{consumerOrderId}")
-	public BaseResponse getMyOrderDetail(
+	public BaseResponse<MyOrderDetailResponse> getMyOrderDetail(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@PathVariable Long consumerOrderId
 	) {
 		Long userId = Long.valueOf(userDetails.getUserId());
 		MyOrderDetailResponse myOrderDetail = myService.getMyOrderDetail(userId, consumerOrderId);
-		return new BaseResponse(myOrderDetail, HttpStatus.OK, "요청 성공");
+		return new BaseResponse<>(myOrderDetail, HttpStatus.OK, "요청 성공");
 	}
 
 	@PostMapping("/addresses")
-	public BaseResponse createMyAddress(
+	public BaseResponse<UserShippingAddressDto> createMyAddress(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@Valid @RequestBody AddressCreateRequest addressCreateRequest
 	) {
 		Long userId = Long.valueOf(userDetails.getUserId());
 		UserShippingAddressDto addressCreateResponse = addressService.createMyAddress(userId, addressCreateRequest);
-		return new BaseResponse(addressCreateResponse, HttpStatus.OK, "요청 성공");
+		return new BaseResponse<>(addressCreateResponse, HttpStatus.OK, "요청 성공");
 	}
 
 	@GetMapping("/addresses")
-	public BaseResponse getMyAddressList(@AuthenticationPrincipal CustomUserDetails userDetails) {
+	public BaseResponse<List<UserShippingAddressDto>> getMyAddressList(
+		@AuthenticationPrincipal CustomUserDetails userDetails) {
 		Long userId = Long.valueOf(userDetails.getUserId());
 		List<UserShippingAddressDto> addressList = addressService.getMyAddressList(userId);
-		return new BaseResponse(addressList, HttpStatus.OK, "요청 성공");
+		return new BaseResponse<>(addressList, HttpStatus.OK, "요청 성공");
 	}
 
 	@PutMapping("/addresses/{addressId}")
-	public BaseResponse updateMyAddress(
+	public BaseResponse<UserShippingAddressDto> updateMyAddress(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@PathVariable Long addressId,
 		@Valid @RequestBody AddressUpdateRequest addressUpdateRequest
 	) {
 		Long userId = Long.valueOf(userDetails.getUserId());
 		UserShippingAddressDto address = addressService.updateMyAddress(userId, addressId, addressUpdateRequest);
-		return new BaseResponse(address, HttpStatus.OK, "요청 성공");
+		return new BaseResponse<>(address, HttpStatus.OK, "요청 성공");
 	}
 
 	@DeleteMapping("/addresses/{addressId}")
-	public BaseResponse deleteMyAddress(
+	public BaseResponse<Long> deleteMyAddress(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@PathVariable Long addressId
 	) {
 		Long userId = Long.valueOf(userDetails.getUserId());
 		addressService.deleteMyAddress(userId, addressId);
-		return new BaseResponse(addressId, HttpStatus.OK, "요청 성공");
+		return new BaseResponse<>(addressId, HttpStatus.OK, "요청 성공");
 	}
 
-	@GetMapping("/address/default")
-	public BaseResponse getMyDefaultAddress(@AuthenticationPrincipal CustomUserDetails userDetails) {
+	@GetMapping("/addresses/default")
+	public BaseResponse<UserShippingAddressDto> getMyDefaultAddress(
+		@AuthenticationPrincipal CustomUserDetails userDetails) {
 		Long userId = Long.valueOf(userDetails.getUserId());
 		UserShippingAddressDto defaultAddress = addressService.getMyDefaultAddress(userId);
-		return new BaseResponse(defaultAddress, HttpStatus.OK, "요청 성공");
+		return new BaseResponse<>(defaultAddress, HttpStatus.OK, "요청 성공");
 	}
 
 	@PatchMapping("/addresses/{addressId}/default")
-	public BaseResponse updateMyDefaultAddress(
+	public BaseResponse<UserShippingAddressDto> updateMyDefaultAddress(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@PathVariable Long addressId
 	) {
 		Long userId = Long.valueOf(userDetails.getUserId());
 		UserShippingAddressDto defaultAddress = addressService.updateMyDefaultAddress(userId, addressId);
-		return new BaseResponse(defaultAddress, HttpStatus.OK, "요청 성공");
+		return new BaseResponse<>(defaultAddress, HttpStatus.OK, "요청 성공");
 	}
 }
