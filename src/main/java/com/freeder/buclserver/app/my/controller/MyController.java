@@ -127,7 +127,7 @@ public class MyController {
 		return new BaseResponse<>(addressId, HttpStatus.OK, "요청 성공");
 	}
 
-	@GetMapping("/address/default")
+	@GetMapping("/addresses/default")
 	public BaseResponse<UserShippingAddressDto> getMyDefaultAddress(
 		@AuthenticationPrincipal CustomUserDetails userDetails) {
 		Long userId = Long.valueOf(userDetails.getUserId());
