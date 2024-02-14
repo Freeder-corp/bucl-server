@@ -7,9 +7,9 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -56,7 +56,9 @@ public class AuthController {
 	}
 
 	@PostMapping("/renewal/tokens")
-	public BaseResponse renewTokens(@RequestHeader("refresh-token") String refreshToken, HttpServletResponse response) {
+	public BaseResponse renewTokens(@CookieValue(name = "refresh-token", required = false) String refreshToken,
+		HttpServletResponse response) {
+		System.out.println("refreshToken: " + refreshToken);
 		TokenResponse tokens = authService.renewTokens(refreshToken);
 
 		response.addCookie(createCookie("refresh-token", tokens.refreshToken(), COOKIE_MAX_AGE_REFRESH_TOKEN));
@@ -65,9 +67,11 @@ public class AuthController {
 	}
 
 	@PostMapping("/logout")
-	public BaseResponse logout(@AuthenticationPrincipal CustomUserDetails userDetails) {
+	public BaseResponse logout(@AuthenticationPrincipal CustomUserDetails userDetails, HttpServletResponse response) {
 		String userId = userDetails.getUserId();
 		authService.deleteRefreshToken(Long.valueOf(userId));
+		Cookie cookie = deleteRefreshToken();
+		response.addCookie(cookie);
 		return new BaseResponse(userId, HttpStatus.OK, "요청 성공");
 	}
 
@@ -85,6 +89,13 @@ public class AuthController {
 		// cookie.setSecure(true);
 		cookie.setPath("/");
 		cookie.setMaxAge(maxAge);
+		return cookie;
+	}
+
+	private Cookie deleteRefreshToken() {
+		Cookie cookie = new Cookie("refresh-token", null);
+		cookie.setPath("/");
+		cookie.setMaxAge(0);
 		return cookie;
 	}
 }
