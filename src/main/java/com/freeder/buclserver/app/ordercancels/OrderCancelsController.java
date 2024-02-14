@@ -19,20 +19,20 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "order-cancels 관련 API", description = "주문취소 관련 API")
 public class OrderCancelsController {
 
-	private String testSocialId = "3195839289"; //"3895839289";
+	private Long userId = 1L;
 	private final OrderCancelsService orderCancelsService;
 
 	@PostMapping(path = "/{order_code}")
 	public BaseResponse<OrderCancelResponseDto> addOrderCancel(
 		@PathVariable(name = "order_code") String orderCode
 	) {
-		OrderCancelResponseDto orderCancelResponseDto = orderCancelsService.createOrderCancel(testSocialId, orderCode);
+		OrderCancelResponseDto orderCancelResponseDto = orderCancelsService.createOrderCancel(userId, orderCode);
 		return new BaseResponse<>(orderCancelResponseDto, HttpStatus.CREATED, "주문 취소 됐습니다.");
 	}
 
 	@PutMapping(path = "/{order_code}/approval")
 	public BaseResponse<String> modifyOrderCancelApproval(@PathVariable(name = "order_code") String orderCode) {
-		orderCancelsService.updateOrderCancelApproval(testSocialId, orderCode);
+		orderCancelsService.updateOrderCancelApproval(userId, orderCode);
 		return new BaseResponse<>(orderCode, HttpStatus.OK, orderCode + " 주문 취소 승인 완료했습니다.");
 	}
 }

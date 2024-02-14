@@ -1,5 +1,7 @@
 package com.freeder.buclserver.app.ordercancels;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -9,6 +11,8 @@ import com.freeder.buclserver.domain.consumerorder.entity.ConsumerOrder;
 import com.freeder.buclserver.domain.consumerorder.repository.ConsumerOrderRepository;
 import com.freeder.buclserver.domain.consumerorder.vo.CsStatus;
 import com.freeder.buclserver.domain.consumerorder.vo.OrderStatus;
+import com.freeder.buclserver.domain.grouporder.entity.GroupOrder;
+import com.freeder.buclserver.domain.grouporder.repository.GroupOrderRepository;
 import com.freeder.buclserver.domain.ordercancel.entity.OrderCancel;
 import com.freeder.buclserver.domain.ordercancel.repository.OrderCancelRepository;
 import com.freeder.buclserver.domain.ordercancel.vo.OrderCancelExr;
@@ -39,13 +43,14 @@ public class OrderCancelsService {
 	private final ShippingRepository shippingRepository;
 	private final ConsumerOrderRepository consumerOrderRepository;
 	private final RewardRepository rewardRepository;
+	private final GroupOrderRepository groupOrderRepository;
 
 	private final PaymentService paymentService;
 	private final RewardService rewardService;
 
 	@Transactional
-	public OrderCancelResponseDto createOrderCancel(String socialId, String orderCode) throws NullPointerException {
-		User consumer = userRepository.findBySocialId(socialId).orElseThrow(
+	public OrderCancelResponseDto createOrderCancel(Long userId, String orderCode) throws NullPointerException {
+		User consumer = userRepository.findById(userId).orElseThrow(
 			() -> new UnauthorizedErrorException("인증 실패 했습니다.")
 		);
 		ConsumerOrder consumerOrder = consumerOrderRepository.findByOrderCodeAndConsumer(orderCode, consumer)
@@ -99,8 +104,8 @@ public class OrderCancelsService {
 	}
 
 	@Transactional
-	public void updateOrderCancelApproval(String socialId, String orderCode) {
-		User admin = userRepository.findBySocialId(socialId).orElseThrow(
+	public void updateOrderCancelApproval(Long userId, String orderCode) {
+		User admin = userRepository.findById(userId).orElseThrow(
 			() -> new UnauthorizedErrorException("인증 실패 했습니다.")
 		);
 		if (!admin.getRole().equals(Role.ROLE_ADMIN)) {
@@ -133,16 +138,23 @@ public class OrderCancelsService {
 		}
 
 		consumerOrder.setOrderStatus(OrderStatus.ORDER_CANCELED);
-		consumerOrder.setCsStatus(CsStatus.NONE);
+		// consumerOrder.setCsStatus(CsStatus.NONE);
 		orderCancel.setOrderCancelStatus(OrderCancelStatus.COMPLETED);
 		orderCancel.setCompletedAt(OrderCancelUtil.getCompletedAt());
 
 		String impUid = consumerOrder.getOrderCode();
 
-		consumerOrderRepository.save(consumerOrder);
-		orderCancelRepository.save(orderCancel);
-		orderRefundRepository.save(orderRefund);
+		// consumerOrderRepository.save(consumerOrder);
+		// orderCancelRepository.save(orderCancel);
+		// orderRefundRepository.save(orderRefund);
 
+		Optional<GroupOrder> optionalGroupOrder = groupOrderRepository.findByProductAndIsActiveAndCreatedBetween(
+			consumerOrder.getProduct().getProductCode(), true, consumerOrder.getCreatedAt());
+		if (optionalGroupOrder.isPresent()) {
+			GroupOrder groupOrder = optionalGroupOrder.get();
+			groupOrder.setActlNum(groupOrder.getActlNum() - 1);
+		}
 		paymentService.cancelPayment(impUid);
+
 	}
 }
