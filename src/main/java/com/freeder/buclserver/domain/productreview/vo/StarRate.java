@@ -1,31 +1,35 @@
 package com.freeder.buclserver.domain.productreview.vo;
 
-import java.util.Comparator;
-
 public enum StarRate {
-	ZERO(0.0),
-	HALF(0.5),
-	ONE(1.0),
-	ONE_AND_HALF(1.5),
-	TWO(2.0),
-	TWO_AND_HALF(2.5),
-	THREE(3.0),
-	THREE_AND_HALF(3.5),
-	FOUR(4.0),
-	FOUR_AND_HALF(4.5),
-	FIVE(5.0);
+	ZERO(0.0f),
+	HALF(0.5f),
+	ONE(1.0f),
+	ONE_AND_HALF(1.5f),
+	TWO(2.0f),
+	TWO_AND_HALF(2.5f),
+	THREE(3.0f),
+	THREE_AND_HALF(3.5f),
+	FOUR(4.0f),
+	FOUR_AND_HALF(4.5f),
+	FIVE(5.0f);
 
-	private final double value;
+	private final float value;
 
-	StarRate(double value) {
+	StarRate(float value) {
 		this.value = value;
 	}
 
-	public double getValue() {
+	public float getValue() {
 		return value;
 	}
 
-	public static Comparator<StarRate> comparator() {
-		return Comparator.comparingDouble(StarRate::getValue);
+	public static StarRate findByValue(Float value) {
+		for (StarRate starRate : values()) {
+			if (starRate.value == (value)) {
+				return starRate;
+			}
+		}
+
+		throw new IllegalArgumentException("별점 범위를 벗어났습니다: " + value);
 	}
 }

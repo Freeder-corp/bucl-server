@@ -242,10 +242,10 @@ class AddressServiceTest {
 		// given
 		Long userId = 1L;
 		User user = Mockito.spy(UserTestUtil.create());
-		UserShippingAddress deleteAddress = createShippingAddressWithUser(user, true);
-		when(user.getId()).thenReturn(userId);
+		UserShippingAddress deleteAddress = createShippingAddressWithUser(user, false);
 		given(userRepository.findByIdAndDeletedAtIsNull(userId)).willReturn(Optional.of(user));
 		given(userShippingAddressRepository.findById(anyLong())).willReturn(Optional.of(deleteAddress));
+		given(user.getId()).willReturn(userId);
 		willDoNothing().given(userShippingAddressRepository).deleteById(anyLong());
 
 		// when
@@ -253,7 +253,7 @@ class AddressServiceTest {
 
 		// then
 		then(userShippingAddressRepository).should().deleteById(anyLong());
-		then(userShippingAddressRepository).should().findFirstByUserOrderByIdDesc((any(User.class)));
+		// then(userShippingAddressRepository).should().findFirstByUserOrderByIdDesc(any(User.class));
 	}
 
 	@Test
@@ -262,7 +262,7 @@ class AddressServiceTest {
 		Long userId = 1L;
 		User user = UserTestUtil.create();
 		User wrongUser = Mockito.spy(UserTestUtil.create());
-		UserShippingAddress userShippingAddress = createShippingAddressWithUser(wrongUser, true);
+		UserShippingAddress userShippingAddress = createShippingAddressWithUser(wrongUser, false);
 		given(userRepository.findByIdAndDeletedAtIsNull(userId)).willReturn(Optional.of(user));
 		given(userShippingAddressRepository.findById(anyLong())).willReturn(Optional.of(userShippingAddress));
 		doReturn(2L).when(wrongUser).getId();

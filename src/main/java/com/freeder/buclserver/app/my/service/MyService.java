@@ -27,6 +27,7 @@ import com.freeder.buclserver.domain.shippingaddress.repository.ShippingAddressR
 import com.freeder.buclserver.domain.user.dto.response.MyOrderDetailResponse;
 import com.freeder.buclserver.domain.user.dto.response.MyOrderResponse;
 import com.freeder.buclserver.domain.user.dto.response.MyProfileResponse;
+import com.freeder.buclserver.domain.user.dto.response.PatchMyProfileResponse;
 import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.domain.user.exception.UserIdNotFoundException;
 import com.freeder.buclserver.domain.user.repository.UserRepository;
@@ -67,14 +68,18 @@ public class MyService {
 	}
 
 	@Transactional
-	public void updateProfileImageAsDefault(Long userId) {
+	public PatchMyProfileResponse updateProfileImageAsDefault(Long userId) {
 		try {
 			User user = userRepository.findByIdAndDeletedAtIsNull(userId)
 				.orElseThrow(() -> new UserIdNotFoundException(userId));
 
 			profileS3Service.deleteFile(user.getProfilePath());
 
-			user.updateProfilePathAsDefault();
+			String profilePath = user.updateProfilePathAsDefault();
+			return PatchMyProfileResponse.builder()
+				.profilePath(profilePath)
+				.build();
+
 		} catch (BaseException e) {
 			throw e;
 		} catch (Exception e) {
@@ -85,7 +90,7 @@ public class MyService {
 	}
 
 	@Transactional
-	public void updateProfileImage(Long userId, MultipartFile profileImageFile) {
+	public PatchMyProfileResponse updateProfileImage(Long userId, MultipartFile profileImageFile) {
 		try {
 			User user = userRepository.findByIdAndDeletedAtIsNull(userId)
 				.orElseThrow(() -> new UserIdNotFoundException(userId));
@@ -96,6 +101,11 @@ public class MyService {
 
 			String uploadFileUrl = profileS3Service.uploadFile(profileImageFile);
 			user.updateProfilePath(uploadFileUrl);
+
+			return PatchMyProfileResponse.builder()
+				.profilePath(uploadFileUrl)
+				.build();
+
 		} catch (BaseException e) {
 			throw e;
 		} catch (Exception e) {

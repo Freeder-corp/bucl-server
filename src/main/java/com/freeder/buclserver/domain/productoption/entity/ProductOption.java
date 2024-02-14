@@ -39,10 +39,6 @@ public class ProductOption extends TimestampMixin {
 	@Column(name = "sku_code", unique = true)
 	private Long skuCode;
 
-	@ManyToOne
-	@JoinColumn(name = "product_code", referencedColumnName = "product_code", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-	private Product productCode;
-
 	@Column(name = "option_key")
 	@Enumerated(EnumType.STRING)
 	private OptionKey optionKey;
@@ -55,7 +51,7 @@ public class ProductOption extends TimestampMixin {
 	private int optionSequence;
 
 	@Column(name = "product_qty")
-	private int productQty;
+	private Integer productQty;
 
 	@Column(name = "max_order_qty")
 	private int maxOrderQty;
@@ -69,4 +65,8 @@ public class ProductOption extends TimestampMixin {
 	@ColumnDefault("true")
 	@Column(name = "is_exposed")
 	private boolean isExposed;
+
+	public Long getProductCode() {
+		return product.getProductCode();
+	}
 }

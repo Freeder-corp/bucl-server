@@ -20,6 +20,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Where;
 
 import com.freeder.buclserver.domain.product.vo.ProductStatus;
 import com.freeder.buclserver.domain.product.vo.TaxStatus;
@@ -54,6 +55,7 @@ public class Product extends TimestampMixin implements Serializable {
 	private List<ProductOption> productOptions = new ArrayList<>();
 
 	@OneToMany(mappedBy = "product")
+	@Where(clause = "deleted_at IS NULL")
 	private List<ProductReview> productReviews = new ArrayList<>();
 
 	private String name;
@@ -82,17 +84,17 @@ public class Product extends TimestampMixin implements Serializable {
 	private TaxStatus taxStatus;
 
 	@Column(name = "margin_rate")
-	private float marginRate;
+	private Float marginRate;
 	@Column(name = "tax_rate")
-	private float taxRate;
+	private Float taxRate;
 	@Column(name = "discount_rate")
-	private float discountRate;
+	private Float discountRate;
 
 	@Column(name = "consumer_reward_rate")
-	private float consumerRewardRate;
+	private Float consumerRewardRate;
 
 	@Column(name = "business_reward_rate")
-	private float businessRewardRate;
+	private Float businessRewardRate;
 
 	@Column(name = "image_path", length = 5000)
 	private String imagePath;
@@ -105,7 +107,7 @@ public class Product extends TimestampMixin implements Serializable {
 	private ProductStatus productStatus;
 
 	@Column(name = "product_priority")
-	private int productPriority;
+	private Integer productPriority;
 
 	@ColumnDefault("true")
 	@Column(name = "is_exposed")
@@ -120,5 +122,4 @@ public class Product extends TimestampMixin implements Serializable {
 	public List<ProductReview> getReviews() {
 		return productReviews;
 	}
-
 }
