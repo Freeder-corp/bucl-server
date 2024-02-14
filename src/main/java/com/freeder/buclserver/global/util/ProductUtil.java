@@ -5,6 +5,6 @@ import java.util.List;
 
 public class ProductUtil {
 	public static List<String> getImageList(String imagePath) {
-		return Arrays.asList(imagePath.split("\\s+/"));
+		return Arrays.asList(imagePath.split("\\s+"));
 	}
 }
