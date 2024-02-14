@@ -20,11 +20,11 @@ import com.freeder.buclserver.domain.product.entity.Product;
 import com.freeder.buclserver.domain.reward.entity.Reward;
 import com.freeder.buclserver.domain.reward.repository.RewardRepository;
 import com.freeder.buclserver.domain.reward.vo.RewardType;
-import com.freeder.buclserver.domain.rewardwithdrawal.dto.WithdrawalHistoryDto;
+import com.freeder.buclserver.domain.rewardwithdrawal.dto.WithdrawalDto;
 import com.freeder.buclserver.domain.rewardwithdrawal.entity.RewardWithdrawal;
 import com.freeder.buclserver.domain.rewardwithdrawal.repository.RewardWithdrawalRepository;
-import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.global.exception.BaseException;
+import com.freeder.buclserver.util.UserTestUtil;
 
 @DisplayName("리워드 인출 / 인출 내역 조회 API")
 @ExtendWith(MockitoExtension.class)
@@ -46,7 +46,7 @@ public class RewardsWithdrawalServiceTest {
 		Long userId = 1L;
 		Reward mockReward = Reward.builder()
 			.id(1L)
-			.user(new User())
+			.user(UserTestUtil.createWthdrawalUser())
 			.product(new Product())
 			.rewardType(RewardType.WITHDRAWAL)
 			.receivedRewardAmount(10000)
@@ -72,7 +72,7 @@ public class RewardsWithdrawalServiceTest {
 		Long userId = 1L;
 		Reward mockReward = Reward.builder()
 			.id(1L)
-			.user(new User())
+			.user(UserTestUtil.createWthdrawalUser())
 			.product(new Product())
 			.rewardType(RewardType.WITHDRAWAL)
 			.receivedRewardAmount(10000)
@@ -114,7 +114,7 @@ public class RewardsWithdrawalServiceTest {
 			.thenReturn(mockWithdrawalList);
 
 		// When
-		List<WithdrawalHistoryDto> withdrawalHistory = rewardsWithdrawalService.getWithdrawalHistory(userId, page,
+		List<WithdrawalDto> withdrawalHistory = rewardsWithdrawalService.getWithdrawalHistory(userId, page,
 			pageSize);
 
 		// Then

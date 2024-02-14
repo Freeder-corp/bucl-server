@@ -28,6 +28,7 @@ import com.freeder.buclserver.domain.user.entity.User;
 import com.freeder.buclserver.domain.user.repository.UserRepository;
 import com.freeder.buclserver.global.exception.BaseException;
 import com.freeder.buclserver.global.util.ImageParsing;
+import com.freeder.buclserver.util.UserTestUtil;
 
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
@@ -63,7 +64,7 @@ public class ProductsReviewServiceTest {
 		// Given
 		Long productCode = 100000001L;
 		Long userId = 1L;
-		ReviewRequestDTO reviewRequestDTO = new ReviewRequestDTO("Updated Content", StarRate.FOUR_AND_HALF);
+		ReviewRequestDTO reviewRequestDTO = new ReviewRequestDTO("Updated Content", StarRate.FOUR_AND_HALF.getValue());
 		List<String> s3ImageUrls = Arrays.asList("url1", "url2");
 
 		ProductReview existingReview = new ProductReview();
@@ -101,13 +102,13 @@ public class ProductsReviewServiceTest {
 		// Given
 		Long productCode = 100000001L;
 		Long userId = 1L;
-		ReviewRequestDTO reviewRequestDTO = new ReviewRequestDTO("New Content", StarRate.FOUR);
+		ReviewRequestDTO reviewRequestDTO = new ReviewRequestDTO("New Content", StarRate.FOUR.getValue());
 		List<String> s3ImageUrls = Arrays.asList("newUrl1", "newUrl2");
 
 		// Mocking
 		when(productReviewRepository.findFirstByUserIdAndProductCode(userId, productCode)).thenReturn(Optional.empty());
 
-		User user = new User();
+		User user = UserTestUtil.create();
 		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
 		Product product = new Product();
@@ -131,8 +132,7 @@ public class ProductsReviewServiceTest {
 		ProductReview existingReview = new ProductReview();
 		existingReview.setId(reviewId);
 
-		User user = new User();
-		user.setId(userId);
+		User user = UserTestUtil.create();
 
 		existingReview.setUser(user);
 		existingReview.setContent("Old Content");
@@ -168,7 +168,7 @@ public class ProductsReviewServiceTest {
 		// Given
 		Long invalidProductCode = 999999L;
 		Long userId = 1L;
-		ReviewRequestDTO reviewRequestDTO = new ReviewRequestDTO("Invalid Product Code", StarRate.FIVE);
+		ReviewRequestDTO reviewRequestDTO = new ReviewRequestDTO("Invalid Product Code", StarRate.FIVE.getValue());
 		List<String> s3ImageUrls = Arrays.asList("invalidUrl1", "invalidUrl2");
 
 		// Mocking
@@ -187,7 +187,7 @@ public class ProductsReviewServiceTest {
 		// Given
 		Long productCode = 100000001L;
 		Long invalidUserId = 999999L;
-		ReviewRequestDTO reviewRequestDTO = new ReviewRequestDTO("Invalid User ID", StarRate.TWO);
+		ReviewRequestDTO reviewRequestDTO = new ReviewRequestDTO("Invalid User ID", StarRate.TWO.getValue());
 		List<String> s3ImageUrls = Arrays.asList("invalidUrl1", "invalidUrl2");
 
 		// Mocking
@@ -206,7 +206,7 @@ public class ProductsReviewServiceTest {
 		// Given
 		Long productCode = 100000001L;
 		Long userId = 1L;
-		ReviewRequestDTO reviewRequestDTO = new ReviewRequestDTO("", StarRate.THREE);
+		ReviewRequestDTO reviewRequestDTO = new ReviewRequestDTO("", StarRate.THREE.getValue());
 		List<String> s3ImageUrls = Arrays.asList("url1", "url2");
 
 		// When & Then
@@ -281,10 +281,9 @@ public class ProductsReviewServiceTest {
 		ProductReview existingReview = new ProductReview();
 		existingReview.setId(reviewId);
 
-		User user = new User();
-		user.setId(userId);
+		User user = UserTestUtil.create();
 
-		existingReview.setUser(new User());
+		existingReview.setUser(user);
 		existingReview.setContent("Old Content");
 		existingReview.setStarRate(StarRate.THREE);
 		existingReview.setUpdatedAt(LocalDateTime.now());
