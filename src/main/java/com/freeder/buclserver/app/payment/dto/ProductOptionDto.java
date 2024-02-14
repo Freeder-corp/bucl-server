@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ProductOptionDto {
-	private String skuCode;
+	private Long skuCode;
 	private int productOrderAmt;
 	private int productOrderQty;
 	private String productOptVal;

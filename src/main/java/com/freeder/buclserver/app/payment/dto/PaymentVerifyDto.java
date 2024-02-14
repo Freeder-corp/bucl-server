@@ -18,7 +18,7 @@ public class PaymentVerifyDto {
 	private String memoCnt;
 
 	// 상품 정보
-	private String productCode;
+	private Long productCode;
 	private String productName;
 	private String brandName;
 

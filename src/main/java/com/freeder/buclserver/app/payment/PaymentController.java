@@ -2,6 +2,7 @@ package com.freeder.buclserver.app.payment;
 
 import javax.validation.Valid;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.freeder.buclserver.app.payment.dto.PaymentPrepareDto;
 import com.freeder.buclserver.app.payment.dto.PaymentVerifyDto;
 import com.freeder.buclserver.global.exception.servererror.BadRequestErrorException;
-import com.siot.IamportRestClient.response.IamportResponse;
+import com.freeder.buclserver.global.response.BaseResponse;
 import com.siot.IamportRestClient.response.Payment;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,16 +29,17 @@ public class PaymentController {
 
 	private final PaymentService paymentService;
 
-	private String testSocialId = "3895839289";
+	private Long userId = 1L;
 
 	@PostMapping("/preparation")
-	public PaymentPrepareDto preparePayment(@RequestBody PaymentPrepareDto paymentPrepareDto) {
+	public BaseResponse<PaymentPrepareDto> preparePayment(@RequestBody PaymentPrepareDto paymentPrepareDto) {
 		paymentService.preparePayment(paymentPrepareDto);
-		return paymentPrepareDto;
+		return new BaseResponse<>(paymentPrepareDto, HttpStatus.OK, "사전 검증 됐습니다.");
 	}
 
 	@PostMapping("/verification")
-	public IamportResponse<Payment> verifyPayment(@ModelAttribute @Valid PaymentVerifyDto paymentVerifyDto,
+	public BaseResponse<Payment> verifyPayment(
+		@ModelAttribute @Valid PaymentVerifyDto paymentVerifyDto,
 		BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
 			System.out.println(bindingResult.getAllErrors());
@@ -48,6 +50,8 @@ public class PaymentController {
 			paymentService.cancelPayment(impUid);
 			throw new BadRequestErrorException("요청 데이터가 인위적으로 바뀌어서 결제가 취소되었습니다.");
 		}
-		return paymentService.verifyPayment(testSocialId, paymentVerifyDto);
+		return new BaseResponse<>(paymentService.verifyPayment(userId, paymentVerifyDto).getResponse(),
+			HttpStatus.OK,
+			"결제 되었습니다.");
 	}
 }

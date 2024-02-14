@@ -27,6 +27,7 @@ import com.freeder.buclserver.domain.consumerpayment.vo.PaymentStatus;
 import com.freeder.buclserver.domain.consumerpayment.vo.PgProvider;
 import com.freeder.buclserver.domain.consumerpurchaseorder.entity.ConsumerPurchaseOrder;
 import com.freeder.buclserver.domain.consumerpurchaseorder.repository.ConsumerPurchaseOrderRepository;
+import com.freeder.buclserver.domain.grouporder.entity.GroupOrder;
 import com.freeder.buclserver.domain.grouporder.repository.GroupOrderRepository;
 import com.freeder.buclserver.domain.product.entity.Product;
 import com.freeder.buclserver.domain.product.repository.ProductRepository;
@@ -112,7 +113,7 @@ public class PaymentService {
 	}
 
 	@Transactional()
-	public IamportResponse<Payment> verifyPayment(String socialId,
+	public IamportResponse<Payment> verifyPayment(Long userId,
 		PaymentVerifyDto paymentVerifyDto) throws NullPointerException {
 		String impUid = paymentVerifyDto.getImpUid();
 		IamportResponse<Payment> irsp;
@@ -125,7 +126,7 @@ public class PaymentService {
 			throw new InternalServerErrorException("포트원 결제 시스템에서 오류가 발생해서 결제가 취소 되었습니다.");
 		}
 
-		User user = userRepository.findBySocialId(socialId).orElseThrow(
+		User user = userRepository.findById(userId).orElseThrow(
 			() -> {
 				cancelPayment(impUid);
 				return new BadRequestErrorException("해당 유저가 없습니다.");
@@ -170,6 +171,8 @@ public class PaymentService {
 
 		if (spendAmount != requestPaymentAmount) {
 			cancelPayment(impUid);
+			System.out.println("가격: " + spendAmount);
+			System.out.println("가격: " + requestPaymentAmount);
 			throw new BadRequestErrorException("결제 금액과 실제 결제 해야될 금액과 일치 하지 않습니다.");
 		}
 
@@ -191,13 +194,18 @@ public class PaymentService {
 			Reward userReward = rewardRepository.findFirstByUserOrderByCreatedAtDesc(user).orElseThrow();
 			createSpentReward(user, product, orderReturn, rewardAmt, userReward);
 		}
+		Optional<GroupOrder> optionalGroupOrder = groupOrderRepository.findByProductAndIsActiveAndCreatedBetween(
+			product.getProductCode(), true, orderReturn.getCreatedAt());
+		if (optionalGroupOrder.isPresent()) {
+			GroupOrder groupOrder = optionalGroupOrder.get();
+			groupOrder.setActlNum(groupOrder.getActlNum() + 1);
+		}
 
 		createConsumerPayment(user, orderReturn, paymentVerifyDto);
 		Shipping shippingReturn = createShipping(orderReturn, shippingInfo);
 		createShippingAddress(user, shippingReturn, paymentVerifyDto);
 
 		return irsp;
-
 	}
 
 	public void cancelPayment(String impUid) {
@@ -264,6 +272,7 @@ public class PaymentService {
 				cancelPayment(impUid);
 				return new BadRequestErrorException("선택하신 옵션은 해당 제품에는 없는 옵션입니다.");
 			});
+
 		int totalAmount =
 			(product.getSalePrice() + productOption.getOptionExtraAmount()) * productOptionDto.getProductOrderQty();
 		totalAmount += shippingInfo.getShippingFee();

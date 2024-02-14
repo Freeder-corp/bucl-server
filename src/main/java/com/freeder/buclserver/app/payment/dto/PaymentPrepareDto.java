@@ -8,7 +8,7 @@ import lombok.Getter;
 public class PaymentPrepareDto {
 	private String merchantUid;
 	private int amount;
-	private String productCode;
+	private Long productCode;
 
 	private ProductOptionDto productOption;
 }
