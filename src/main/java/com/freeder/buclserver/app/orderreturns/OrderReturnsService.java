@@ -1,5 +1,7 @@
 package com.freeder.buclserver.app.orderreturns;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -9,6 +11,8 @@ import com.freeder.buclserver.app.payment.PaymentService;
 import com.freeder.buclserver.domain.consumerorder.entity.ConsumerOrder;
 import com.freeder.buclserver.domain.consumerorder.repository.ConsumerOrderRepository;
 import com.freeder.buclserver.domain.consumerorder.vo.OrderStatus;
+import com.freeder.buclserver.domain.grouporder.entity.GroupOrder;
+import com.freeder.buclserver.domain.grouporder.repository.GroupOrderRepository;
 import com.freeder.buclserver.domain.orderrefund.entity.OrderRefund;
 import com.freeder.buclserver.domain.orderrefund.repository.OrderRefundRepository;
 import com.freeder.buclserver.domain.orderreturn.entity.OrderReturn;
@@ -39,6 +43,7 @@ public class OrderReturnsService {
 	private final ShippingRepository shippingRepository;
 	private final ConsumerOrderRepository consumerOrderRepository;
 	private final RewardRepository rewardRepository;
+	private final GroupOrderRepository groupOrderRepository;
 
 	private final PaymentService paymentService;
 	private final RewardService rewardService;
@@ -103,6 +108,13 @@ public class OrderReturnsService {
 		consumerOrderRepository.save(consumerOrder);
 		shippingRepository.save(prevShipping);
 		newOrderReturn = orderReturnRepository.save(newOrderReturn);
+
+		Optional<GroupOrder> optionalGroupOrder = groupOrderRepository.findByProductAndIsActiveAndCreatedBetween(
+			consumerOrder.getProduct().getProductCode(), true, consumerOrder.getCreatedAt());
+		if (optionalGroupOrder.isPresent()) {
+			GroupOrder groupOrder = optionalGroupOrder.get();
+			groupOrder.setActlNum(groupOrder.getActlNum() - 1);
+		}
 		paymentService.cancelPayment(impUid);
 
 		return OrdReturnRespDto
