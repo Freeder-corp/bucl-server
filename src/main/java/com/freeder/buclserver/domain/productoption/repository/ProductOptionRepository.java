@@ -9,7 +9,7 @@ import com.freeder.buclserver.domain.productoption.entity.ProductOption;
 
 public interface ProductOptionRepository extends JpaRepository<ProductOption, Long> {
 
-	Optional<ProductOption> findByProductAndSkuCodeAndIsExposed(Product product, String skuCode, boolean exposed);
+	Optional<ProductOption> findByProductAndSkuCodeAndIsExposed(Product product, Long skuCode, boolean exposed);
 
 	// Optional<ProductOption> findByProduct(Product product);
 }

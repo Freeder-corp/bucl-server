@@ -37,7 +37,7 @@ public class ProductOption extends TimestampMixin {
 	private Product product;
 
 	@Column(name = "sku_code", unique = true)
-	private String skuCode;
+	private Long skuCode;
 
 	@Column(name = "option_key")
 	@Enumerated(EnumType.STRING)
