@@ -23,7 +23,6 @@ import com.freeder.buclserver.domain.consumerorder.vo.CsStatus;
 import com.freeder.buclserver.domain.consumerorder.vo.OrderStatus;
 import com.freeder.buclserver.domain.consumerpayment.entity.ConsumerPayment;
 import com.freeder.buclserver.domain.consumerpurchaseorder.entity.ConsumerPurchaseOrder;
-import com.freeder.buclserver.domain.grouporder.entity.GroupOrder;
 import com.freeder.buclserver.domain.product.entity.Product;
 import com.freeder.buclserver.domain.shipping.entity.Shipping;
 import com.freeder.buclserver.domain.user.entity.User;
@@ -58,9 +57,9 @@ public class ConsumerOrder extends TimestampMixin {
 	@JoinColumn(name = "product_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private Product product;
 
-	@ManyToOne
-	@JoinColumn(name = "group_order_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-	private GroupOrder groupOrder;
+	// @ManyToOne
+	// @JoinColumn(name = "group_order_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+	// private GroupOrder groupOrder;
 
 	@OneToMany(mappedBy = "consumerOrder")
 	private List<Shipping> shippings = new ArrayList<>();
