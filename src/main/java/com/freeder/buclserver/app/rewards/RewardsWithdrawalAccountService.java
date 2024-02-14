@@ -46,13 +46,54 @@ public class RewardsWithdrawalAccountService {
 	private final UserRepository userRepository;
 
 	@Transactional
+	public boolean saveWithdrawalAccount(Long userId, String bankName, String accountNum) {
+		try {
+			User user = userRepository.findByIdAndDeletedAtIsNull(userId)
+				.orElseThrow(() -> new UserIdNotFoundException(userId));
+
+			RewardWithdrawalAccount withdrawalAccount = rewardWithdrawalAccountRepository.findByUser_Id(userId)
+				.orElse(new RewardWithdrawalAccount());
+			withdrawalAccount.setUser(user);
+			withdrawalAccount.setBankCodeStd(BANK_CODE.getCodeByBankName(bankName));
+			withdrawalAccount.setBankName(bankName);
+			withdrawalAccount.setAccountNum(accountNum);
+			withdrawalAccount.setAccountHolderName(user.getNickname());
+
+			rewardWithdrawalAccountRepository.save(withdrawalAccount);
+			return true;
+		} catch (BaseException e) {
+			throw e;
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR.value(),
+				"서버 오류 입니다.");
+		}
+	}
+
+	@Transactional
+	public WithdrawalAccountResponseDto getRewardAccount(Long userId) {
+
+		userRepository.findByIdAndDeletedAtIsNull(userId)
+			.orElseThrow(() -> new UserIdNotFoundException(userId));
+
+		RewardWithdrawalAccount withdrawalAccount = rewardWithdrawalAccountRepository.findByUser_Id(userId)
+			.orElseThrow(
+				() -> new BaseException(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value(), "해당 계정은 없습니다."));
+		return WithdrawalAccountResponseDto.builder()
+			.accountNum(withdrawalAccount.getAccountNum())
+			.bankName(withdrawalAccount.getBankName())
+			.build();
+	}
+
+	@Transactional
 	public boolean requestMatchAccountRealName(Long userId, String bankCode, String bankAccount, String realName,
 		String birthday) {
 		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
 			.orElseThrow(() -> new UserIdNotFoundException(userId));
 
-		if (birthday.length() != 6 || bankAccount.length() > 16)
+		if (birthday.length() != 6 || bankAccount.length() > 16) {
 			return false;
+		}
 
 		RestTemplate rest = new RestTemplate();
 		URI uri = URI.create(openBankingApiBaseUrl + "/v2.0/inquiry/real_name");
@@ -123,17 +164,26 @@ public class RewardsWithdrawalAccountService {
 
 	@Transactional
 	public WithdrawalAccountResponseDto getWithdrawalAccountByUserId(Long userId) {
-		Optional<RewardWithdrawalAccount> withdrawalAccountOptional = rewardWithdrawalAccountRepository.findByUser_Id(
-			userId);
+		try {
+			Optional<RewardWithdrawalAccount> withdrawalAccountOptional = rewardWithdrawalAccountRepository.findByUser_Id(
+				userId);
 
-		if (withdrawalAccountOptional.isPresent()) {
-			RewardWithdrawalAccount withdrawalAccount = withdrawalAccountOptional.get();
-			WithdrawalAccountResponseDto responseDto = new WithdrawalAccountResponseDto();
-			responseDto.setBank_name(withdrawalAccount.getBankName());
-			responseDto.setAccount_num(withdrawalAccount.getAccountNum());
-			return responseDto;
-		} else {
-			throw new BaseException(HttpStatus.NOT_FOUND, 404, "등록된 계좌가 없습니다: " + userId);
+			if (withdrawalAccountOptional.isPresent()) {
+				RewardWithdrawalAccount withdrawalAccount = withdrawalAccountOptional.get();
+				WithdrawalAccountResponseDto responseDto = WithdrawalAccountResponseDto.builder()
+					.bankName(withdrawalAccount.getAccountNum())
+					.accountNum(withdrawalAccount.getBankName())
+					.build();
+				return responseDto;
+			} else {
+				throw new BaseException(HttpStatus.NOT_FOUND, 404, "등록된 계좌가 없습니다: " + userId);
+			}
+		} catch (BaseException e) {
+			throw e;
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			throw new BaseException(HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR.value(),
+				"서버 오류 발생했습니다.");
 		}
 	}
 
