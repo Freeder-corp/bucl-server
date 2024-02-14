@@ -50,14 +50,14 @@ public class OrdersService {
 	@Value("${tracking_info.t_key}")
 	private String trackingTKey;
 
-	public OrderDetailDto readOrderDetail(String socialId, String orderCode) {
-		User consumer = userRepository.findBySocialId(socialId).orElseThrow(
+	public OrderDetailDto readOrderDetail(Long userId, String orderCode) {
+		User consumer = userRepository.findById(userId).orElseThrow(
 			() -> new UnauthorizedErrorException("인증 실패 했습니다.")
 		);
 		ConsumerOrder consumerOrder = consumerOrderRepository.findByOrderCodeAndConsumer(orderCode, consumer)
 			.orElseThrow(
 				() -> new BaseException(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value(), "주문 정보가 없습니다."));
-		if (!consumerOrder.getConsumer().getSocialId().equals(socialId)) {
+		if (!consumerOrder.getConsumer().getId().equals(userId)) {
 			throw new UnauthorizedErrorException("해당 주문 정보를 볼 권한이 없습니다.");
 		}
 		Shipping shipping = shippingRepository.findFirstByConsumerOrderAndIsActive(consumerOrder, true)
@@ -67,8 +67,8 @@ public class OrdersService {
 		return OrderDetailDto.from(consumerOrder, shipping, shippingAddress);
 	}
 
-	public List<OrderDto> readOrderList(String socialId, Pageable pageable) {
-		User user = userRepository.findBySocialId(socialId)
+	public List<OrderDto> readOrderList(Long userId, Pageable pageable) {
+		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new BadRequestErrorException("해당 유저가 없습니다."));
 		List<ConsumerOrder> consumerOrderList = consumerOrderRepository.findAllByConsumerOrderByCreatedAtDesc(user,
 			pageable).stream().toList();
@@ -81,8 +81,8 @@ public class OrdersService {
 	}
 
 	@Transactional
-	public ShpAddrDto updateOrderShpAddr(String socialId, String orderCode, ShpAddrDto shpAddrDto) {
-		User user = userRepository.findBySocialId(socialId)
+	public ShpAddrDto updateOrderShpAddr(Long userId, String orderCode, ShpAddrDto shpAddrDto) {
+		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new BadRequestErrorException("해당 유저가 없습니다."));
 		ConsumerOrder consumerOrder = consumerOrderRepository.findByOrderCodeAndConsumer(orderCode, user)
 			.orElseThrow(
@@ -110,8 +110,8 @@ public class OrdersService {
 	}
 
 	@Transactional
-	public void updateOrderConfirmation(String socialId, String orderCode) {
-		User consumer = userRepository.findBySocialId(socialId)
+	public void updateOrderConfirmation(Long userId, String orderCode) {
+		User consumer = userRepository.findById(userId)
 			.orElseThrow(() -> new BadRequestErrorException("해당 유저가 없습니다."));
 		ConsumerOrder consumerOrder = consumerOrderRepository.findByOrderCodeAndConsumer(orderCode, consumer)
 			.orElseThrow(
@@ -158,7 +158,6 @@ public class OrdersService {
 
 		if (consumerOrder.getBusiness() != null) {
 			User business = consumerOrder.getBusiness();
-			System.out.println("이야 " + business.getId());
 			int businessPrevRewardAmt = rewardRepository.findFirstByUserId(business.getId()).orElse(0);
 			int businessRcdRewardAmt = Math.round(product.getSalePrice() * product.getBusinessRewardRate());
 
