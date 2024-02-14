@@ -58,7 +58,6 @@ public class AuthController {
 	@PostMapping("/renewal/tokens")
 	public BaseResponse renewTokens(@CookieValue(name = "refresh-token", required = false) String refreshToken,
 		HttpServletResponse response) {
-		System.out.println("refreshToken: " + refreshToken);
 		TokenResponse tokens = authService.renewTokens(refreshToken);
 
 		response.addCookie(createCookie("refresh-token", tokens.refreshToken(), COOKIE_MAX_AGE_REFRESH_TOKEN));
