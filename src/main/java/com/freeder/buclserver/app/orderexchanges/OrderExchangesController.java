@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping(path = "/api/v1/order-exchanges")
 @Tag(name = "order-exchanges 관련 API", description = "주문 교환 관련 API")
 public class OrderExchangesController {
-	private String testSocialId = "3195839289"; //"3895839289";
+	private Long userId = 1L;
 	private final OrderExchangesService orderExchangesService;
 
 	@PostMapping(path = "/{order_code}/approval")
@@ -27,7 +27,7 @@ public class OrderExchangesController {
 		@PathVariable(name = "order_code") String orderCode,
 		@RequestBody OrdExchReqDto ordExchReqDto
 	) {
-		OrdExchRespDto ordExchRespDto = orderExchangesService.createOrderExchangeApproval(testSocialId, orderCode,
+		OrdExchRespDto ordExchRespDto = orderExchangesService.createOrderExchangeApproval(userId, orderCode,
 			ordExchReqDto);
 		return new BaseResponse<>(ordExchRespDto, HttpStatus.CREATED, orderCode + "에 대한 주문 교환 완료 되었습니다.");
 	}

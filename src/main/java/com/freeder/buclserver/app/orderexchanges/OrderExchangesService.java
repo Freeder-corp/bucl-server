@@ -34,9 +34,9 @@ public class OrderExchangesService {
 	private final ConsumerOrderRepository consumerOrderRepository;
 
 	@Transactional
-	public OrdExchRespDto createOrderExchangeApproval(String socialId, String orderCode,
+	public OrdExchRespDto createOrderExchangeApproval(Long userId, String orderCode,
 		OrdExchReqDto ordExchReqDto) throws NullPointerException {
-		User admin = userRepository.findBySocialId(socialId).orElseThrow(
+		User admin = userRepository.findById(userId).orElseThrow(
 			() -> new UnauthorizedErrorException("인증 실패 했습니다.")
 		);
 		if (!admin.getRole().equals(Role.ROLE_ADMIN)) {
